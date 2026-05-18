@@ -60,7 +60,7 @@ workflow {
     | collectFile(name: "cand.list", sort: true, newLine: true)
 
     REHH_PARSE_PLOT_SCAN(
-        file("${launchDir}/utils/parse_plot_rehh.R"),
+        file("${launchDir}/utils/parse_plot_xpehh.R"),
         xpehh_resultfile_list,
         xpehh_candfile_list,
         params.ref_gff,
