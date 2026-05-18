@@ -8,8 +8,8 @@ suppressMessages(library(gtools))
 args <- commandArgs(trailing = TRUE)
 if (length(args) != 8) {
   stop("USAGE: Rscript plot_xpehh.R
-  <path to list of xpehh/ihs.csv file paths>
-  <path to list of xpehh/ihs.cand.csv file paths>
+  <path to list of xpehh.csv file paths>
+  <path to list of xpehh.cand.csv file paths>
   <path to annotations .gff>
   <path to chromosome name conversion .tsv>
   <base p-value used to call candidate regions (e.g. 0.01)>
@@ -38,7 +38,7 @@ stopifnot(n_cands == n_scans)
 renamed_chrs <- read.table(chr_conversion_table)$V1
 names(renamed_chrs) <- read.table(chr_conversion_table)$V2
 
-# -------- Parse input xp-EHH and IHS .CSV files -------------------------------
+# -------- Parse input xp-EHH .CSV files ---------------------------------------
 print("Parsing input files ...")
 
 scan_list <- vector("list", length(scan_files))
@@ -47,17 +47,16 @@ cand_list <- vector("list", length(cand_files))
 for (scan_index in seq_along(scan_files)) {
 
   file_path <- scan_files[scan_index]
-
-  file_is_ihs <- "IHS" %in% colnames(read.csv(file_path, nrows = 1))
   file_nrows <- as.integer(system(paste("wc -l <", file_path), intern = TRUE))
   scan_nsnps <- file_nrows - 1
 
   tmp <- paste(tempfile(), ".csv.tmp", sep = "")
-  awk_fields <- ifelse(file_is_ihs, "'{print $1,$2,$4}'", "'{print $1,$2,$8}'")
+  awk_fields <- "'{print $1,$2,$7,$8}'"
   paste("cat", file_path, "| awk -F,", awk_fields, ">", tmp) |> system()
 
   parsed_scanfile <- read.table(tmp, header = TRUE) |>
     as_tibble() |>
+    rename(XPEHH = 3) |>
     drop_na(LOGPVALUE) |>
     mutate(SCAN = file_path) |>
     mutate(SCAN_BONFERRONI_THRESHOLD = -log10(base_pval / scan_nsnps))
