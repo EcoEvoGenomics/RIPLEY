@@ -79,6 +79,7 @@ workflow {
     xpehh_parsed_main = REHH_PARSE_PLOT_SCAN.output.mainplot
     xpehh_parsed_candplots = REHH_PARSE_PLOT_SCAN.output.candplots
     xpehh_parsed_candgenes = REHH_PARSE_PLOT_SCAN.output.candgenes
+    xpehh_parsed_candregions = REHH_PARSE_PLOT_SCAN.output.candregions
 }
 
 output {
@@ -92,4 +93,5 @@ output {
     xpehh_parsed_main { path "haplotype_selection/gw_xpehh" }
     xpehh_parsed_candplots { path "haplotype_selection/gw_xpehh" }
     xpehh_parsed_candgenes { path "haplotype_selection/gw_xpehh" }
+    xpehh_parsed_candregions { path "haplotype_selection/gw_xpehh" }
 }
