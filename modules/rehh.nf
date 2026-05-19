@@ -200,17 +200,15 @@ process REHH_PARSE_PLOT_SCAN {
     path(gff)
     path(chrom_renames)
     val(cand_pval)
-    val(width_mm)
-    val(cand_mm)
-    val(height_mm)
 
     output:
     path("*.png"), emit: mainplot
+    path("candidate_regions.csv"), emit: candregions
     path("**/*.png"), emit: candplots
     path("**/*.gff"), emit: candgenes
 
     script:
     """
-    Rscript ${parsescript} ${scans} ${cands} ${gff} ${chrom_renames} ${cand_pval} ${width_mm} ${cand_mm} ${height_mm}
+    Rscript ${parsescript} ${scans} ${cands} ${gff} ${chrom_renames} ${cand_pval} 170 170 20
     """
 }

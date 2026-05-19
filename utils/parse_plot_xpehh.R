@@ -1,6 +1,7 @@
 # All hope abandon, ye who enter here ...
 
 suppressMessages(library(tidyverse))
+suppressMessages(library(patchwork))
 suppressMessages(library(forcats))
 suppressMessages(library(gtools))
 
@@ -35,8 +36,9 @@ n_cands <- length(cand_files)
 stopifnot(n_cands == n_scans)
 
 # -------- Parse chromosomes rename tsv ----------------------------------------
-renamed_chrs <- read.table(chr_conversion_table)$V1
-names(renamed_chrs) <- read.table(chr_conversion_table)$V2
+chr_conversions <- read.table(chr_conversion_table)
+renamed_chrs <- chr_conversions$V1
+names(renamed_chrs) <- chr_conversions$V2
 
 # -------- Parse input xp-EHH .CSV files ---------------------------------------
 print("Parsing input files ...")
@@ -66,6 +68,7 @@ for (scan_index in seq_along(scan_files)) {
   invisible(gc())
 
 }
+parsed_scans <- bind_rows(scan_list)
 
 for (cand_index in seq_along(cand_files)) {
 
@@ -75,16 +78,28 @@ for (cand_index in seq_along(cand_files)) {
 
   parsed_candfile <- read.csv(file_path, header = TRUE) |>
     as_tibble() |>
-    select(CHR, START, END, MAX_MRK) |>
-    mutate(SCAN = matched_scan_path)
+    mutate(SCAN = matched_scan_path) |>
+    select(SCAN, CHR, START, END, MEAN_MRK) |>
+    rename(MEAN_LOGPVALUE = MEAN_MRK) |>
+    rowwise() |>
+    mutate(
+      MEAN_XPEHH = mean(
+        parsed_scans$XPEHH[
+          parsed_scans$SCAN == SCAN &
+          parsed_scans$CHR == CHR &
+          parsed_scans$POSITION >= START &
+          parsed_scans$POSITION <= END
+        ],
+        na.rm = TRUE
+      )
+    ) |>
+    ungroup()
 
   cand_list[[cand_index]] <- parsed_candfile
   rm(parsed_candfile)
   invisible(gc())
 
 }
-
-parsed_scans <- bind_rows(scan_list)
 parsed_cands <- bind_rows(cand_list)
 
 format_scans_cands <- function(scans_or_cands, renamed_chrs) {
@@ -97,6 +112,14 @@ format_scans_cands <- function(scans_or_cands, renamed_chrs) {
 parsed_scans <- format_scans_cands(parsed_scans, renamed_chrs)
 parsed_cands <- format_scans_cands(parsed_cands, renamed_chrs)
 
+write.csv(
+  parsed_cands |>
+    arrange(desc(abs(MEAN_XPEHH) * MEAN_LOGPVALUE)) |>
+    mutate(SCAN = tools::file_path_sans_ext(basename(as.character(SCAN)))) |>
+    mutate(SCAN = tools::file_path_sans_ext(SCAN)),
+  row.names = FALSE,
+  file = "ranked_cands.csv"
+)
 print("Input files parsed")
 
 # -------- Parse annotations from GFF file -------------------------------------
@@ -120,33 +143,37 @@ print("GFF parsed")
 
 # -------- Plotting constants --------------------------------------------------
 textsize <- 6
-constant_y_max <- max(parsed_scans$LOGPVALUE)
-constant_y_min <- -(constant_y_max / 6)
-y_gap <- constant_y_min / 3
-cand_padding <- 1e5
-
 scan_names <- unique(parsed_scans$SCAN)
-scan_labels <- tools::file_path_sans_ext((basename(scan_files)))
+scan_labels <- tools::file_path_sans_ext(basename(scan_files))
 scan_labels <- tools::file_path_sans_ext(scan_labels)
 scan_labels_for_paths <- scan_labels
 scan_labels <- str_replace_all(scan_labels, "_", " - ")
 names(scan_labels_for_paths) <- scan_names
 names(scan_labels) <- scan_names
 chr_names <- levels(parsed_scans$CHR)
-chr_labels <- chr_names
-for (chr_index in seq_along(chr_labels)) {
-  chr <- chr_labels[chr_index]
+chr_labels_main <- chr_names
+chr_labels_cand <- chr_names
+for (chr_index in seq_along(chr_names)) {
+  chr <- chr_labels_main[chr_index]
   chr_size <- max(parsed_scans$POSITION[parsed_scans$CHR == chr])
   if (nchar(chr) > (((chr_size / 1e9) * width_mm / 1.75))) {
-    chr_labels[chr_index] <- ""
+    chr_labels_main[chr_index] <- ""
   }
+  chr_labels_cand[chr_index] <- chr_conversions$V3[which(chr_conversions$V2 == as.character(chr))]
 }
-names(chr_labels) <- chr_names
-facet_labels <- c(chr_labels, scan_labels)
+names(chr_labels_main) <- chr_names
+names(chr_labels_cand) <- chr_names
+facet_labels <- c(chr_labels_main, scan_labels)
 
-axislabels_common <- list(
-  ylab(expression(bold(bolditalic("-log")[10] ~ "P")))
-)
+compared_pops <- parsed_scans |>
+  distinct(SCAN) |>
+  mutate(SCAN_LABEL = scan_labels) |>
+  group_by(SCAN) |>
+  summarise(
+    POP_A = stringr::str_split(as.character(SCAN_LABEL), " - ")[[1]][1],
+    POP_B = stringr::str_split(as.character(SCAN_LABEL), " - ")[[1]][2],
+    .groups = "drop"
+  )
 
 theme_common <- theme(
   axis.line = element_line(colour = "black", linewidth = 0.1),
@@ -164,7 +191,6 @@ theme_common <- theme(
   panel.background = element_blank(),
   panel.grid = element_blank(),
   panel.spacing.x = unit(0, "mm"),
-  panel.spacing.y = unit(5, "mm"),
   strip.background = element_blank(),
   strip.clip = "off",
   strip.text.x = element_text(
@@ -172,81 +198,180 @@ theme_common <- theme(
     size = textsize,
     margin = margin(0, 0, 0, 0, unit = "mm")
   ),
-  strip.text.y.left = element_text(
-    angle = 0,
-    colour = "black",
-    hjust = 0,
-    vjust = 1,
-    margin = margin(
-      l = 0.75,
-      r = -max(nchar(scan_labels)) / (6 / textsize),
-      unit = "mm"
-    ),
-    size = textsize
-  )
+  strip.text.y = element_blank()
 )
 
 # -------- Plot main Manhattan plot --------------------------------------------
 print("Plotting main plot ...")
 
+manhattan_ymax <- ceiling(max(parsed_scans$LOGPVALUE))
+
+chr_ranges <- parsed_scans |>
+  group_by(CHR) |>
+  summarise(
+    xmin = min(POSITION),
+    xmax = max(POSITION),
+    is_last_chr = as.logical(unique(CHR == tail(levels(parsed_scans$CHR), n = 1))),
+    .groups = "drop"
+  )
+
 manhattan <- ggplot(parsed_scans, aes(x = POSITION, y = LOGPVALUE)) +
-  coord_cartesian(clip = "off") +
   facet_grid(
     cols = vars(CHR),
     rows = vars(SCAN),
     labeller = as_labeller(facet_labels),
     scales = "free_x",
     space = "free_x",
-    switch = "both"
-  ) +
-  geom_point(
-    aes(colour = as.integer(CHR) %% 2 == 0),
-    size = 0.25, stroke = 0, show.legend = FALSE
-  ) +
-  geom_point(
-    aes(alpha = LOGPVALUE > SCAN_BONFERRONI_THRESHOLD),
-    colour = "red", size = 0.25, stroke = 0, show.legend = FALSE
+    switch = "x"
   ) +
   geom_rect(
     data = parsed_cands,
     aes(
       xmin = START,
       xmax = END,
-      ymax = y_gap,
-      ymin = y_gap + (constant_y_min - y_gap)
+      ymax = manhattan_ymax,
+      ymin = 0
     ),
     inherit.aes = FALSE,
-    fill = "red"
+    fill = "red",
+    alpha = 0.1
+  ) +
+  geom_segment(
+    data = chr_ranges,
+    aes(
+      x = xmax,
+      xend = xmax,
+      y = 0,
+      yend = manhattan_ymax,
+      alpha = is_last_chr
+    ),
+    colour = "black",
+    linewidth = 0.1,
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  ) +
+  geom_hline(
+    yintercept = manhattan_ymax,
+    colour = "black",
+    linewidth = 0.1,
+  ) +
+  geom_hline(
+    yintercept = 0,
+    colour = "black",
+    linewidth = 0.1,
+  ) +
+  geom_point(
+    size = 0.25, stroke = 0, show.legend = FALSE
+  ) +
+  geom_point(
+    aes(alpha = LOGPVALUE > SCAN_BONFERRONI_THRESHOLD),
+    colour = "red", size = 0.25, stroke = 0, show.legend = FALSE
   ) +
   scale_x_continuous(expand = expansion(add = 0)) +
   scale_y_continuous(
     guide = guide_axis(cap = TRUE),
     breaks = seq(
       from = 0,
-      to = ceiling(constant_y_max),
+      to = manhattan_ymax,
       length.out = ceiling(height_mm / 7.5)
     ),
     labels = seq(
       from = 0,
-      to = ceiling(constant_y_max),
+      to = manhattan_ymax,
       length.out = ceiling(height_mm / 7.5)
     ) |> round(digits = 0),
-    limits = c(constant_y_min, ceiling(constant_y_max))
+    limits = c(0, manhattan_ymax)
   ) +
   scale_alpha_manual(values = c(0, 1)) +
-  scale_colour_manual(values = c("black", "grey60")) +
-  axislabels_common +
+  ylab(expression(bold(bolditalic("-log")[10] ~ "P"))) +
   theme_common +
   theme(
     axis.line.x = element_blank(),
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.title.x = element_blank()
+    axis.title.x = element_blank(),
+    panel.spacing.y = unit(height_mm / 7.5, "mm")
+  )
+
+cand_summary_ymax <- ceiling(max(parsed_cands$MEAN_XPEHH))
+cand_summary_xmax <- ceiling(max(parsed_cands$MEAN_LOGPVALUE))
+cand_summary_annotations <- tibble(
+  SCAN = head(levels(parsed_cands$SCAN), n = 1),
+  annot = expression(bold(mu * "(" * bolditalic("-log")[10] ~ "P)"))
+)
+
+cand_summary_plot <- parsed_cands |>
+  ggplot(aes(y = MEAN_XPEHH, x = MEAN_LOGPVALUE)) +
+  facet_grid(
+    rows = vars(SCAN),
+    labeller = as_labeller(facet_labels)
+  ) +
+  annotate(
+    "segment",
+    x = 0, xend = cand_summary_xmax,
+    y = 0, yend = 0,
+    colour = "black",
+    linewidth = 0.1
+  ) +
+  geom_text(
+    data = cand_summary_annotations,
+    aes(label = annot),
+    x = cand_summary_xmax,
+    y = 0,
+    vjust = 1.5,
+    hjust = 1,
+    size = 2
+  ) +
+  geom_text(
+    data = compared_pops,
+    aes(label = POP_A),
+    x = cand_summary_xmax / 25,
+    y = cand_summary_ymax,
+    vjust = 1,
+    hjust = 0,
+    size = 2
+  ) +
+  geom_text(
+    data = compared_pops,
+    aes(label = POP_B),
+    x = cand_summary_xmax / 25,
+    y = -cand_summary_ymax,
+    vjust = 0,
+    hjust = 0,
+    size = 2
+  ) +
+  geom_point(size = 0.5) +
+  scale_x_continuous(
+    expand = expansion(mult = c(0, 0.05)),
+    limits = c(0, cand_summary_xmax)
+  ) +
+  scale_y_continuous(
+    guide = guide_axis(cap = TRUE),
+    breaks = seq(
+      from = -cand_summary_ymax,
+      to = cand_summary_ymax,
+      length.out = max(3, ceiling(height_mm / 7.5) + ((ceiling(height_mm / 7.5) %% 2) + 1))
+    ),
+    labels = seq(
+      from = -cand_summary_ymax,
+      to = cand_summary_ymax,
+      length.out = max(3, ceiling(height_mm / 7.5) + ((ceiling(height_mm / 7.5) %% 2) + 1))
+    ) |> round(digits = 0),
+    limits = c(-cand_summary_ymax, cand_summary_ymax)
+  ) +
+  ylab(expression(bold(mu * "(" * bolditalic("xp") * "EHH)"))) +
+  theme_common +
+  theme(
+    axis.line.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.x = element_blank(),
+    panel.spacing.y = unit(height_mm / 7.5, "mm")
   )
 
 outname <- paste(tools::file_path_sans_ext(input_scans), "_main.png", sep = "")
 ggsave(
-  manhattan,
+  (manhattan | cand_summary_plot) + plot_layout(widths = c(3, 1)),
   filename = outname,
   units = "mm",
   dpi = 1600,
@@ -258,6 +383,10 @@ print(paste("Main plot saved to ", outname, sep = ""))
 
 # -------- Plot candidate region Manhattan plots -------------------------------
 print("Plotting candidate region plots and writing candidate genes to file ...")
+
+candplot_padding <- 1e5 # How many basepairs to plot around candidate region
+candplot_ymin <- -(manhattan_ymax / 6)
+candplot_ygap <- candplot_ymin / 3
 
 cand_outputdir <- tools::file_path_sans_ext(input_scans)
 dir.create(cand_outputdir)
@@ -306,8 +435,8 @@ for (region_index in seq_len(nrow(merged_regions))) {
 
   region_start <- merged_regions$START[region_index]
   region_end <- merged_regions$END[region_index]
-  clamped_window_start <- max(chr_min, region_start - cand_padding)
-  clamped_window_end <- min(chr_max, region_end + cand_padding)
+  clamped_window_start <- max(chr_min, region_start - candplot_padding)
+  clamped_window_end <- min(chr_max, region_end + candplot_padding)
 
   chr_outputdir <- paste(cand_outputdir, "/", chr, sep = "")
   dir.create(chr_outputdir)
@@ -395,42 +524,77 @@ for (region_index in seq_len(nrow(merged_regions))) {
 
   }
 
-  region_ymax <- ceiling(max(region_scans$LOGPVALUE))
+  region_ymax <- ceiling(max(abs(region_scans$XPEHH)))
   region_ymax_padded <- region_ymax * 1.15
-  region_yratio <- region_ymax / constant_y_max
+  region_ymin <- -region_ymax
+  region_ymin_padded_axis <- -region_ymax_padded
+  region_ymin_padded_limit <- region_ymin * 2
+  region_yratio <- region_ymax / manhattan_ymax
 
-  candhattan <- ggplot(region_scans, aes(x = POSITION, y = LOGPVALUE)) +
+  candhattan <- ggplot(region_scans, aes(x = POSITION, y = XPEHH)) +
     coord_cartesian(clip = "off") +
     facet_grid(
       rows = vars(SCAN),
-      labeller = as_labeller(facet_labels),
-      switch = "y"
+      labeller = as_labeller(facet_labels)
+    ) +
+    annotate(
+      "segment",
+      x = clamped_window_start, xend = clamped_window_end,
+      y = 0, yend = 0,
+      colour = "black", linewidth = 0.1
     ) +
     geom_rect(
       data = region_cands,
       aes(
         xmin = START,
         xmax = END,
-        ymax = region_ymax,
-        ymin = 0
+        ymax = region_ymax_padded,
+        ymin = region_ymin_padded_axis
       ),
       inherit.aes = FALSE,
-      fill = "red", colour = "red",
-      linewidth = 0.1, lty = 2,
+      fill = "red", colour = NA,
       alpha = 0.05
     ) +
-    geom_point(colour = "black", size = 0.5, stroke = 0, show.legend = FALSE) +
-    geom_point(
-      aes(alpha = LOGPVALUE > SCAN_BONFERRONI_THRESHOLD),
-      colour = "red", size = 0.5, stroke = 0, show.legend = FALSE
+    geom_text(
+      data = compared_pops,
+      aes(label = POP_A),
+      x = clamped_window_start + (clamped_window_end - clamped_window_start) * 0.005,
+      y = region_ymax_padded,
+      vjust = 1,
+      hjust = 0,
+      size = 2
     ) +
-    xlab(chr) +
+    geom_text(
+      data = compared_pops,
+      aes(label = POP_B),
+      x = clamped_window_start + (clamped_window_end - clamped_window_start) * 0.005,
+      y = region_ymin_padded_axis,
+      vjust = 0,
+      hjust = 0,
+      size = 2
+    ) +
+    geom_point(colour = "black", size = 0.75, stroke = 0, show.legend = FALSE) +
+    geom_point(
+      aes(
+        alpha = LOGPVALUE > SCAN_BONFERRONI_THRESHOLD,
+        size = LOGPVALUE
+      ),
+      colour = "red", stroke = 0,
+      show.legend = FALSE
+    ) +
+    xlab(chr_labels_cand[which(names(chr_labels_cand) == chr)]) +
     scale_alpha_manual(values = c(0, 1)) +
+    scale_size(range = c(0.5, 1.5)) +
     scale_x_continuous(
       breaks = seq(
         from = clamped_window_start,
         to = clamped_window_end,
         length.out = max(2, ceiling(width_mm / 40))
+      ),
+      labels = scales::label_number(
+        accuracy = 0.1,
+        scale    = 1 / 1e6,
+        suffix   = " mbp"
       ),
       limits = c(
         clamped_window_start,
@@ -442,21 +606,21 @@ for (region_index in seq_len(nrow(merged_regions))) {
     scale_y_continuous(
       guide = guide_axis(cap = TRUE),
       breaks = seq(
-        from = 0,
+        from = region_ymin_padded_axis,
         to = region_ymax_padded,
-        length.out = ceiling(height_mm / 7.5)
+        length.out = max(3, ceiling(height_mm / 7.5) + ((ceiling(height_mm / 7.5) %% 2) + 1))
       ),
       labels = seq(
-        from = 0,
+        from = region_ymin_padded_axis,
         to = region_ymax_padded,
-        length.out = ceiling(height_mm / 7.5)
+        length.out = max(3, ceiling(height_mm / 7.5) + ((ceiling(height_mm / 7.5) %% 2) + 1))
       ) |> round(digits = 0),
       limits = c(
-        constant_y_min * region_yratio,
+        region_ymin_padded_limit + (candplot_ymin * region_yratio),
         region_ymax_padded
       )
     ) +
-    axislabels_common +
+    ylab(expression(bold(bolditalic("xp") * "EHH"))) +
     theme_common +
     theme(
       axis.title.x = element_text(
@@ -464,7 +628,8 @@ for (region_index in seq_len(nrow(merged_regions))) {
         face = "bold",
         size = textsize,
         hjust = 0.48
-      )
+      ),
+      panel.spacing.y = unit(0, "mm"),
     )
 
   # Add annotation arrows if they exist in the window
@@ -475,25 +640,21 @@ for (region_index in seq_len(nrow(merged_regions))) {
         aes(
           x = START,
           xend = END,
-          y = (constant_y_min - (constant_y_min - y_gap) / 2) * region_yratio,
-          yend = (constant_y_min - (constant_y_min - y_gap) / 2) * region_yratio,
-          colour = IS_CANDGENE
+          y = region_ymin_padded_limit + ((candplot_ymin - (candplot_ymin - candplot_ygap) / 2) * region_yratio),
+          yend = region_ymin_padded_limit + ((candplot_ymin - (candplot_ymin - candplot_ygap) / 2) * region_yratio),
+          colour = as.character(SCAN) == as.character(tail(levels(region_scans$SCAN), n = 1))
         ),
         arrow = arrow(
           angle = 30,
           length = unit(0.75, "mm"),
           type = "closed"
         ),
-        position = position_jitter(
-          width = 0,
-          height = abs((constant_y_min - y_gap) / 3) * region_yratio
-        ),
         linewidth = 0.25,
         lineend = "square",
         show.legend = FALSE,
         inherit.aes = FALSE
       ) +
-      scale_colour_manual(values = c("#bbbbff", "blue"))
+      scale_colour_manual(values = c(NA, "blue"))
   }
 
   candplot_outname <- paste(
