@@ -1,5 +1,6 @@
 /.nextflow
 /output
 /work
+/tests
 *.nextflow.log*
 *.DS_Store
