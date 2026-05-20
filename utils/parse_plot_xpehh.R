@@ -188,6 +188,7 @@ theme_common <- theme(
     size = textsize,
     face = "bold"
   ),
+  legend.position = "none",
   panel.background = element_blank(),
   panel.grid = element_blank(),
   panel.spacing.x = unit(0, "mm"),
@@ -304,7 +305,8 @@ cand_summary_plot <- parsed_cands |>
   ggplot(aes(y = MEAN_XPEHH, x = MEAN_LOGPVALUE)) +
   facet_grid(
     rows = vars(SCAN),
-    labeller = as_labeller(facet_labels)
+    labeller = as_labeller(facet_labels),
+    drop = FALSE
   ) +
   annotate(
     "segment",
@@ -370,8 +372,11 @@ cand_summary_plot <- parsed_cands |>
   )
 
 outname <- paste(tools::file_path_sans_ext(input_scans), "_main.png", sep = "")
+combined_plot <- (manhattan | cand_summary_plot) +
+  plot_layout(widths = c(3, 1), guides = "keep")
+
 ggsave(
-  (manhattan | cand_summary_plot) + plot_layout(widths = c(3, 1)),
+  combined_plot,
   filename = outname,
   units = "mm",
   dpi = 1600,
