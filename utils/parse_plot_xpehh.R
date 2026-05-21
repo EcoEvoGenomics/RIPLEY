@@ -118,7 +118,7 @@ write.csv(
     mutate(SCAN = tools::file_path_sans_ext(basename(as.character(SCAN)))) |>
     mutate(SCAN = tools::file_path_sans_ext(SCAN)),
   row.names = FALSE,
-  file = "ranked_cands.csv"
+  file = "candidate_regions.csv"
 )
 print("Input files parsed")
 
