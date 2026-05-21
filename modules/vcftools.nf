@@ -1,3 +1,20 @@
+process VCFTOOLS_EXCLUDE_BED {
+
+    label "VCFTOOLS"
+
+    input:
+    path(vcf)
+    path(bed)
+
+    output:
+    path("${vcf.simpleName}_bed_excluded.vcf.gz")
+
+    script:
+    """
+    vcftools --gzvcf ${vcf} --exclude-bed ${bed} --recode --stdout | gzip -c > ${vcf.simpleName}_bed_excluded.vcf.gz
+    """
+}
+
 process VCFTOOLS_SNP_DENSITY {
 
     label "VCFTOOLS"

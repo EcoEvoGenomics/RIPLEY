@@ -41,6 +41,7 @@ pw_compare_species: true
 
 ######### hs: Haplotype Selection #########
 hs_vcfdir: 
+hs_exclude_bedfile: 
 hs_is_polarised: false
 hs_populations: [ ]
 hs_ihs_freqbin: 1
