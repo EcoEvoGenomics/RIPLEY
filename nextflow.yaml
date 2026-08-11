@@ -14,7 +14,7 @@ vd_n_sampled_sites: 100000
 
 ######### ps: Population Structure ########
 ps_vcf: 
-ps_exclude_chroms: [ ]
+ps_exclude_chroms: [ NA ] ## Known error: if this is empty, pipeline exits early. Use arbitary string, e.g. NA, to exclude no chromosomes.
 ps_prune_window_kb: 50
 ps_prune_step_snps: 10
 ps_prune_threshold: 0.1
