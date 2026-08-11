@@ -35,8 +35,8 @@ process WINPCA_CHROM {
     """
     echo -e "sample_id\\tspecies\\tpopulation" > metadata.tsv
     cat ${metadata_csv} | awk -F, '{print \$1"\\t"\$2"\\t"\$3}' >> metadata.tsv
-    python winpca pca ${vcf.simpleName}_${chrom} ${vcf} ${chrom}:1-${chrom_length} --np
-    python winpca chromplot ${vcf.simpleName}_${chrom} ${chrom}:1-${chrom_length} -m metadata.tsv -g species
+    python3 winpca pca ${vcf.simpleName}_${chrom} ${vcf} ${chrom}:1-${chrom_length} --np
+    python3 winpca chromplot ${vcf.simpleName}_${chrom} ${chrom}:1-${chrom_length} -m metadata.tsv -g species
     """
 }
 
@@ -58,7 +58,7 @@ process WINPCA_GENOMEPLOT {
     """
     echo -e "sample_id\\tspecies\\tpopulation" > metadata.tsv
     cat ${metadata_csv} | awk -F, '{print \$1"\\t"\$2"\\t"\$3}' >> metadata.tsv
-    python winpca genomeplot ${vcf.simpleName}_ '${chrom_list}' -m metadata.tsv -g species
+    python3 winpca genomeplot ${vcf.simpleName}_ '${chrom_list}' -m metadata.tsv -g species
     mv ${vcf.simpleName}_.genomeplot.pc_1.html ${vcf.simpleName}.genomeplot.pc_1.html 
     """
 }
