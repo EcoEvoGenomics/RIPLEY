@@ -29,7 +29,7 @@ process ADMIXTURE_AIMS {
     label "RBASE"
 
     input:
-    path(pfile)
+    each(pfile)
     path(snplist)
     val(variance_threshold)
 

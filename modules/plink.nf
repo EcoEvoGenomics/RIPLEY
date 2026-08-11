@@ -98,7 +98,7 @@ process PLINK_EXTRACT_SITES {
 
     input:
     tuple path(bed), path(bim), path(fam), val(n_chroms)
-    path(sitelist)
+    each(sitelist)
 
     output:
     tuple \
