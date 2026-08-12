@@ -1,9 +1,9 @@
-include { WRITE_POPULATION_CENSUS_LIST } from "../modules/system.nf"
-include { VCFTOOLS_CALCULATE_PAIRWISE_FST } from "../modules/vcftools.nf"
-include { GET_WINPCA; WINPCA_CHROM; WINPCA_GENOMEPLOT } from "../modules/winpca.nf"
-include { PLINK_INIT_BEDFILES; PLINK_EXCLUDE_CHROMS; PLINK_LD_PRUNE; PLINK_PCA; PLINK_MISSINGNESS; PLINK_TO_VCF; PLINK_TO_VCF as AIMS_TO_VCF } from "../modules/plink.nf"
-include { PLINK_EXTRACT_SITES as PLINK_EXTRACT_PRUNED; PLINK_EXTRACT_SITES as PLINK_EXTRACT_AIMS } from "../modules/plink.nf"
-include { ADMIXTURE; ADMIXTURE_AIMS } from "../modules/admixture.nf"
+include { WRITE_POPULATION_CENSUS_LIST } from "../source/nextflow/processes/system.nf"
+include { VCFTOOLS_CALCULATE_PAIRWISE_FST } from "../source/nextflow/processes/vcftools.nf"
+include { GET_WINPCA; WINPCA_CHROM; WINPCA_GENOMEPLOT } from "../source/nextflow/processes/winpca.nf"
+include { PLINK_INIT_BEDFILES; PLINK_EXCLUDE_CHROMS; PLINK_LD_PRUNE; PLINK_PCA; PLINK_MISSINGNESS; PLINK_TO_VCF; PLINK_TO_VCF as AIMS_TO_VCF } from "../source/nextflow/processes/plink.nf"
+include { PLINK_EXTRACT_SITES as PLINK_EXTRACT_PRUNED; PLINK_EXTRACT_SITES as PLINK_EXTRACT_AIMS } from "../source/nextflow/processes/plink.nf"
+include { ADMIXTURE; ADMIXTURE_AIMS } from "../source/nextflow/processes/admixture.nf"
 
 nextflow.preview.output = true
 

@@ -1,7 +1,7 @@
-include { BCFTOOLS_INDEX; BCFTOOLS_SAMPLE_VCF } from "../modules/bcftools.nf"
-include { VCFTOOLS_SNP_DENSITY; PLOT_VCFTOOLS_SNP_DENSITY } from "../modules/vcftools.nf"
-include { VCFTOOLS_CALCULATE_RELATEDNESS; PLOT_VCFTOOLS_RELATEDNESS } from "../modules/vcftools.nf"
-include { VCFTOOLS_VCF_STATS; PLOT_VCFTOOLS_VCF_STATS } from "../modules/vcftools.nf"
+include { BCFTOOLS_INDEX; BCFTOOLS_SAMPLE_VCF } from "../source/nextflow/modules/bcftools.nf"
+include { VCFTOOLS_SNP_DENSITY; PLOT_VCFTOOLS_SNP_DENSITY } from "../source/nextflow/modules/vcftools.nf"
+include { VCFTOOLS_CALCULATE_RELATEDNESS; PLOT_VCFTOOLS_RELATEDNESS } from "../source/nextflow/modules/vcftools.nf"
+include { VCFTOOLS_VCF_STATS; PLOT_VCFTOOLS_VCF_STATS } from "../source/nextflow/modules/vcftools.nf"
 
 nextflow.preview.output = true
 

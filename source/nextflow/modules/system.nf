@@ -37,7 +37,7 @@ process JOIN_GROUPED_CSVS {
     """
 }
 
-process WRITE_POPULATION_CENSUS_LIST {
+process WRITE_POPULATION_CENSUS {
 
     label "SYSTEM"
 

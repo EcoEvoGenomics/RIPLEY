@@ -1,9 +1,9 @@
-include { WRITE_POPULATION_CENSUS_LIST; JOIN_GROUPED_CSVS } from "../modules/system.nf"
-include { VCFTOOLS_EXCLUDE_BED } from "../modules/vcftools.nf"
-include { BCFTOOLS_PICK_SAMPLES } from "../modules/bcftools.nf"
-include { REHH_LOAD_VCF; REHH_SCAN_HAPLOTYPE_HOMOZYGOSITY } from "../modules/rehh.nf"
-include { REHH_CALCULATE_IHS; REHH_CALCULATE_XPEHH } from "../modules/rehh.nf"
-include { REHH_PARSE_PLOT_SCAN } from "../modules/rehh.nf"
+include { WRITE_POPULATION_CENSUS; JOIN_GROUPED_CSVS } from "../source/nextflow/modules/system.nf"
+include { VCFTOOLS_EXCLUDE_BED } from "../source/nextflow/modules/vcftools.nf"
+include { BCFTOOLS_PICK_SAMPLES } from "../source/nextflow/modules/bcftools.nf"
+include { REHH_LOAD_VCF; REHH_SCAN_HAPLOTYPE_HOMOZYGOSITY } from "../source/nextflow/modules/rehh.nf"
+include { REHH_CALCULATE_IHS; REHH_CALCULATE_XPEHH } from "../source/nextflow/modules/rehh.nf"
+include { REHH_PARSE_PLOT_SCAN } from "../source/nextflow/modules/rehh.nf"
 
 nextflow.preview.output = true
 
@@ -13,7 +13,7 @@ workflow {
     vcfs = Channel.fromPath("${params.hs_vcfdir}/**.vcf.gz")
     vcfs_preprocessed = VCFTOOLS_EXCLUDE_BED(vcfs, params.hs_exclude_bedfile)
     
-    pop_vcfs = WRITE_POPULATION_CENSUS_LIST(pops, params.metadata) \
+    pop_vcfs = WRITE_POPULATION_CENSUS(pops, params.metadata) \
     | combine(vcfs_preprocessed) \
     | BCFTOOLS_PICK_SAMPLES
 
@@ -62,7 +62,7 @@ workflow {
     | collectFile(name: "cand.list", sort: true, newLine: true)
 
     REHH_PARSE_PLOT_SCAN(
-        file("${launchDir}/utils/parse_plot_xpehh.R"),
+        file("${launchDir}/source/R/parse_plot_xpehh.R"),
         xpehh_resultfile_list,
         xpehh_candfile_list,
         params.ref_gff,
