@@ -117,38 +117,42 @@ process PLOT_VCFTOOLS_RELATEDNESS {
     script:
     """
     #!/usr/bin/env Rscript
-    library(ggplot2)
+    library(tidyverse)
+    library(pheatmap)
 
-    max_phi <- 0.5
-    second_degree_relative_min_phi <- 1/(2^(7/2))
+    tbl <- read.table("${relatedness.toString()}", header = TRUE) |>
+        select(INDV1, INDV2, RELATEDNESS_PHI) |>
+        pivot_wider(names_from = INDV2, values_from = RELATEDNESS_PHI) |>
+        column_to_rownames("INDV1")
 
-    tbl <- read.table("${relatedness.toString()}", header = TRUE)
-    n_inds <- tbl\$INDV1 |> unique() |> length()
+    second_degree_relatedness <- 1/(2^(7/2))
+    highlights <- as.matrix(tbl)
+    highlights <- formatC(highlights, format = "g", digits = 2)
+    highlights[is.na(highlights) | highlights <= second_degree_relatedness] <- ""
 
-    plt <- tbl |>
-        ggplot(mapping = aes(x = INDV1, y = INDV2, fill = (10^RELATEDNESS_PHI) / 10^max_phi)) +
-        coord_equal(expand = FALSE) +
-        geom_raster(show.legend = FALSE) +
-        geom_point(
-            mapping = aes(alpha = (INDV1 != INDV2) & (RELATEDNESS_PHI > second_degree_relative_min_phi)),
-            pch = ".", colour = "red", show.legend = FALSE
-        ) +
-        scale_alpha_manual(values = c(0, 1)) +
-        scale_fill_viridis_c(option = "inferno") +
-        theme(
-            axis.text.y = element_text(size = 3, hjust = 1, vjust = 0.5),
-            axis.text.x = element_text(size = 3, hjust = 1, vjust = 0.5, angle = 90),
-            axis.ticks = element_line(linewidth = 0.1),
-            axis.title = element_blank()
-        )
+    plt <- pheatmap(
+        mat = tbl,
+        color = viridisLite::inferno(100),
+        clustering_method = "ward.D2",
+        border_color = NA,
+        legend = FALSE,
+        display_numbers = highlights,
+        number_color = "red",
+        fontsize_number = 5
+    )
 
-    inches_per_ind <- 0.05
+    n_inds <- nrow(tbl)
+    inches_per_ind <- 0.25
+
     ggsave(
+        plot = plt,
         filename = "${relatedness.simpleName}.png",
         dpi = 600,
         height = n_inds * inches_per_ind,
-        width = n_inds * inches_per_ind
+        width = n_inds * inches_per_ind,
+        bg = "white"
     )
+
     """
 }
 

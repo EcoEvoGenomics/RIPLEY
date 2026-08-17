@@ -1,5 +1,6 @@
 include { PARSE_GENOME_INDEX } from "../source/nextflow/workflows/PARSE_GENOME_INDEX.nf"
 include { PARSE_VCF_FILE } from "../source/nextflow/workflows/PARSE_VCF_FILE.nf"
+include { RUN_KINSHIP_ANALYSIS } from "../source/nextflow/workflows/RUN_KINSHIP_ANALYSIS.nf"
 include { RUN_PAIRWISE_FST } from "../source/nextflow/workflows/RUN_PAIRWISE_FST.nf"
 include { RUN_LD_PRUNING } from "../source/nextflow/workflows/RUN_LD_PRUNING.nf"
 include { RUN_ADMIXTURE } from "../source/nextflow/workflows/RUN_ADMIXTURE.nf"
@@ -15,6 +16,7 @@ workflow {
     bed = input.bedfiles
 
     // UNPRUNED ANALYSES
+    RUN_KINSHIP_ANALYSIS(vcf)
     RUN_PAIRWISE_FST(vcf, params.ps_fst_populations, params.metadata)
 
     // LD-PRUNED ANALYSES
@@ -23,6 +25,8 @@ workflow {
     RUN_PCA(pruned)
 
     publish:
+    kinship_table = RUN_KINSHIP_ANALYSIS.out.table
+    kinship_matrix = RUN_KINSHIP_ANALYSIS.out.matrix
     pairwise_mean_fst = RUN_PAIRWISE_FST.out.mean_fst
     admixture = RUN_ADMIXTURE.out.results
     aim_vcf = RUN_ADMIXTURE.out.aim_vcf
@@ -30,6 +34,8 @@ workflow {
 }
 
 output {
+    kinship_table { path "population_structure/kinship" }
+    kinship_matrix { path "population_structure/kinship" }
     pairwise_mean_fst { path "population_structure/fst" }
     admixture { path "population_structure/admixture" }
     aim_vcf { path "population_structure/aims" }

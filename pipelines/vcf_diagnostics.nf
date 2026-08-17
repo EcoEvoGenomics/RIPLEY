@@ -1,6 +1,5 @@
 include { BCFTOOLS_INDEX; BCFTOOLS_SAMPLE_VCF } from "../source/nextflow/modules/bcftools.nf"
 include { VCFTOOLS_SNP_DENSITY; PLOT_VCFTOOLS_SNP_DENSITY } from "../source/nextflow/modules/vcftools.nf"
-include { VCFTOOLS_CALCULATE_RELATEDNESS; PLOT_VCFTOOLS_RELATEDNESS } from "../source/nextflow/modules/vcftools.nf"
 include { VCFTOOLS_VCF_STATS; PLOT_VCFTOOLS_VCF_STATS } from "../source/nextflow/modules/vcftools.nf"
 
 nextflow.preview.output = true
@@ -14,9 +13,6 @@ workflow {
 
     vcf_indexed = BCFTOOLS_INDEX(vcf)
     vcf_downsampled = BCFTOOLS_SAMPLE_VCF(vcf_indexed, params.vd_n_sampled_sites)
-
-    relatedness = VCFTOOLS_CALCULATE_RELATEDNESS(vcf_downsampled)
-    PLOT_VCFTOOLS_RELATEDNESS(relatedness)
 
     VCFTOOLS_VCF_STATS(vcf_downsampled)
     frq = VCFTOOLS_VCF_STATS.out.frq
@@ -32,8 +28,6 @@ workflow {
     publish:
     snp_density = VCFTOOLS_SNP_DENSITY.out
     snp_density_plot = PLOT_VCFTOOLS_SNP_DENSITY.out
-    relatedness = relatedness
-    relatedness_plot = PLOT_VCFTOOLS_RELATEDNESS.out
     frq = frq
     idepth = idepth
     imiss = imiss
@@ -48,8 +42,6 @@ workflow {
 output {
     snp_density { path "vcf_diagnostics/snp_density" }
     snp_density_plot { path "vcf_diagnostics/snp_density" }
-    relatedness { path "vcf_diagnostics/relatedness" }
-    relatedness_plot { path "vcf_diagnostics/relatedness" }
     frq { path "vcf_diagnostics/vcf_stats" }
     idepth { path "vcf_diagnostics/vcf_stats" }
     imiss { path "vcf_diagnostics/vcf_stats" }
