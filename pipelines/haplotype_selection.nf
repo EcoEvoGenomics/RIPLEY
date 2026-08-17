@@ -1,3 +1,4 @@
+include { PAIR_CHANNEL_TO_SELF } from "../source/nextflow/workflows/PAIR_CHANNEL_TO_SELF.nf"
 include { WRITE_POPULATION_CENSUS; JOIN_GROUPED_CSVS } from "../source/nextflow/modules/system.nf"
 include { VCFTOOLS_EXCLUDE_BED } from "../source/nextflow/modules/vcftools.nf"
 include { BCFTOOLS_PICK_SAMPLES } from "../source/nextflow/modules/bcftools.nf"
@@ -23,6 +24,8 @@ workflow {
     | map { scan -> tuple(scan.name.tokenize("_").get(0), scan) } \
     | groupTuple(by: 0) \
     | JOIN_GROUPED_CSVS
+    pairwise_pop_scans = PAIR_CHANNEL_TO_SELF(pop_scans)
+
     REHH_CALCULATE_IHS(
         pop_scans,
         params.hs_is_polarised,
@@ -35,14 +38,6 @@ workflow {
         params.hs_cand_min_perc_extr_mrk
     )
 
-    // Pairwise channel self-comparison without item self-comparison by David Mas-Ponte
-    // https://github.com/nextflow-io/nextflow/discussions/2109
-
-    pairwise_pop_scans = pop_scans \
-    | combine(pop_scans) \
-    | filter { scan -> scan[0] != scan[1] } \
-    | map { scan -> scan.sort() } \
-    | unique
     REHH_CALCULATE_XPEHH(
         pairwise_pop_scans,
         params.hs_cand_pval,
