@@ -61,7 +61,7 @@ workflow {
         xpehh_resultfile_list,
         xpehh_candfile_list,
         params.ref_gff,
-        params.ref_chr_renames_tsv,
+        params.ref_chroms_renamed,
         params.hs_cand_pval
     )
 

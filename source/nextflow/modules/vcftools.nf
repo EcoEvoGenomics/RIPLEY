@@ -22,7 +22,6 @@ process VCFTOOLS_SNP_DENSITY {
     input:
     path(vcf)
     val(binsize)
-    val(scaffold_name)
 
     output:
     path("${vcf.simpleName}.snpden")
@@ -30,8 +29,6 @@ process VCFTOOLS_SNP_DENSITY {
     script:
     """
     vcftools --gzvcf ${vcf} --SNPdensity ${binsize} --out ${vcf.simpleName}
-    grep -v ${scaffold_name} ${vcf.simpleName}.snpden > ${vcf.simpleName}.snpden.tmp
-    mv ${vcf.simpleName}.snpden.tmp ${vcf.simpleName}.snpden
     """
 }
 
@@ -152,35 +149,94 @@ process PLOT_VCFTOOLS_RELATEDNESS {
         width = n_inds * inches_per_ind,
         bg = "white"
     )
-
     """
 }
 
 process PLOT_VCFTOOLS_SNP_DENSITY {
 
-    label "RBASE"
+    label "RPLOT"
 
     input:
     path(snpden)
+    path(chrom_conversions)
+    val(plot_chroms)
 
     output:
-    path("${snpden}.pdf")
+    path("${snpden}.png")
 
     script:
     """
     #!/usr/bin/env Rscript
-    tbl <- read.table("${snpden.toString()}", header = TRUE)
-    chroms <- unique(tbl["CHROM"]) |> as.vector() |> unlist()
-    ymax <- tbl["SNP_COUNT"] |> max()
-    plotgrid_ncol <- 6
-    plotgrid_nrow <- ceiling(length(chroms) / plotgrid_ncol)
-    pdf("${snpden}.pdf", width = 20, height = 20)
-    par(mfrow = c(plotgrid_nrow, plotgrid_ncol))
-    for (chrom in chroms) {
-        plot(data = tbl[which(tbl\$CHROM == chrom), ], SNP_COUNT ~ BIN_START, type = "l", col = "red", ylim = c(0, ymax))
-        title(main = chrom)
-    }
-    dev.off()
+    library(tidyverse)
+
+    chroms <- strsplit("${plot_chroms}", ",")[[1]]
+
+    tbl <- read.table("${snpden}", header = TRUE)
+    tbl <- filter(tbl, CHROM %in% chroms)
+
+    chr_conversions <- read.table("${chrom_conversions}")
+    chr_conversions <- filter(chr_conversions, V1 %in% chroms)
+    renamed_chrs <- chr_conversions\$V1
+    names(renamed_chrs) <- chr_conversions\$V2
+
+    bin_size <- tbl\$BIN_START[2] - tbl\$BIN_START[1]
+    xmax <- max(tbl\$BIN_START) + bin_size
+
+    plt <- tbl |>
+    ggplot(
+        aes(
+        x = BIN_START,
+        y = factor(CHROM, levels = rev(chroms)),
+        fill = log10(SNP_COUNT)
+        )
+    ) +
+    geom_tile(height = 0.75) +
+    scale_fill_viridis_c(
+        name = expression(log[10] ~ (SNPs)),
+        option = "magma"
+    ) +
+    scale_x_continuous(
+        guide = guide_axis(cap = TRUE),
+        expand = expansion(add = 0),
+        limits = c((xmax * -0.015), (xmax * 1.03)),
+        breaks = seq(from = 0, to = xmax, length.out = 3),
+        labels = scales::label_number(
+        accuracy = 1,
+        scale    = 1 / 1e6,
+        suffix   = " mbp"
+        )
+    ) +
+    scale_y_discrete(
+        expand = c(0.025),
+        labels = rev(names(renamed_chrs))
+    ) +
+    theme_void() +
+    theme(
+        axis.line.x = element_line(colour = "black", linewidth = 0.1),
+        axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 6, hjust = 1),
+        axis.ticks.length = unit(0.5, "mm"),
+        axis.ticks.x = element_line(colour = "black", linewidth = 0.1),
+        legend.position = "inside",
+        legend.position.inside = c(0.95, 0.1),
+        legend.text = element_text(size = 6),
+        legend.ticks = element_blank(),
+        legend.title = element_text(size = 6, face = "bold", hjust = 1),
+        legend.key.width  = unit(0.3, "cm"),
+        legend.key.height = unit(0.4, "cm")
+    )
+
+    n_chroms <- length(chroms)
+    inches_per_chrom <- 0.15
+
+    ggsave(
+        plot = plt,
+        filename = "${snpden}.png",
+        dpi = 600,
+        height = n_chroms * inches_per_chrom,
+        width = 6.75,
+        bg = "white"
+    )
     """
 }
 

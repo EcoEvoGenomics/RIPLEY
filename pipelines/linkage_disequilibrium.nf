@@ -8,7 +8,7 @@ workflow {
     
     PLINK_INIT_BEDFILES(vcf, params.ref_n_chroms)
     PLINK_PAIRWISE_LD(PLINK_INIT_BEDFILES.out, params.ld_thin, params.ld_window, params.ld_window_kb)
-    PARSE_PLINK_LD_DECAY(PLINK_PAIRWISE_LD.out, params.ref_scaffold_name, params.ld_bin_size)
+    PARSE_PLINK_LD_DECAY(PLINK_PAIRWISE_LD.out, params.ref_exclude_prefix, params.ld_bin_size)
     PLOT_PLINK_LD_DECAY(PARSE_PLINK_LD_DECAY.out, params.ld_window_kb)
 
     publish:

@@ -4,17 +4,17 @@ ref_genome:
 ref_genome_index: 
 ref_ploidy: 
 ref_gff: 
-ref_scaffold_name: 
-ref_chr_renames_tsv: 
+ref_chroms_renamed: 
+ref_exclude_chroms: [ ]
+ref_exclude_prefix: 
 
 ########## vd: VCF Diagnostics ############
 vd_vcf: 
 vd_snpden_binsize: 100000
-vd_n_sampled_sites: 100000
+vd_thin_to: 100000
 
 ######### ps: Population Structure ########
 ps_vcf: 
-ps_exclude_chroms: [ ]
 ps_prune_window_kb: 50
 ps_prune_step_snps: 10
 ps_prune_threshold: 0.1

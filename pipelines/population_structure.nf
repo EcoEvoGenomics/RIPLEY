@@ -10,7 +10,7 @@ nextflow.preview.output = true
 
 workflow {
     main:
-    index = PARSE_GENOME_INDEX(params.ref_genome_index, params.ps_exclude_chroms, params.ref_scaffold_name)
+    index = PARSE_GENOME_INDEX(params.ref_genome_index, params.ref_exclude_chroms, params.ref_exclude_prefix)
     input = PARSE_VCF_FILE(params.ps_vcf, index.count, index.excluded)
     vcf = input.vcf
     bed = input.bedfiles

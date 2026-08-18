@@ -92,27 +92,6 @@ process PLINK_LD_PRUNE {
     """
 }
 
-process PLINK_EXCLUDE_CHROMS {
-    
-    label "PLINK"
-
-    input:
-    tuple path(bed), path(bim), path(fam), val(n_chroms)
-    val(exclude_chroms)
-
-    output:
-    tuple path(bed), path(bim), path(fam), val(n_chroms)
-
-    script:
-    """
-    plink \
-    --bfile ${bed.simpleName} \
-    --allow-extra-chr --chr-set ${n_chroms} \
-    --not-chr ${exclude_chroms} \
-    --make-bed --out ${bed.simpleName}
-    """
-}
-
 process PLINK_EXTRACT_SITES {
     
     label "PLINK"

@@ -1,54 +1,34 @@
-include { BCFTOOLS_INDEX; BCFTOOLS_SAMPLE_VCF } from "../source/nextflow/modules/bcftools.nf"
-include { VCFTOOLS_SNP_DENSITY; PLOT_VCFTOOLS_SNP_DENSITY } from "../source/nextflow/modules/vcftools.nf"
-include { VCFTOOLS_VCF_STATS; PLOT_VCFTOOLS_VCF_STATS } from "../source/nextflow/modules/vcftools.nf"
+include { PARSE_GENOME_INDEX } from "../source/nextflow/workflows/PARSE_GENOME_INDEX.nf"
+include { PARSE_VCF_FILE } from "../source/nextflow/workflows/PARSE_VCF_FILE.nf"
+include { THIN_VCF } from "../source/nextflow/workflows/THIN_VCF.nf"
+include { RUN_SNP_DENSITY } from "../source/nextflow/workflows/RUN_SNP_DENSITY.nf"
+include { RUN_VCF_STATS } from "../source/nextflow/workflows/RUN_VCF_STATS.nf"
+
 
 nextflow.preview.output = true
 
 workflow {
     main:
-    vcf = file(params.vd_vcf)
+    index = PARSE_GENOME_INDEX(params.ref_genome_index, params.ref_exclude_chroms, params.ref_exclude_prefix)
+    input = PARSE_VCF_FILE(params.vd_vcf, index.count, index.excluded)
+    vcf_annot = input.vcf_annot
+    vcf = input.vcf
     
-    snp_density_whole_vcf = VCFTOOLS_SNP_DENSITY(vcf, params.vd_snpden_binsize, params.ref_scaffold_name)
-    PLOT_VCFTOOLS_SNP_DENSITY(snp_density_whole_vcf)
+    downsampled = THIN_VCF(vcf_annot, params.vd_thin_to)
 
-    vcf_indexed = BCFTOOLS_INDEX(vcf)
-    vcf_downsampled = BCFTOOLS_SAMPLE_VCF(vcf_indexed, params.vd_n_sampled_sites)
-
-    VCFTOOLS_VCF_STATS(vcf_downsampled)
-    frq = VCFTOOLS_VCF_STATS.out.frq
-    idepth = VCFTOOLS_VCF_STATS.out.idepth
-    imiss = VCFTOOLS_VCF_STATS.out.imiss
-    ldepth_mean = VCFTOOLS_VCF_STATS.out.ldepth_mean
-    lqual = VCFTOOLS_VCF_STATS.out.lqual
-    lmiss = VCFTOOLS_VCF_STATS.out.lmiss
-    het = VCFTOOLS_VCF_STATS.out.het
-    hwe = VCFTOOLS_VCF_STATS.out.hwe
-    PLOT_VCFTOOLS_VCF_STATS(vcf_downsampled, frq, idepth, imiss, ldepth_mean, lqual, lmiss, het, hwe)
+    RUN_SNP_DENSITY(vcf, params.vd_snpden_binsize, params.ref_chroms_renamed, index.kept)
+    RUN_VCF_STATS(downsampled)
 
     publish:
-    snp_density = VCFTOOLS_SNP_DENSITY.out
-    snp_density_plot = PLOT_VCFTOOLS_SNP_DENSITY.out
-    frq = frq
-    idepth = idepth
-    imiss = imiss
-    ldepth_mean = ldepth_mean
-    lqual = lqual
-    lmiss = lmiss
-    het = het
-    hwe = hwe
-    vcf_stats_plot = PLOT_VCFTOOLS_VCF_STATS.out
+    snpden_data = RUN_SNP_DENSITY.out.data
+    snpden_plot = RUN_SNP_DENSITY.out.plot
+    stats_data = RUN_VCF_STATS.out.data
+    stats_plot = RUN_VCF_STATS.out.plot
 }
 
 output {
-    snp_density { path "vcf_diagnostics/snp_density" }
-    snp_density_plot { path "vcf_diagnostics/snp_density" }
-    frq { path "vcf_diagnostics/vcf_stats" }
-    idepth { path "vcf_diagnostics/vcf_stats" }
-    imiss { path "vcf_diagnostics/vcf_stats" }
-    ldepth_mean { path "vcf_diagnostics/vcf_stats" }
-    lqual { path "vcf_diagnostics/vcf_stats" }
-    lmiss { path "vcf_diagnostics/vcf_stats" }
-    het { path "vcf_diagnostics/vcf_stats" }
-    hwe { path "vcf_diagnostics/vcf_stats" }
-    vcf_stats_plot { path "vcf_diagnostics/vcf_stats" }
+    snpden_data { path "vcf_diagnostics" }
+    snpden_plot { path "vcf_diagnostics" }
+    stats_data { path "vcf_diagnostics" }
+    stats_plot { path "vcf_diagnostics" }
 }

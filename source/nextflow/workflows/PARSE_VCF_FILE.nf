@@ -1,4 +1,5 @@
-include {PLINK_INIT_BEDFILES; PLINK_EXCLUDE_CHROMS; PLINK_TO_VCF} from "../modules/plink.nf"
+include { BCFTOOLS_EXCLUDE_CHROMS } from "../modules/bcftools.nf"
+include { PLINK_INIT_BEDFILES; PLINK_TO_VCF } from "../modules/plink.nf"
 
 workflow PARSE_VCF_FILE {
 
@@ -8,11 +9,12 @@ workflow PARSE_VCF_FILE {
     exclude_chroms
 
     main:
-    init_bedfiles = PLINK_INIT_BEDFILES(vcf_path, n_chroms)
-    filtered_bedfiles = PLINK_EXCLUDE_CHROMS(init_bedfiles, exclude_chroms)
-    vcf = PLINK_TO_VCF(filtered_bedfiles)
+    vcf_annotated = BCFTOOLS_EXCLUDE_CHROMS(vcf_path, exclude_chroms)
+    bedfiles = PLINK_INIT_BEDFILES(vcf_annotated, n_chroms)
+    vcf_condensed = PLINK_TO_VCF(bedfiles)
 
     emit:
-    vcf = vcf
-    bedfiles = filtered_bedfiles
+    vcf = vcf_condensed
+    vcf_annot = vcf_annotated
+    bedfiles = bedfiles
 }
