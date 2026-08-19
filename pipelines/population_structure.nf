@@ -1,4 +1,4 @@
-include { PARSE_GENOME_INDEX } from "../source/nextflow/workflows/PARSE_GENOME_INDEX.nf"
+include { PARSE_REFERENCE_GENOME } from "../source/nextflow/workflows/PARSE_REFERENCE_GENOME.nf"
 include { PARSE_VCF_FILE } from "../source/nextflow/workflows/PARSE_VCF_FILE.nf"
 include { RUN_KINSHIP_ANALYSIS } from "../source/nextflow/workflows/RUN_KINSHIP_ANALYSIS.nf"
 include { RUN_PAIRWISE_FST } from "../source/nextflow/workflows/RUN_PAIRWISE_FST.nf"
@@ -10,8 +10,8 @@ nextflow.preview.output = true
 
 workflow {
     main:
-    index = PARSE_GENOME_INDEX(params.ref_genome_index, params.ref_exclude_chroms, params.ref_exclude_prefix)
-    input = PARSE_VCF_FILE(params.ps_vcf, index.count, index.excluded)
+    genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix)
+    input = PARSE_VCF_FILE(params.ps_vcf, genome.n_chroms, genome.excluded)
     vcf = input.vcf
     bed = input.bedfiles
 

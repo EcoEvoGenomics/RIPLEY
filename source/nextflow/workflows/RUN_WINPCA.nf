@@ -4,13 +4,13 @@ workflow RUN_WINPCA {
 
     take:
     vcf
-    genome_index
+    genome
     metadata
 
     main:
     repo = GET_WINPCA()
-    data = WINPCA_CHROM(repo, metadata, vcf.combine(genome_index.parsed))
-    genome_plot = WINPCA_GENOMEPLOT(repo, vcf, metadata, data.data.collect(), genome_index.kept)
+    data = WINPCA_CHROM(repo, metadata, vcf.combine(genome.index))
+    genome_plot = WINPCA_GENOMEPLOT(repo, vcf, metadata, data.data.collect(), genome.included)
 
     emit:
     data = data.data

@@ -1,0 +1,46 @@
+workflow PARSE_REFERENCE_GENOME {
+
+    take:
+    genome_path
+    exclude_chroms
+    exclude_pattern
+
+    main:
+    def pattern = exclude_pattern ?: null
+    def exclude = (exclude_chroms instanceof List)
+        ? exclude_chroms as List
+        : exclude_chroms != null
+            ? [exclude_chroms]
+            : []
+
+    genome = channel.fromPath("${genome_path}")
+
+    genome_index = Channel.fromPath("${genome_path}.fai")
+        .splitCsv( sep:"\t")
+        .map { row -> [row[0], row[1]] }
+        .branch { row ->
+            excluded: pattern != null && row[0].toString().contains(pattern) || exclude.contains(row[0])
+            included: true
+        }
+
+    excluded_index = genome_index.excluded
+    included_index = genome_index.included
+
+    excluded_as_string = excluded_index
+        .map { row -> row[0] }
+        .collect()
+        .map { names -> names.join(",") }
+
+    included_as_string = included_index
+        .map { row -> row[0] }
+        .collect()
+        .map { names -> names.join(",") }
+
+    emit:
+    genome = genome
+    index = included_index
+    n_chroms = included_index.count()
+    excluded = excluded_as_string
+    included = included_as_string
+
+}

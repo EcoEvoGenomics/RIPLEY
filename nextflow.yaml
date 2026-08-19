@@ -1,12 +1,11 @@
 ################# Shared ##################
 metadata: 
 ref_genome: 
-ref_genome_index: 
-ref_ploidy: 
-ref_gff: 
-ref_chroms_renamed: 
 ref_exclude_chroms: [ ]
 ref_exclude_prefix: 
+ref_chroms_renamed: 
+ref_ploidy: 
+ref_gff: 
 
 ########## vd: VCF Diagnostics ############
 vd_vcf: 
