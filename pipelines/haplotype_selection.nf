@@ -80,7 +80,7 @@ workflow {
 }
 
 output {
-    haplohh { path "haplotype_selection/chr_haplohh"}
+    haplohh { path "haplotype_selection/chrom_haplohh"}
     pop_scans { path "haplotype_selection/gw_ihh" }
     ihs_csv { path "haplotype_selection/gw_ihs" }
     ihs_rds { path "haplotype_selection/gw_ihs" }

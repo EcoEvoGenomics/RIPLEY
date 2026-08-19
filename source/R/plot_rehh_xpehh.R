@@ -22,7 +22,7 @@ if (length(args) != 8) {
 input_scans <- args[1]
 input_cands <- args[2]
 input_gff <- args[3]
-chr_conversion_table <- args[4]
+chrom_conversions <- args[4]
 base_pval <- as.double(args[5])
 width_mm <- as.integer(args[6])
 cand_mm <- as.integer(args[7])
@@ -36,9 +36,9 @@ n_cands <- length(cand_files)
 stopifnot(n_cands == n_scans)
 
 # -------- Parse chromosomes rename tsv ----------------------------------------
-chr_conversions <- read.table(chr_conversion_table)
-renamed_chrs <- chr_conversions$V1
-names(renamed_chrs) <- chr_conversions$V2
+chrom_conversions <- read.table(chrom_conversions)
+renamed_chroms <- chrom_conversions$V1
+names(renamed_chroms) <- chrom_conversions$V2
 
 # -------- Parse input xp-EHH .CSV files ---------------------------------------
 print("Parsing input files ...")
@@ -102,15 +102,15 @@ for (cand_index in seq_along(cand_files)) {
 }
 parsed_cands <- bind_rows(cand_list)
 
-format_scans_cands <- function(scans_or_cands, renamed_chrs) {
+format_scans_cands <- function(scans_or_cands, renamed_chroms) {
   scans_or_cands <- scans_or_cands |>
     mutate(SCAN = factor(SCAN, levels = unique(SCAN))) |>
     mutate(CHR = factor(CHR, levels = gtools::mixedsort(unique(CHR)))) |>
-    mutate(across(CHR, \(x) fct_recode(x, !!!renamed_chrs)))
+    mutate(across(CHR, \(x) fct_recode(x, !!!renamed_chroms)))
 }
 
-parsed_scans <- format_scans_cands(parsed_scans, renamed_chrs)
-parsed_cands <- format_scans_cands(parsed_cands, renamed_chrs)
+parsed_scans <- format_scans_cands(parsed_scans, renamed_chroms)
+parsed_cands <- format_scans_cands(parsed_cands, renamed_chroms)
 
 write.csv(
   parsed_cands |>
@@ -137,7 +137,7 @@ annots <- input_gff |>
   ) |>
   filter(FEATURE == "gene") |>
   mutate(CHR = factor(CHR)) |>
-  mutate(across(CHR, \(x) fct_recode(x, !!!renamed_chrs)))
+  mutate(across(CHR, \(x) fct_recode(x, !!!renamed_chroms)))
 
 print("GFF parsed")
 
@@ -150,20 +150,20 @@ scan_labels_for_paths <- scan_labels
 scan_labels <- str_replace_all(scan_labels, "_", " - ")
 names(scan_labels_for_paths) <- scan_names
 names(scan_labels) <- scan_names
-chr_names <- levels(parsed_scans$CHR)
-chr_labels_main <- chr_names
-chr_labels_cand <- chr_names
-for (chr_index in seq_along(chr_names)) {
-  chr <- chr_labels_main[chr_index]
-  chr_size <- max(parsed_scans$POSITION[parsed_scans$CHR == chr])
-  if (nchar(chr) > (((chr_size / 1e9) * width_mm / 1.75))) {
-    chr_labels_main[chr_index] <- ""
+chrom_names <- levels(parsed_scans$CHR)
+chrom_labels_main <- chrom_names
+chrom_labels_cand <- chrom_names
+for (chrom_index in seq_along(chrom_names)) {
+  chrom <- chrom_labels_main[chrom_index]
+  chrom_size <- max(parsed_scans$POSITION[parsed_scans$CHR == chrom])
+  if (nchar(chrom) > (((chrom_size / 1e9) * width_mm / 1.75))) {
+    chrom_labels_main[chrom_index] <- ""
   }
-  chr_labels_cand[chr_index] <- chr_conversions$V3[which(chr_conversions$V2 == as.character(chr))]
+  chrom_labels_cand[chrom_index] <- chrom_conversions$V3[which(chrom_conversions$V2 == as.character(chrom))]
 }
-names(chr_labels_main) <- chr_names
-names(chr_labels_cand) <- chr_names
-facet_labels <- c(chr_labels_main, scan_labels)
+names(chrom_labels_main) <- chrom_names
+names(chrom_labels_cand) <- chrom_names
+facet_labels <- c(chrom_labels_main, scan_labels)
 
 compared_pops <- parsed_scans |>
   distinct(SCAN) |>
@@ -207,7 +207,7 @@ print("Plotting main plot ...")
 
 manhattan_ymax <- ceiling(max(parsed_scans$LOGPVALUE))
 
-chr_ranges <- parsed_scans |>
+chrom_ranges <- parsed_scans |>
   group_by(CHR) |>
   summarise(
     xmin = min(POSITION),
@@ -238,7 +238,7 @@ manhattan <- ggplot(parsed_scans, aes(x = POSITION, y = LOGPVALUE)) +
     alpha = 0.1
   ) +
   geom_segment(
-    data = chr_ranges,
+    data = chrom_ranges,
     aes(
       x = xmax,
       xend = xmax,
@@ -434,35 +434,35 @@ merged_regions <- parsed_cands |>
 
 for (region_index in seq_len(nrow(merged_regions))) {
 
-  chr <- as.character(merged_regions$CHR[region_index])
-  chr_min <- 0
-  chr_max <- max(parsed_scans$POSITION[parsed_scans$CHR == chr])
+  chrom <- as.character(merged_regions$CHR[region_index])
+  chrom_min <- 0
+  chrom_max <- max(parsed_scans$POSITION[parsed_scans$CHR == chrom])
 
   region_start <- merged_regions$START[region_index]
   region_end <- merged_regions$END[region_index]
-  clamped_window_start <- max(chr_min, region_start - candplot_padding)
-  clamped_window_end <- min(chr_max, region_end + candplot_padding)
+  clamped_window_start <- max(chrom_min, region_start - candplot_padding)
+  clamped_window_end <- min(chrom_max, region_end + candplot_padding)
 
-  chr_outputdir <- paste(cand_outputdir, "/", chr, sep = "")
-  dir.create(chr_outputdir)
+  chrom_outputdir <- paste(cand_outputdir, "/", chrom, sep = "")
+  dir.create(chrom_outputdir)
 
   region_scans <- parsed_scans |>
-    filter(CHR == chr) |>
+    filter(CHR == chrom) |>
     filter(POSITION >= clamped_window_start) |>
     filter(POSITION <= clamped_window_end) |>
     mutate(SCAN = factor(SCAN)) |>
     droplevels()
 
   region_cands <- parsed_cands |>
-    filter(CHR == chr) |>
+    filter(CHR == chrom) |>
     filter(START >= clamped_window_start) |>
-    mutate(END = ifelse(END > chr_max, chr_max, END)) |>
+    mutate(END = ifelse(END > chrom_max, chrom_max, END)) |>
     filter(END <= clamped_window_end) |>
     mutate(SCAN = factor(SCAN, levels = levels(region_scans$SCAN))) |>
     droplevels()
 
   region_annots <- annots |>
-    filter(CHR == chr) |>
+    filter(CHR == chrom) |>
     filter(START >= clamped_window_start) |>
     filter(END <= clamped_window_end)
 
@@ -506,7 +506,7 @@ for (region_index in seq_len(nrow(merged_regions))) {
       }
 
       candgenes_outname <- paste(
-        chr_outputdir, "/", chr,
+        chrom_outputdir, "/", chrom,
         "_", format(region_start, scientific = FALSE),
         "_", format(region_end, scientific = FALSE),
         "_", scan_labels_for_paths[which(names(scan_labels_for_paths) == scan)],
@@ -587,7 +587,7 @@ for (region_index in seq_len(nrow(merged_regions))) {
       colour = "red", stroke = 0,
       show.legend = FALSE
     ) +
-    xlab(chr_labels_cand[which(names(chr_labels_cand) == chr)]) +
+    xlab(chrom_labels_cand[which(names(chrom_labels_cand) == chrom)]) +
     scale_alpha_manual(values = c(0, 1)) +
     scale_size(range = c(0.5, 1.5)) +
     scale_x_continuous(
@@ -663,8 +663,8 @@ for (region_index in seq_len(nrow(merged_regions))) {
   }
 
   candplot_outname <- paste(
-    chr_outputdir, "/",
-    chr, "_", format(region_start, scientific = FALSE),
+    chrom_outputdir, "/",
+    chrom, "_", format(region_start, scientific = FALSE),
     "_", format(region_end, scientific = FALSE), ".png",
     sep = ""
   )

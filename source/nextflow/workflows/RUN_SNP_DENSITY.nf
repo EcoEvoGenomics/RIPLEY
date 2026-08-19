@@ -6,12 +6,12 @@ workflow RUN_SNP_DENSITY {
     take:
     vcf
     bin_size
-    chr_conversion_table
+    chrom_conversions
     plot_chroms
 
     main:
     data = VCFTOOLS_SNP_DENSITY(vcf, bin_size)
-    plot = PLOT_VCFTOOLS_SNP_DENSITY(data, chr_conversion_table, plot_chroms)
+    plot = PLOT_VCFTOOLS_SNP_DENSITY(data, chrom_conversions, plot_chroms)
 
     emit:
     data = data

@@ -4,7 +4,6 @@ process PLOT_PLINK_LD_DECAY {
 
     input:
     path(ld_decay_bins)
-    val(ld_window_kb)
 
     output:
     path("${ld_decay_bins}.png")
@@ -14,10 +13,10 @@ process PLOT_PLINK_LD_DECAY {
     #!/usr/bin/env Rscript
     library(ggplot2)
     tbl <- read.table("${ld_decay_bins.toString()}", header = TRUE)
-    ordered_chrs <- unique(tbl\$CHR)
-    tbl\$CHR <- factor(tbl\$CHR, levels = ordered_chrs)
-    chr_count <- length(unique(tbl\$CHR))
-    png("${ld_decay_bins}.png", height = chr_count / 2, width = chr_count / 2, units = "in", res = 600)
+    ordered_chroms <- unique(tbl\$CHR)
+    tbl\$CHR <- factor(tbl\$CHR, levels = ordered_chroms)
+    chrom_count <- length(unique(tbl\$CHR))
+    png("${ld_decay_bins}.png", height = chrom_count / 2, width = chrom_count / 2, units = "in", res = 600)
     tbl |>
         ggplot(aes(x = DIST, y = AVG_R2)) +
         geom_point(alpha = 0.1, stroke = NA) +
@@ -37,11 +36,11 @@ process PLOT_REHH_XPEHH {
     label "RPLOT"
 
     input:
-    path(parsescript)
+    path(plot_script)
     path(scans)
     path(cands)
     path(gff)
-    path(chrom_renames)
+    path(chrom_conversions)
     val(cand_pval)
 
     output:
@@ -52,7 +51,7 @@ process PLOT_REHH_XPEHH {
 
     script:
     """
-    Rscript ${parsescript} ${scans} ${cands} ${gff} ${chrom_renames} ${cand_pval} 170 170 20
+    Rscript ${plot_script} ${scans} ${cands} ${gff} ${chrom_conversions} ${cand_pval} 170 170 20
     """
 }
 
@@ -129,10 +128,10 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
     tbl <- read.table("${snpden}", header = TRUE)
     tbl <- filter(tbl, CHROM %in% chroms)
 
-    chr_conversions <- read.table("${chrom_conversions}")
-    chr_conversions <- filter(chr_conversions, V1 %in% chroms)
-    renamed_chrs <- chr_conversions\$V1
-    names(renamed_chrs) <- chr_conversions\$V2
+    chrom_conversions <- read.table("${chrom_conversions}")
+    chrom_conversions <- filter(chrom_conversions, V1 %in% chroms)
+    renamed_chroms <- chrom_conversions\$V1
+    names(renamed_chroms) <- chrom_conversions\$V2
 
     bin_size <- tbl\$BIN_START[2] - tbl\$BIN_START[1]
     xmax <- max(tbl\$BIN_START) + bin_size
@@ -163,7 +162,7 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
     ) +
     scale_y_discrete(
         expand = c(0.025),
-        labels = rev(names(renamed_chrs))
+        labels = rev(names(renamed_chroms))
     ) +
     theme_void() +
     theme(

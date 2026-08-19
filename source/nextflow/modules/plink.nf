@@ -236,9 +236,9 @@ process PARSE_PLINK_LD_DECAY {
     for line in file:
 
         line = line.strip().split()
-        chr = line[0]
+        chrom = line[0]
 
-        if "${scaffold_name}" in str(chr):
+        if "${scaffold_name}" in str(chrom):
             continue
 
         pos1 = int(line[1])
@@ -246,11 +246,11 @@ process PARSE_PLINK_LD_DECAY {
         dist = abs(pos1 - pos2)
         ld = float(line[6])
 
-        if not chr in chroms:
-            chroms[chr] = dict()
-        if not dist in chroms[chr]:
-            chroms[chr][dist] = list()
-        chroms[chr][dist].append([ld])
+        if not chrom in chroms:
+            chroms[chrom] = dict()
+        if not dist in chroms[chrom]:
+            chroms[chrom][dist] = list()
+        chroms[chrom][dist].append([ld])
 
         lines_read += 1
         if (lines_read % flush_every) == 0:
@@ -264,13 +264,13 @@ process PARSE_PLINK_LD_DECAY {
     outfile.write("CHR\\tDIST\\tAVG_R2\\tSTD\\tN_SNP\\n")
 
     bin_size = int("${bin_size}")
-    for chr in chroms:
+    for chrom in chroms:
 
         dist_bins = dict()
 
-        for dist in sorted(chroms[chr]):
+        for dist in sorted(chroms[chrom]):
             bin = int(round(dist - (bin_size / 2), -len(str(bin_size)) + 1)) + (bin_size / 2)
-            lds = np.array(chroms[chr][dist])
+            lds = np.array(chroms[chrom][dist])
             if not bin in dist_bins:
                 dist_bins[bin] = lds
                 continue
@@ -280,7 +280,7 @@ process PARSE_PLINK_LD_DECAY {
             mean = np.mean(dist_bins[bin])
             std = np.std(dist_bins[bin])
             nsnp = np.shape(dist_bins[bin])[0]
-            outfile.write("%s\\t%d\\t%g\\t%g\\t%s\\n" % (chr.decode(), bin, mean, std, nsnp))
+            outfile.write("%s\\t%d\\t%g\\t%g\\t%s\\n" % (chrom.decode(), bin, mean, std, nsnp))
 
     outfile.close()
     """
