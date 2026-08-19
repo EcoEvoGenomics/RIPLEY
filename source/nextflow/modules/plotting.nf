@@ -46,13 +46,14 @@ process PLOT_VCFTOOLS_RELATEDNESS {
     input:
     path(plot_script)
     path(relatedness)
+    path(metadata)
 
     output:
     path("*.png")
 
     script:
     """
-    Rscript ${plot_script} ${relatedness}
+    Rscript ${plot_script} ${relatedness} ${metadata}
     """
 }
 

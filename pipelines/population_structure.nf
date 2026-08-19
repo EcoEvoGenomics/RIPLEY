@@ -16,7 +16,7 @@ workflow {
     bed = input.bedfiles
 
     // UNPRUNED ANALYSES
-    RUN_KINSHIP_ANALYSIS(vcf)
+    RUN_KINSHIP_ANALYSIS(vcf, params.metadata)
     RUN_PAIRWISE_FST(vcf, params.ps_fst_populations, params.metadata)
 
     // LD-PRUNED ANALYSES
