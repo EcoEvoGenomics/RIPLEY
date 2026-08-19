@@ -4,7 +4,7 @@ include { VCFTOOLS_EXCLUDE_BED } from "../source/nextflow/modules/vcftools.nf"
 include { BCFTOOLS_PICK_SAMPLES } from "../source/nextflow/modules/bcftools.nf"
 include { REHH_LOAD_VCF; REHH_SCAN_HAPLOTYPE_HOMOZYGOSITY } from "../source/nextflow/modules/rehh.nf"
 include { REHH_CALCULATE_IHS; REHH_CALCULATE_XPEHH } from "../source/nextflow/modules/rehh.nf"
-include { REHH_PARSE_PLOT_SCAN } from "../source/nextflow/modules/rehh.nf"
+include { PLOT_REHH_XPEHH } from "../source/nextflow/modules/plotting.nf"
 
 nextflow.preview.output = true
 
@@ -56,8 +56,8 @@ workflow {
     | map { cand -> "${cand.toString()}" } \
     | collectFile(name: "cand.list", sort: true, newLine: true)
 
-    REHH_PARSE_PLOT_SCAN(
-        file("${launchDir}/source/R/parse_plot_xpehh.R"),
+    PLOT_REHH_XPEHH(
+        file("${launchDir}/source/R/plot_rehh_xpehh.R.R"),
         xpehh_resultfile_list,
         xpehh_candfile_list,
         params.ref_gff,
@@ -73,10 +73,10 @@ workflow {
     ihs_candidate_regions = REHH_CALCULATE_IHS.out.candidates
     xpehh = REHH_CALCULATE_XPEHH.out.csv
     xpehh_candidate_regions = REHH_CALCULATE_XPEHH.out.candidates
-    xpehh_parsed_main = REHH_PARSE_PLOT_SCAN.output.mainplot
-    xpehh_parsed_candplots = REHH_PARSE_PLOT_SCAN.output.candplots
-    xpehh_parsed_candgenes = REHH_PARSE_PLOT_SCAN.output.candgenes
-    xpehh_parsed_candregions = REHH_PARSE_PLOT_SCAN.output.candregions
+    xpehh_parsed_main = PLOT_REHH_XPEHH.output.mainplot
+    xpehh_parsed_candplots = PLOT_REHH_XPEHH.output.candplots
+    xpehh_parsed_candgenes = PLOT_REHH_XPEHH.output.candgenes
+    xpehh_parsed_candregions = PLOT_REHH_XPEHH.output.candregions
 }
 
 output {

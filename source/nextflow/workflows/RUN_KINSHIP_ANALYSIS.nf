@@ -1,4 +1,5 @@
-include { VCFTOOLS_CALCULATE_RELATEDNESS; PLOT_VCFTOOLS_RELATEDNESS } from "../modules/vcftools.nf"
+include { VCFTOOLS_CALCULATE_RELATEDNESS } from "../modules/vcftools.nf"
+include { PLOT_VCFTOOLS_RELATEDNESS } from "../modules/plotting.nf"
 
 workflow RUN_KINSHIP_ANALYSIS {
 

@@ -1,4 +1,5 @@
-include { VCFTOOLS_SNP_DENSITY; PLOT_VCFTOOLS_SNP_DENSITY } from "../modules/vcftools.nf"
+include { VCFTOOLS_SNP_DENSITY } from "../modules/vcftools.nf"
+include { PLOT_VCFTOOLS_SNP_DENSITY } from "../modules/plotting.nf"
 
 workflow RUN_SNP_DENSITY {
 

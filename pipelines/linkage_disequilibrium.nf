@@ -1,4 +1,5 @@
-include { PLINK_INIT_BEDFILES; PLINK_PAIRWISE_LD; PARSE_PLINK_LD_DECAY; PLOT_PLINK_LD_DECAY } from "../source/nextflow/modules/plink.nf"
+include { PLINK_INIT_BEDFILES; PLINK_PAIRWISE_LD; PARSE_PLINK_LD_DECAY } from "../source/nextflow/modules/plink.nf"
+include { PLOT_PLINK_LD_DECAY } from "../source/nextflow/modules/plotting.nf"
 
 nextflow.preview.output = true
 

@@ -188,27 +188,3 @@ process REHH_CALCULATE_XPEHH {
     write.csv(cr, row.names = FALSE, file = "${csv_a.simpleName}_${csv_b.simpleName}.xpehh.cand.csv")
     """
 }
-
-process REHH_PARSE_PLOT_SCAN {
-
-    label "RPLOT"
-
-    input:
-    path(parsescript)
-    path(scans)
-    path(cands)
-    path(gff)
-    path(chrom_renames)
-    val(cand_pval)
-
-    output:
-    path("*.png"), emit: mainplot
-    path("candidate_regions.csv"), emit: candregions
-    path("**/*.png"), emit: candplots
-    path("**/*.gff"), emit: candgenes
-
-    script:
-    """
-    Rscript ${parsescript} ${scans} ${cands} ${gff} ${chrom_renames} ${cand_pval} 170 170 20
-    """
-}
