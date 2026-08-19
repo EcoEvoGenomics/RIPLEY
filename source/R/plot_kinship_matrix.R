@@ -18,6 +18,8 @@ highlights[is.na(highlights) | highlights <= second_degree_relatedness] <- ""
 kinship_matrix <- pheatmap(
   mat = data,
   color = viridisLite::inferno(100),
+  clustering_distance_rows = dist(1 - data),
+  clustering_distance_cols = dist(1 - data),
   clustering_method = "ward.D2",
   border_color = NA,
   legend = FALSE,
