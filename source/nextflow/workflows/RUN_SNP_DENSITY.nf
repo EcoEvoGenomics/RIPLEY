@@ -11,7 +11,7 @@ workflow RUN_SNP_DENSITY {
 
     main:
     data = VCFTOOLS_SNP_DENSITY(vcf, bin_size)
-    plot = PLOT_VCFTOOLS_SNP_DENSITY(data, chrom_conversions, plot_chroms)
+    plot = PLOT_VCFTOOLS_SNP_DENSITY("${launchDir}/source/R/plot_snp_density.R", data, plot_chroms, chrom_conversions)
 
     emit:
     data = data

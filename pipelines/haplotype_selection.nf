@@ -57,7 +57,7 @@ workflow {
     | collectFile(name: "cand.list", sort: true, newLine: true)
 
     PLOT_REHH_XPEHH(
-        file("${launchDir}/source/R/plot_rehh_xpehh.R.R"),
+        file("${launchDir}/source/R/plot_xpehh.R"),
         xpehh_resultfile_list,
         xpehh_candfile_list,
         params.ref_gff,

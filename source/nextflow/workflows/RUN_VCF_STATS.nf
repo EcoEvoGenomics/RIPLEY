@@ -16,7 +16,7 @@ workflow RUN_VCF_STATS {
     lmiss = VCFTOOLS_VCF_STATS.out.lmiss
     het = VCFTOOLS_VCF_STATS.out.het
     hwe = VCFTOOLS_VCF_STATS.out.hwe
-    PLOT_VCFTOOLS_VCF_STATS(vcf, frq, idepth, imiss, ldepth_mean, lqual, lmiss, het, hwe)
+    PLOT_VCFTOOLS_VCF_STATS("${launchDir}/source/R/plot_vcf_statistics.R", frq, idepth, imiss, ldepth_mean, lqual, lmiss, het, hwe)
 
     emit:
     plot = PLOT_VCFTOOLS_VCF_STATS.out

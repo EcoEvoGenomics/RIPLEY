@@ -1,9 +1,9 @@
 # All hope abandon, ye who enter here ...
 
-suppressMessages(library(tidyverse))
-suppressMessages(library(patchwork))
-suppressMessages(library(forcats))
-suppressMessages(library(gtools))
+library(tidyverse)
+library(patchwork)
+library(forcats)
+library(gtools)
 
 # -------- Parse command line arguments ----------------------------------------
 args <- commandArgs(trailing = TRUE)
