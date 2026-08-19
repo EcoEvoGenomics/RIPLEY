@@ -15,6 +15,7 @@ workflow RUN_PAIRWISE_FST {
     results = VCFTOOLS_CALCULATE_PAIRWISE_FST(vcf.combine(pairwise_pop_censuses))
 
     emit:
-    mean_fst = results.means
-    site_fst = results.full
+    data = results.full
+    mean = results.means
+
 }

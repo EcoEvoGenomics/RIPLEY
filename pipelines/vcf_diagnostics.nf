@@ -11,10 +11,10 @@ workflow {
     main:
     index = PARSE_GENOME_INDEX(params.ref_genome_index, params.ref_exclude_chroms, params.ref_exclude_prefix)
     input = PARSE_VCF_FILE(params.vd_vcf, index.count, index.excluded)
-    vcf_annot = input.vcf_annot
+    vcf_annotated = input.vcf_annotated
     vcf = input.vcf
     
-    downsampled = THIN_VCF(vcf_annot, params.vd_thin_to)
+    downsampled = THIN_VCF(vcf_annotated, params.vd_thin_to)
 
     RUN_SNP_DENSITY(vcf, params.vd_snpden_binsize, params.ref_chroms_renamed, index.kept)
     RUN_VCF_STATS(downsampled)

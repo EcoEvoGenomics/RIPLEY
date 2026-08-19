@@ -16,4 +16,5 @@ workflow RUN_SNP_DENSITY {
     emit:
     data = data
     plot = plot
+    
 }

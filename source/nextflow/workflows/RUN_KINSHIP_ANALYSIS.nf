@@ -7,11 +7,11 @@ workflow RUN_KINSHIP_ANALYSIS {
     vcf
 
     main:
-    kinship_table = VCFTOOLS_CALCULATE_RELATEDNESS(vcf)
-    matrix = PLOT_VCFTOOLS_RELATEDNESS(kinship_table)
+    kinship = VCFTOOLS_CALCULATE_RELATEDNESS(vcf)
+    matrix = PLOT_VCFTOOLS_RELATEDNESS(kinship)
 
     emit:
-    table = kinship_table
-    matrix = matrix
+    data = kinship
+    plot = matrix
 
 }

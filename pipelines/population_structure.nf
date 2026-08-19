@@ -25,11 +25,11 @@ workflow {
     RUN_PCA(pruned)
 
     publish:
-    kinship_table = RUN_KINSHIP_ANALYSIS.out.table
-    kinship_matrix = RUN_KINSHIP_ANALYSIS.out.matrix
-    pairwise_mean_fst = RUN_PAIRWISE_FST.out.mean_fst
-    admixture = RUN_ADMIXTURE.out.results
-    aim_vcf = RUN_ADMIXTURE.out.aim_vcf
+    kinship_table = RUN_KINSHIP_ANALYSIS.out.data
+    kinship_matrix = RUN_KINSHIP_ANALYSIS.out.plot
+    pairwise_mean_fst = RUN_PAIRWISE_FST.out.mean
+    admixture = RUN_ADMIXTURE.out.data
+    aims = RUN_ADMIXTURE.out.aims
     pca = RUN_PCA.out
 }
 
@@ -38,6 +38,6 @@ output {
     kinship_matrix { path "population_structure/kinship" }
     pairwise_mean_fst { path "population_structure/fst" }
     admixture { path "population_structure/admixture" }
-    aim_vcf { path "population_structure/aims" }
+    aims { path "population_structure/aims" }
     pca { path "population_structure/pca" }
 }

@@ -6,9 +6,9 @@ workflow RUN_PCA {
     bedfiles
 
     main:
-    results = PLINK_PCA(bedfiles)
+    data = PLINK_PCA(bedfiles)
 
     emit:
-    results
+    data
 
 }

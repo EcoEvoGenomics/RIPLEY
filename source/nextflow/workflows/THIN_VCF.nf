@@ -12,4 +12,5 @@ workflow THIN_VCF {
 
     emit:
     thinned
+    
 }

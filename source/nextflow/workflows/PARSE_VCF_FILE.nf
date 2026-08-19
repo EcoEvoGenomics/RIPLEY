@@ -14,7 +14,8 @@ workflow PARSE_VCF_FILE {
     vcf_condensed = PLINK_TO_VCF(bedfiles)
 
     emit:
-    vcf = vcf_condensed
-    vcf_annot = vcf_annotated
     bedfiles = bedfiles
+    vcf = vcf_condensed
+    vcf_annotated = vcf_annotated
+
 }
