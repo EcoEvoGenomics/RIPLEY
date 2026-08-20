@@ -41,7 +41,7 @@ process BCFTOOLS_CALL_REGION_VARIANTS {
     """
 }
 
-process BCFTOOLS_EXCLUDE_CHROMS {
+process BCFTOOLS_SELECT_CHROMS {
 
     label "BCFTOOLS"
 
@@ -50,15 +50,16 @@ process BCFTOOLS_EXCLUDE_CHROMS {
     val(chrom_string)
 
     output:
-    path("${vcf.simpleName}_excl.vcf.gz")
+    path("${vcf.simpleName}.vcf.gz")
 
     script:
     """
     bcftools view \
         --threads ${task.cpus} \
-        --targets ^${chrom_string} \
-        --output-type z --output ${vcf.simpleName}_excl.vcf.gz \
+        --targets ${chrom_string} \
+        --output-type z --output ${vcf.simpleName}_tmp.vcf.gz \
         ${vcf}
+    mv ${vcf.simpleName}_tmp.vcf.gz ${vcf.SimpleName}.vcf.gz
     """
 }
 
