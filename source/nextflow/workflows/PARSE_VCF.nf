@@ -14,7 +14,7 @@ workflow PARSE_VCF {
     if (file(vcf_path).isDirectory()) {
 
         if (!permit_dir) {
-            exit(1, "ERROR: This pipeline can only process a single VCF file.")
+            exit(1, "This pipeline can only process a single VCF file.")
         }
 
         vcf_annotated = Channel.fromPath("${vcf_path}/**.vcf.gz")

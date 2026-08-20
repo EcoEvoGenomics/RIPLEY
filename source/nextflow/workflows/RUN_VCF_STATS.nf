@@ -7,26 +7,11 @@ workflow RUN_VCF_STATS {
     vcf
 
     main:
-    VCFTOOLS_VCF_STATS(vcf)
-    frq = VCFTOOLS_VCF_STATS.out.frq
-    idepth = VCFTOOLS_VCF_STATS.out.idepth
-    imiss = VCFTOOLS_VCF_STATS.out.imiss
-    ldepth_mean = VCFTOOLS_VCF_STATS.out.ldepth_mean
-    lqual = VCFTOOLS_VCF_STATS.out.lqual
-    lmiss = VCFTOOLS_VCF_STATS.out.lmiss
-    het = VCFTOOLS_VCF_STATS.out.het
-    hwe = VCFTOOLS_VCF_STATS.out.hwe
-    PLOT_VCFTOOLS_VCF_STATS("${launchDir}/source/R/plot_vcf_statistics.R", frq, idepth, imiss, ldepth_mean, lqual, lmiss, het, hwe)
+    stats = VCFTOOLS_VCF_STATS(vcf)
+    PLOT_VCFTOOLS_VCF_STATS("${launchDir}/source/R/plot_vcf_statistics.R", stats)
 
     emit:
     plot = PLOT_VCFTOOLS_VCF_STATS.out
-    data = frq
-        .combine(idepth)
-        .combine(imiss)
-        .combine(ldepth_mean)
-        .combine(lqual)
-        .combine(lmiss)
-        .combine(het)
-        .combine(hwe)
+    data = stats.collect()
 
 }

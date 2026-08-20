@@ -82,14 +82,15 @@ process PLOT_VCFTOOLS_VCF_STATS {
 
     input:
     path(plot_script)
-    path(frq)
-    path(idepth)
-    path(imiss)
-    path(ldepth_mean)
-    path(lqual)
-    path(lmiss)
-    path(het)
-    path(hwe)
+    tuple \
+        path(frq),
+        path(idepth),
+        path(imiss),
+        path(ldepth_mean),
+        path(lqual),
+        path(lmiss),
+        path(het),
+        path(hwe)
 
     output:
     path("*.png")

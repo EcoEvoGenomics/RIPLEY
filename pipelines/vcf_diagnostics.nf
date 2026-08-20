@@ -11,7 +11,7 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix)
-    input = PARSE_VCF(params.vd_vcf, genome.n_chroms, genome.included, permit_dir: true)
+    input = PARSE_VCF(params.vd_vcf, genome.n_chroms, genome.included, true)
     vcf_annotated = input.vcf_annotated
     vcf = input.vcf
     

@@ -52,7 +52,7 @@ density_plot <- data |>
     axis.ticks.x = element_line(colour = "black", linewidth = 0.1),
     legend.position = "bottom",
     legend.justification.bottom = c("right", "top"),
-    legend.margin = margin(r = 0.5, unit = "cm"),
+    legend.margin = margin(t = -0.2, r = 0.5, unit = "cm"),
     legend.text = element_text(size = 6),
     legend.ticks = element_blank(),
     legend.title = element_text(size = 6, face = "bold", vjust = 0.85),

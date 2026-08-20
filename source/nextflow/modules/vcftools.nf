@@ -40,14 +40,15 @@ process VCFTOOLS_VCF_STATS {
     path(vcf)
 
     output:
-    path("${vcf.simpleName}.frq"), emit: frq
-    path("${vcf.simpleName}.idepth"), emit: idepth
-    path("${vcf.simpleName}.imiss"), emit: imiss
-    path("${vcf.simpleName}.ldepth.mean"), emit: ldepth_mean
-    path("${vcf.simpleName}.lqual"), emit: lqual
-    path("${vcf.simpleName}.lmiss"), emit: lmiss
-    path("${vcf.simpleName}.het"), emit: het
-    path("${vcf.simpleName}.hwe"), emit: hwe
+    tuple \
+        path("${vcf.simpleName}.frq"), \
+        path("${vcf.simpleName}.idepth"), \
+        path("${vcf.simpleName}.imiss"), \
+        path("${vcf.simpleName}.ldepth.mean"), \
+        path("${vcf.simpleName}.lqual"), \
+        path("${vcf.simpleName}.lmiss"), \
+        path("${vcf.simpleName}.het"), \
+        path("${vcf.simpleName}.hwe")
 
     script:
     """
