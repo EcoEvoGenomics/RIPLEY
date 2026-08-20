@@ -2,6 +2,7 @@
 metadata: 
 ref_genome: 
 ref_exclude_chroms: [ ]
+ref_exclude_coords: 
 ref_exclude_prefix: 
 ref_chroms_renamed: 
 ref_ploidy: 
@@ -40,7 +41,6 @@ pw_compare_species: true
 
 ######### hs: Haplotype Selection #########
 hs_vcfdir: 
-hs_exclude_bedfile: 
 hs_is_polarised: false
 hs_populations: [ ]
 hs_ihs_freqbin: 1

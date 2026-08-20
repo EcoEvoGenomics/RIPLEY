@@ -12,7 +12,7 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix)
-    input = PARSE_VCF(params.ps_vcf, genome.n_chroms, genome.included, false)
+    input = PARSE_VCF(params.ps_vcf, params.ref_exclude_coords, genome.n_chroms, genome.included, false)
     vcf = input.vcf
     bed = input.bedfiles
 
