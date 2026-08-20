@@ -13,9 +13,9 @@ workflow PARSE_REFERENCE_GENOME {
             ? [exclude_chroms]
             : []
 
-    genome = channel.fromPath("${genome_path}")
+    genome = Channel.fromPath("${genome_path}", checkIfExists: true)
 
-    genome_index = Channel.fromPath("${genome_path}.fai")
+    genome_index = Channel.fromPath("${genome_path}.fai", checkIfExists: true)
         .splitCsv( sep:"\t")
         .map { row -> [row[0], row[1]] }
         .branch { row ->
@@ -25,6 +25,9 @@ workflow PARSE_REFERENCE_GENOME {
 
     excluded_index = genome_index.excluded
     included_index = genome_index.included
+    
+    included_index
+        .ifEmpty { exit(1, "There are no contigs in the reference index after filtering.") }
 
     excluded_as_string = excluded_index
         .map { row -> row[0] }
