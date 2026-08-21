@@ -14,6 +14,7 @@ workflow PARSE_REFERENCE_GENOME {
             : []
 
     genome = Channel.fromPath("${genome_path}", checkIfExists: true)
+    genome_annotations = Channel.fromPath("${genome_path.parent}/${genome_path.simpleName}.gff", checkIfExists: true)
 
     genome_index = Channel.fromPath("${genome_path}.fai", checkIfExists: true)
         .splitCsv( sep:"\t")
@@ -41,6 +42,7 @@ workflow PARSE_REFERENCE_GENOME {
 
     emit:
     genome = genome
+    annotations = genome_annotations
     index = included_index
     n_chroms = included_index.count()
     excluded = excluded_as_string
