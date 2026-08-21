@@ -35,6 +35,7 @@ workflow PARSE_VCF {
             .combine(chroms)
             .filter { i -> i[1].tokenize(",").any { j -> i[0].simpleName.contains(j) } }
             .map { i -> i[0] }
+            .ifEmpty { System.exit(1, "Path ${vcf_path} contains no vcf.gz files.") }
         
         // Assume one chromosome in each VCF
         plink_n_chroms = Channel.value(1)
