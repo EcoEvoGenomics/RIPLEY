@@ -139,6 +139,22 @@ process BCFTOOLS_MAKE_CONSENSUS_FASTA {
     """
 }
 
+process BCFTOOLS_LIST_SAMPLES {
+
+    label "BCFTOOLS"
+
+    input:
+    path(vcf)
+
+    output:
+    path("${vcf.simpleName}_samples.txt")
+
+    script:
+    """
+    bcftools query --list-samples ${vcf} > ${vcf.simpleName}_samples.txt
+    """
+}
+
 process BCFTOOLS_PICK_SAMPLES {
 
     label "BCFTOOLS"

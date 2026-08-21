@@ -1,5 +1,6 @@
 include { PARSE_REFERENCE_GENOME } from "../source/nextflow/workflows/PARSE_REFERENCE_GENOME.nf"
 include { PARSE_VCF } from "../source/nextflow/workflows/PARSE_VCF.nf"
+include { PARSE_METADATA } from "../source/nextflow/workflows/PARSE_METADATA.nf"
 include { RUN_KINSHIP_ANALYSIS } from "../source/nextflow/workflows/RUN_KINSHIP_ANALYSIS.nf"
 include { RUN_PAIRWISE_FST } from "../source/nextflow/workflows/RUN_PAIRWISE_FST.nf"
 include { RUN_LD_PRUNING } from "../source/nextflow/workflows/RUN_LD_PRUNING.nf"
@@ -13,10 +14,11 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix)
     input = PARSE_VCF(params.ps_vcf, params.ref_exclude_coords, genome.n_chroms, genome.included, false)
+    metadata = PARSE_METADATA(params.metadata, input.vcf_condensed)
     pruned = RUN_LD_PRUNING(input.plinkfiles, params.ps_prune_window_kb, params.ps_prune_step_snps, params.ps_prune_threshold)
 
-    RUN_KINSHIP_ANALYSIS(input.vcf_condensed, metadata.samples)
-    RUN_PAIRWISE_FST(input.vcf_condensed, params.ps_fst_populations, metadata.samples)
+    RUN_KINSHIP_ANALYSIS(input.vcf_condensed, metadata.for_samples)
+    RUN_PAIRWISE_FST(input.vcf_condensed, params.ps_fst_populations, metadata.for_samples)
 
     RUN_ADMIXTURE(pruned.plinkfiles, params.ps_admixture_kmin, params.ps_admixture_kmax, params.ps_aim_variance_threshold)
     RUN_PCA(pruned.plinkfiles)
