@@ -3,10 +3,10 @@ include { PLINK_PCA } from "../modules/plink.nf"
 workflow RUN_PCA {
 
     take:
-    bedfiles
+    plinkfiles
 
     main:
-    data = PLINK_PCA(bedfiles)
+    data = PLINK_PCA(plinkfiles)
 
     emit:
     data

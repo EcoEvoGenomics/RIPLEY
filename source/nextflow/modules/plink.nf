@@ -1,4 +1,4 @@
-process PLINK_INIT_BEDFILES {
+process PLINK_INIT_PLINKFILES {
 
     label "PLINK"
 

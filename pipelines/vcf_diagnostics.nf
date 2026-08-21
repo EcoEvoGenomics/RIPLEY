@@ -12,11 +12,9 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix)
     input = PARSE_VCF(params.vd_vcf, params.ref_exclude_coords, genome.n_chroms, genome.included, true)
-    vcf_annotated = input.vcf_annotated
-    vcf = input.vcf
-    
-    RUN_SNP_DENSITY(vcf, params.vd_snpden_binsize, params.ref_chroms_renamed, genome.included)
-    THIN_VCF(vcf_annotated, params.vd_thin_to) | RUN_VCF_STATS
+
+    RUN_SNP_DENSITY(input.vcf_condensed, params.vd_snpden_binsize, params.ref_chroms_renamed, genome.included)
+    THIN_VCF(input.vcf_annotated, params.vd_thin_to) | RUN_VCF_STATS
 
     publish:
     snpden_data = RUN_SNP_DENSITY.out.data
