@@ -1,8 +1,7 @@
 process GET_GENOMICS_GENERAL {
 
-    // Obtains Simon Martin's genomics_general repository
     // See https://simonmartinlab.org/software/
-    // Also replace "NaN" with "nan" for more recent versions of Numpy
+    // Replaces "NaN" with "nan" for compatibility with recent Numpy versions
 
     label "SYSTEM"
 
@@ -36,37 +35,39 @@ process GENOMICS_GENERAL_VCF_TO_GENO {
 
 process GENOMICS_GENERAL_POPGEN_WINDOWS {
 
-    label "NUMPY"
+    // NB! Always assumes input data is phased.
 
-    // The script may fail if a single sample is missing for a (chrom) VCF
-    errorStrategy "ignore"
+    label "NUMPY"
 
     input:
     path(genomics_general)
-    path(geno)
+    tuple path(geno), path(target_sample_list)
+    path(target_population_list)
     path(metadata)
     val(window_size)
     val(step_size)
     val(min_sites)
-    val(format)
-    val(compare_species)
 
     output:
     path("${geno.simpleName}.csv")
 
     script:
     """
-    cat ${metadata} | awk -F, '{print \$1 " " \$${compare_species ? 2 : 3}}' > sample.pops
+    awk -F, '
+      FILENAME=="${target_sample_list}"            {samples_in_geno[\$0]=1;next}
+      FILENAME=="${target_population_list}"        {samples_in_pops[\$0]=1;next}
+      samples_in_geno[\$1] && samples_in_pops[\$3] {print \$1, \$3}
+    ' ${target_sample_list} ${target_population_list} ${metadata} > sample.pops
 
     echo '-w ${window_size}' >> popgenWindows.args
     echo '-s ${step_size}' >> popgenWindows.args
     echo '-m ${min_sites}' >> popgenWindows.args
     echo '-g ${geno}' >> popgenWindows.args
     echo '-o ${geno.simpleName}.csv' >> popgenWindows.args
-    echo '-f ${format}' >> popgenWindows.args
     echo '-T ${task.cpus}' >> popgenWindows.args
-    echo '--popsFile sample.pops' >> popgenWindows.args
+    echo '-f phased' >> popgenWindows.args
     cat sample.pops | awk '{print \$2}' | sed 's/^/-p /' | sort | uniq >> popgenWindows.args
+    echo '--popsFile sample.pops' >> popgenWindows.args
 
     cat popgenWindows.args | xargs python popgenWindows.py
     """

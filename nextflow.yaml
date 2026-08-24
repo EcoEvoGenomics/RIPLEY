@@ -32,13 +32,11 @@ ch_filt_inclusions: 'QUAL>20 & FMT/DP>5 & FMT/DP<75'
 ch_mafft_iterations: 1000
 ch_iqtree_bootstraps: 1000
 
-########## pw: Popgen Windows #############
-pw_vcfdir: 
-pw_sliding_window: 100000
-pw_step_size: 10000
-pw_min_sites: 10
-pw_input_format: phased
-pw_compare_species: true
+############ gs: Genome Scan ##############
+gs_vcfdir: 
+gs_window_size: 100000
+gs_step_size: 10000
+gs_min_sites: 1000
 
 ######### hs: Haplotype Selection #########
 hs_vcfdir: 
