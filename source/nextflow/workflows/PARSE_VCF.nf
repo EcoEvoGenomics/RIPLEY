@@ -16,24 +16,24 @@ workflow PARSE_VCF {
     if (input_is_vcf && input_is_dir) { exit(1, "The input path may be interpreted both as file and directory.") }
     if (!(input_is_vcf || input_is_dir)) { exit(1, "The input path does not exist or is not a directory or VCF.") }
     if (input_is_dir && !permit_dir) { exit(1, "This pipeline cannot process a directory, only a single VCF file.") }
-    chrom_list = chrom_names.collect()
+    keep_chroms = chrom_names.collect()
 
     // Directory input assumes one vcf corresponds to exactly one chromosome
     if (input_is_dir) {
-        vcf_annotated = Channel.fromPath("${vcf_path}/**.vcf.gz", checkIfExist: true)
-            .combine(chrom_list)
+        vcf_annotated = Channel.fromPath("${vcf_path}/**.vcf.gz")
+            .combine(keep_chroms.toList())
             .filter { i ->
                 def vcf = i[0]
                 def chroms = i[1]
                 chroms.any { chrom -> vcf.simpleName.contains(chrom) }
             }
             .map { i -> i[0] }
-            .ifEmpty { System.exit(1, "Path ${vcf_path} contains no vcf.gz files.") }
+            .ifEmpty { exit(1, "Path ${vcf_path} contains no vcf.gz files.") }
         plink_n_chroms = Channel.value(1)
     }
 
     if (input_is_vcf) {
-        chrom_flag = chrom_list.map { i -> i.join(",")}
+        chrom_flag = keep_chroms.map { i -> i.join(",")}
         vcf_annotated = BCFTOOLS_SELECT_CHROMS(vcf_path, chrom_flag)
         plink_n_chroms = chrom_names.count()
     }

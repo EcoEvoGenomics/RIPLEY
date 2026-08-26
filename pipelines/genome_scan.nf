@@ -2,6 +2,7 @@ include { PARSE_REFERENCE_GENOME } from "../source/nextflow/workflows/PARSE_REFE
 include { PARSE_VCF } from "../source/nextflow/workflows/PARSE_VCF.nf"
 include { PARSE_METADATA } from "../source/nextflow/workflows/PARSE_METADATA.nf"
 include { RUN_POPGEN_WINDOWS } from "../source/nextflow/workflows/RUN_POPGEN_WINDOWS.nf"
+include { RUN_EHH_SCAN } from "../source/nextflow/workflows/RUN_EHH_SCAN.nf"
 
 nextflow.preview.output = true
 
@@ -13,7 +14,7 @@ workflow {
     metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed)
 
     RUN_POPGEN_WINDOWS(
-        input.vcf_annotated,
+        input.vcf_condensed,
         metadata.for_samples,
         metadata.focal_populations,
         params.gs_window_size,
@@ -21,10 +22,10 @@ workflow {
         params.gs_min_sites
     )
 
-}
-
-output {
-
-
+    RUN_EHH_SCAN(
+        input.vcf_condensed,
+        metadata.for_samples,
+        metadata.focal_populations
+    )
 
 }

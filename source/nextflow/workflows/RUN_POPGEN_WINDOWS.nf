@@ -17,17 +17,19 @@ workflow RUN_POPGEN_WINDOWS {
     samples = BCFTOOLS_LIST_SAMPLES(vcfs)
 
     geno_with_sample_list = geno
-        .mix(samples)
-        .map { file ->
-            def key = file.simpleName
-            tuple(key, file)
+        .combine(samples)
+        .map { files ->
+            def key_geno = files[0].simpleName
+            def key_samples = files[1].simpleName
+            key_geno == key_samples
+                ? tuple(files[0], files[1])
+                : null
         }
-        .groupBy()
 
     GENOMICS_GENERAL_POPGEN_WINDOWS(
         repo,
         geno_with_sample_list,
-        focal_populations.collectFile("pops.txt", newLine: true),
+        focal_populations.collectFile(name: "pops.txt", newLine: true),
         metadata,
         window_size,
         step_size,

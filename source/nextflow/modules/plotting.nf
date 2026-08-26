@@ -63,7 +63,7 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
 
     input:
     path(plot_script)
-    path(snpden)
+    each(snpden)
     val(chrom_string)
     path(chrom_labels)
 

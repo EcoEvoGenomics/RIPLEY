@@ -38,17 +38,6 @@ gs_window_size: 100000
 gs_step_size: 10000
 gs_min_sites: 1000
 
-######### hs: Haplotype Selection #########
-hs_vcfdir: 
-hs_is_polarised: false
-hs_ihs_freqbin: 1
-hs_cand_pval: 0.05
-hs_cand_window: 1E5
-hs_cand_overlap: 1E4
-hs_cand_min_n_mrk: 3
-hs_cand_min_n_extr_mrk: 3
-hs_cand_min_perc_extr_mrk: 0
-
 ######## ld: Linkage Disequilibrium #######
 ld_vcf: 
 ld_thin: 0.5

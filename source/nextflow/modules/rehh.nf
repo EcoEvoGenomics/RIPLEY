@@ -1,5 +1,7 @@
 process REHH_LOAD_VCF {
 
+    // NB! Always assumes VCFs are phased but unpolarised.
+
     label "REHH"
 
     cpus 1
@@ -10,7 +12,6 @@ process REHH_LOAD_VCF {
 
     input:
     path(vcf)
-    val(is_polarised)
 
     output:
     path("${vcf.simpleName}.haplohh.rds"), emit: rds
@@ -23,7 +24,7 @@ process REHH_LOAD_VCF {
 
     hh <- rehh::data2haplohh(
         hap_file = "${vcf.toString()}",
-        polarize_vcf = ifelse(${is_polarised ? 1 : 0}, TRUE, FALSE)
+        polarize_vcf = FALSE
     )
 
     saveRDS(hh, file = "${vcf.simpleName}.haplohh.rds")
@@ -84,6 +85,8 @@ process REHH_SCAN_HAPLOTYPE_HOMOZYGOSITY {
 
 process REHH_CALCULATE_IHS {
 
+    // NB! Parameter freqbin = 0 assumes original input unpolarised (see process REHH_LOAD_VCF)
+
     label "REHH"
 
     cpus 1
@@ -94,19 +97,9 @@ process REHH_CALCULATE_IHS {
 
     input:
     path(csv)
-    val(is_polarised)
-    val(ihs_freqbin)
-    val(cand_pval)
-    val(cand_window)
-    val(cand_overlap)
-    val(cand_min_n_mrk)
-    val(cand_min_n_extr_mrk)
-    val(cand_min_perc_extr_mrk)
 
     output:
     path("${csv.simpleName}.ihs.csv"), emit: csv
-    path("${csv.simpleName}.ihs.rds"), emit: rds
-    path("${csv.simpleName}.ihs.cand.csv"), emit: candidates
 
     script:
     """
@@ -116,23 +109,10 @@ process REHH_CALCULATE_IHS {
     
     ihs <- rehh::ihh2ihs(
         scan = read.csv("${csv.toString()}"),
-        freqbin = ${is_polarised ? ihs_freqbin : 0}
-    )
-
-    cr <- rehh::calc_candidate_regions(
-        scan = ihs,
-        pval = TRUE,
-        threshold = -log10(${cand_pval} / nrow(ihs\$ihs)),
-        window_size = ${cand_window},
-        overlap = ${cand_overlap},
-        min_n_mrk = ${cand_min_n_mrk},
-        min_n_extr_mrk = ${cand_min_n_extr_mrk},
-        min_perc_extr_mrk = ${cand_min_perc_extr_mrk}
+        freqbin = 0
     )
 
     write.csv(ihs\$ihs, row.names = FALSE, file = "${csv.simpleName}.ihs.csv")
-    write.csv(cr, row.names = FALSE, file = "${csv.simpleName}.ihs.cand.csv")
-    saveRDS(ihs, file = "${csv.simpleName}.ihs.rds")
     """
 }
 
@@ -147,17 +127,10 @@ process REHH_CALCULATE_XPEHH {
     maxRetries 2
 
     input:
-    tuple path(csv_a), path(csv_b)
-    val(cand_pval)
-    val(cand_window)
-    val(cand_overlap)
-    val(cand_min_n_mrk)
-    val(cand_min_n_extr_mrk)
-    val(cand_min_perc_extr_mrk)
+    tuple val(key), val(pop_a), val(pop_b), path(csv_a), path(csv_b)
 
     output:
-    path("${csv_a.simpleName}_${csv_b.simpleName}.xpehh.csv"), emit: csv
-    path("${csv_a.simpleName}_${csv_b.simpleName}.xpehh.cand.csv"), emit: candidates
+    path("${key}_${pop_a}_${pop_b}.xpehh.csv"), emit: csv
 
     script:
     """
@@ -168,23 +141,11 @@ process REHH_CALCULATE_XPEHH {
     xpehh <- rehh::ies2xpehh(
         scan_pop1 = read.csv("${csv_a.toString()}"),
         scan_pop2 = read.csv("${csv_b.toString()}"),
-        popname1 = "${csv_a.simpleName}",
-        popname2 = "${csv_b.simpleName}",
+        popname1 = "${pop_a}",
+        popname2 = "${pop_b}",
         include_freq = TRUE
     )
 
-    cr <- rehh::calc_candidate_regions(
-        scan = xpehh,
-        pval = TRUE,
-        threshold = -log10(${cand_pval} / nrow(xpehh)),
-        window_size = ${cand_window},
-        overlap = ${cand_overlap},
-        min_n_mrk = ${cand_min_n_mrk},
-        min_n_extr_mrk = ${cand_min_n_extr_mrk},
-        min_perc_extr_mrk = ${cand_min_perc_extr_mrk}
-    )
-
-    write.csv(xpehh, row.names = FALSE, file = "${csv_a.simpleName}_${csv_b.simpleName}.xpehh.csv")
-    write.csv(cr, row.names = FALSE, file = "${csv_a.simpleName}_${csv_b.simpleName}.xpehh.cand.csv")
+    write.csv(xpehh, row.names = FALSE, file = "${key}_${pop_a}_${pop_b}.xpehh.csv")
     """
 }

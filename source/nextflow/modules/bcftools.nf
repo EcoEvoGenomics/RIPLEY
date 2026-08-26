@@ -147,11 +147,11 @@ process BCFTOOLS_LIST_SAMPLES {
     path(vcf)
 
     output:
-    path("${vcf.simpleName}_samples.txt")
+    path("${vcf.simpleName}.samples.txt")
 
     script:
     """
-    bcftools query --list-samples ${vcf} > ${vcf.simpleName}_samples.txt
+    bcftools query --list-samples ${vcf} > ${vcf.simpleName}.samples.txt
     """
 }
 
@@ -163,14 +163,14 @@ process BCFTOOLS_PICK_SAMPLES {
     tuple path(sample_list), path(vcf)
 
     output:
-    path("${sample_list.simpleName}_${vcf.simpleName}.vcf.gz"), emit: samples_vcf
+    path("${vcf.simpleName}_${sample_list.simpleName}.vcf.gz"), emit: samples_vcf
 
     script:
     """
     bcftools view \
         --samples-file ${sample_list} \
         --force-samples \
-        --output-type z --output ${sample_list.simpleName}_${vcf.simpleName}.vcf.gz \
+        --output-type z --output ${vcf.simpleName}_${sample_list.simpleName}.vcf.gz \
         ${vcf}
     """
 }
