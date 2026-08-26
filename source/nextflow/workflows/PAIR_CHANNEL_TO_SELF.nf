@@ -9,8 +9,8 @@ workflow PAIR_CHANNEL_TO_SELF {
 
     pairwise_channel = input_channel
         .combine(input_channel)
-        .filter { scan -> scan[0] != scan[1] }
-        .map { scan -> scan.sort() }
+        .filter { combined -> combined[0] != combined[1] }
+        .map { combined -> combined.sort() }
         .unique()
 
     emit:
