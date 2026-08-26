@@ -8,7 +8,7 @@ ref_ploidy:
 ref_exclude_chroms: [ ]
 ref_exclude_coords: 
 ref_exclude_prefix: 
-ref_chroms_renamed: 
+ref_chrom_labels: 
 
 ########## vd: VCF Diagnostics ############
 vd_vcf: 

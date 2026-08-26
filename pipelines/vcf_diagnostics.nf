@@ -4,16 +4,15 @@ include { THIN_VCF } from "../source/nextflow/workflows/THIN_VCF.nf"
 include { RUN_SNP_DENSITY } from "../source/nextflow/workflows/RUN_SNP_DENSITY.nf"
 include { RUN_VCF_STATS } from "../source/nextflow/workflows/RUN_VCF_STATS.nf"
 
-
 nextflow.preview.output = true
 
 workflow {
 
     main:
-    genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix)
-    input = PARSE_VCF(params.vd_vcf, params.ref_exclude_coords, genome.n_chroms, genome.included, true)
+    genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
+    input = PARSE_VCF(params.vd_vcf, params.ref_exclude_coords, genome.chrom_names, true)
 
-    RUN_SNP_DENSITY(input.vcf_condensed, params.vd_snpden_binsize, params.ref_chroms_renamed, genome.included)
+    RUN_SNP_DENSITY(input.vcf_condensed, params.vd_snpden_binsize, genome.chrom_names, genome.chrom_labels)
     THIN_VCF(input.vcf_annotated, params.vd_thin_to) | RUN_VCF_STATS
 
     publish:

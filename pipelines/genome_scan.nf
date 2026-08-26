@@ -8,8 +8,8 @@ nextflow.preview.output = true
 workflow {
 
     main:
-    genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix)
-    input = PARSE_VCF(params.gs_vcfdir, params.ref_exclude_coords, genome.n_chroms, genome.included, true)
+    genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
+    input = PARSE_VCF(params.gs_vcfdir, params.ref_exclude_coords, genome.chrom_names, true)
     metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed)
 
     RUN_POPGEN_WINDOWS(

@@ -24,7 +24,7 @@ process PLOT_REHH_XPEHH {
     path(scans)
     path(cands)
     path(gff)
-    path(chrom_conversions)
+    path(chrom_labels)
     val(cand_pval)
 
     output:
@@ -35,7 +35,7 @@ process PLOT_REHH_XPEHH {
 
     script:
     """
-    Rscript ${plot_script} ${scans} ${cands} ${gff} ${chrom_conversions} ${cand_pval} 170 170 20
+    Rscript ${plot_script} ${scans} ${cands} ${gff} ${chrom_labels} ${cand_pval} 170 170 20
     """
 }
 
@@ -65,14 +65,14 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
     path(plot_script)
     path(snpden)
     val(chrom_string)
-    path(chrom_conversions)
+    path(chrom_labels)
 
     output:
     path("*.png")
 
     script:
     """
-    Rscript ${plot_script} ${snpden} ${chrom_string} ${chrom_conversions}
+    Rscript ${plot_script} ${snpden} ${chrom_string} ${chrom_labels}
     """
 }
 

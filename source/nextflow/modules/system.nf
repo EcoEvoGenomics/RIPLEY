@@ -42,7 +42,7 @@ process WRITE_POPULATION_CENSUS {
     label "SYSTEM"
 
     input:
-    val(population)
+    each(population)
     path(metadata)
     
     output:

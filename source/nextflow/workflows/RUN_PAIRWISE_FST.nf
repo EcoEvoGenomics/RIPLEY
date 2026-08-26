@@ -10,7 +10,7 @@ workflow RUN_PAIRWISE_FST {
     metadata
 
     main:
-    pop_censuses = WRITE_POPULATION_CENSUS(Channel.from(pop_list), metadata)
+    pop_censuses = WRITE_POPULATION_CENSUS(pop_list, metadata)
     pairwise_pop_censuses = PAIR_CHANNEL_TO_SELF(pop_censuses)
     results = VCFTOOLS_CALCULATE_PAIRWISE_FST(vcf.combine(pairwise_pop_censuses))
 

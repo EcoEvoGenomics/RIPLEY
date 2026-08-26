@@ -7,44 +7,35 @@ workflow PARSE_VCF {
     take:
     vcf_path
     exclude_coords
-    n_chroms
-    chroms
+    chrom_names
     permit_dir
 
     main:
-    
     def input_is_vcf = (file(vcf_path).isFile() && file(vcf_path).name.contains(".vcf"))
     def input_is_dir = file(vcf_path).isDirectory()
-
-    if (input_is_vcf && input_is_dir) {
-        exit(1, "The input path may be interpreted both as file and directory.")
-    }
-
-    if (!(input_is_vcf || input_is_dir)) {
-        exit(1, "The input path does not exist or is not a directory or VCF.")
-    }
-
-    if (input_is_dir && !permit_dir) {
-        exit(1, "This pipeline cannot process a directory, only a single VCF file.")
-    }
+    if (input_is_vcf && input_is_dir) { exit(1, "The input path may be interpreted both as file and directory.") }
+    if (!(input_is_vcf || input_is_dir)) { exit(1, "The input path does not exist or is not a directory or VCF.") }
+    if (input_is_dir && !permit_dir) { exit(1, "This pipeline cannot process a directory, only a single VCF file.") }
+    chrom_list = chrom_names.collect()
 
     if (input_is_dir) {
-
-        // For any VCF of chrom "X" assume name uniquely contains "X"
+        // Directory input assumes one vcf corresponds to exactly one chromosome
         vcf_annotated = Channel.fromPath("${vcf_path}/**.vcf.gz", checkIfExist: true)
-            .combine(chroms)
-            .filter { i -> i[1].tokenize(",").any { j -> i[0].simpleName.contains(j) } }
+            .combine(chrom_list)
+            .filter { i ->
+                def vcf = i[0]
+                def chroms = i[1]
+                chroms.any { chrom -> vcf.simpleName.contains(chrom) }
+            }
             .map { i -> i[0] }
             .ifEmpty { System.exit(1, "Path ${vcf_path} contains no vcf.gz files.") }
-        
-        // Assume one chromosome in each VCF
         plink_n_chroms = Channel.value(1)
-
     }
 
     if (input_is_vcf) {
-        vcf_annotated = BCFTOOLS_SELECT_CHROMS(vcf_path, chroms)
-        plink_n_chroms = n_chroms
+        chrom_flag = chrom_list.map { i -> i.join(",")}
+        vcf_annotated = BCFTOOLS_SELECT_CHROMS(vcf_path, chrom_flag)
+        plink_n_chroms = chrom_names.count()
     }
 
     def exclude_path = exclude_coords ?: null
