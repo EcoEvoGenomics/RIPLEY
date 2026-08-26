@@ -22,7 +22,7 @@ if (length(args) != 8) {
 input_scans <- args[1]
 input_cands <- args[2]
 input_gff <- args[3]
-chrom_conversions <- args[4]
+chrom_labels <- args[4]
 base_pval <- as.double(args[5])
 width_mm <- as.integer(args[6])
 cand_mm <- as.integer(args[7])
@@ -36,9 +36,9 @@ n_cands <- length(cand_files)
 stopifnot(n_cands == n_scans)
 
 # -------- Parse chromosomes rename tsv ----------------------------------------
-chrom_conversions <- read.table(chrom_conversions)
-renamed_chroms <- chrom_conversions$V1
-names(renamed_chroms) <- chrom_conversions$V2
+chrom_labels <- read.table(chrom_labels, sep = ",")
+renamed_chroms <- chrom_labels$V1
+names(renamed_chroms) <- chrom_labels$V2
 
 # -------- Parse input xp-EHH .CSV files ---------------------------------------
 print("Parsing input files ...")
@@ -159,7 +159,7 @@ for (chrom_index in seq_along(chrom_names)) {
   if (nchar(chrom) > (((chrom_size / 1e9) * width_mm / 1.75))) {
     chrom_labels_main[chrom_index] <- ""
   }
-  chrom_labels_cand[chrom_index] <- chrom_conversions$V3[which(chrom_conversions$V2 == as.character(chrom))]
+  chrom_labels_cand[chrom_index] <- chrom_labels$V3[which(chrom_labels$V2 == as.character(chrom))]
 }
 names(chrom_labels_main) <- chrom_names
 names(chrom_labels_cand) <- chrom_names

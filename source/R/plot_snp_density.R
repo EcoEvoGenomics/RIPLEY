@@ -5,10 +5,10 @@ chroms <- strsplit(args[2], ",")[[1]]
 data <- read.table(args[1], header = TRUE) |> filter(CHROM %in% chroms)
 chroms <- chroms[chroms %in% data$CHROM] # If expected chroms are not in data
 name <- basename(args[1])
-chrom_conversions <- read.table(args[3]) |> filter(V1 %in% chroms)
+chrom_labels <- read.table(args[3], sep = ",") |> filter(V1 %in% chroms)
 
-renamed_chroms <- chrom_conversions$V1
-names(renamed_chroms) <- chrom_conversions$V2
+renamed_chroms <- chrom_labels$V1
+names(renamed_chroms) <- chrom_labels$V2
 
 n_chroms <- length(chroms)
 bin_size <- data$BIN_START[2] - data$BIN_START[1]
