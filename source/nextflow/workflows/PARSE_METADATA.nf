@@ -10,6 +10,8 @@ workflow PARSE_METADATA {
     main:
     sample_metadata = Channel.fromPath(sample_metadata_path, checkIfExists: true)
 
+    // To-do: Add test to ensure all metadata is strictly alphanumeric
+
     // Raise error if there are duplicate sample entries in metadata
     samples_in_metadata = sample_metadata
         .splitCsv()

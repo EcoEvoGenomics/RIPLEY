@@ -18,8 +18,8 @@ workflow PARSE_VCF {
     if (input_is_dir && !permit_dir) { exit(1, "This pipeline cannot process a directory, only a single VCF file.") }
     chrom_list = chrom_names.collect()
 
+    // Directory input assumes one vcf corresponds to exactly one chromosome
     if (input_is_dir) {
-        // Directory input assumes one vcf corresponds to exactly one chromosome
         vcf_annotated = Channel.fromPath("${vcf_path}/**.vcf.gz", checkIfExist: true)
             .combine(chrom_list)
             .filter { i ->
@@ -38,12 +38,13 @@ workflow PARSE_VCF {
         plink_n_chroms = chrom_names.count()
     }
 
-    def exclude_path = exclude_coords ?: null
+    // To-do: Add test for strictly alphanumeric input VCF names (e.g. myVars.vcf.gz)
 
-    if (exclude_path == null) {
-        vcf_filtered = vcf_annotated
-    } else {
+    def exclude_path = exclude_coords ?: null
+    if (exclude_path != null) {
         vcf_filtered = VCFTOOLS_EXCLUDE_BED(vcf_annotated, file(exclude_path, checkIfExists: true))
+    } else {
+        vcf_filtered = vcf_annotated
     }
 
     plinkfiles = PLINK_INIT_PLINKFILES(vcf_filtered, plink_n_chroms)

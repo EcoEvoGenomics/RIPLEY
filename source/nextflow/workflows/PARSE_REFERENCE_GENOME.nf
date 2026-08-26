@@ -26,6 +26,8 @@ workflow PARSE_REFERENCE_GENOME {
 
     chrom_names = index_entries
         .map { row -> row[0] }
+    
+    // To-do: Add test for strictly alphanumeric chromosome names
         
     emit:
     fasta = genome
