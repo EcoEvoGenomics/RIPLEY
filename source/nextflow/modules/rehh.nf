@@ -97,9 +97,12 @@ process REHH_CALCULATE_IHS {
 
     input:
     path(csv)
+    val(window_size)
+    val(step_size)
+    val(min_sites)
 
     output:
-    path("${csv.simpleName}.ihs.csv"), emit: csv
+    path("${csv.simpleName}.ihs.csv")
 
     script:
     """
@@ -112,7 +115,16 @@ process REHH_CALCULATE_IHS {
         freqbin = 0
     )
 
-    write.csv(ihs\$ihs, row.names = FALSE, file = "${csv.simpleName}.ihs.csv")
+    windows <- rehh::calc_candidate_regions(
+        scan = ihs,
+        window_size = ${window_size.toString()},
+        overlap = ${step_size.toString()},
+        min_n_mrk = ${min_sites.toString()},
+        join_neighbors = FALSE,
+        threshold = 0
+    )
+
+    write.csv(windows, row.names = FALSE, file = "${csv.simpleName}.ihs.csv")
     """
 }
 
@@ -128,9 +140,12 @@ process REHH_CALCULATE_XPEHH {
 
     input:
     tuple val(key), val(pop_a), val(pop_b), path(csv_a), path(csv_b)
+    val(window_size)
+    val(step_size)
+    val(min_sites)
 
     output:
-    path("${key}_${pop_a}_${pop_b}.xpehh.csv"), emit: csv
+    path("${key}_${pop_a}_${pop_b}.xpehh.csv")
 
     script:
     """
@@ -146,6 +161,15 @@ process REHH_CALCULATE_XPEHH {
         include_freq = TRUE
     )
 
-    write.csv(xpehh, row.names = FALSE, file = "${key}_${pop_a}_${pop_b}.xpehh.csv")
+    windows <- rehh::calc_candidate_regions(
+        scan = xpehh,
+        window_size = ${window_size.toString()},
+        overlap = ${step_size.toString()},
+        min_n_mrk = ${min_sites.toString()},
+        join_neighbors = FALSE,
+        threshold = 0
+    )
+
+    write.csv(windows, row.names = FALSE, file = "${key}_${pop_a}_${pop_b}.xpehh.csv")
     """
 }

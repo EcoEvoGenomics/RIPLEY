@@ -12,6 +12,9 @@ workflow RUN_EHH_SCAN {
     vcfs
     metadata
     populations
+    window_size
+    step_size
+    min_sites
 
     main:
     population_vcfs = WRITE_POPULATION_CENSUS(populations, metadata) | combine(vcfs) | BCFTOOLS_PICK_SAMPLES
@@ -28,11 +31,11 @@ workflow RUN_EHH_SCAN {
                 : null // Do not compare across keys (keys correspond to original vcfs)
         }
     
-    REHH_CALCULATE_IHS(population_ehh)
-    REHH_CALCULATE_XPEHH(pairwise_ehh)
+    REHH_CALCULATE_IHS(population_ehh, window_size, step_size, min_sites)
+    REHH_CALCULATE_XPEHH(pairwise_ehh, window_size, step_size, min_sites)
 
     emit:
-    ihs = REHH_CALCULATE_IHS.out.csv
-    xpehh = REHH_CALCULATE_XPEHH.out.csv
+    ihs = REHH_CALCULATE_IHS.out
+    xpehh = REHH_CALCULATE_XPEHH.out
     
 }

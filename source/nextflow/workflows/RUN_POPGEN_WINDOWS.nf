@@ -6,7 +6,7 @@ workflow RUN_POPGEN_WINDOWS {
     take:
     vcfs
     metadata
-    focal_populations
+    populations
     window_size
     step_size
     min_sites
@@ -29,7 +29,7 @@ workflow RUN_POPGEN_WINDOWS {
     GENOMICS_GENERAL_POPGEN_WINDOWS(
         repo,
         geno_with_sample_list,
-        focal_populations.collectFile(name: "pops.txt", newLine: true),
+        populations.collectFile(name: "pops.txt", newLine: true),
         metadata,
         window_size,
         step_size,

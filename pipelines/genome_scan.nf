@@ -25,7 +25,22 @@ workflow {
     RUN_EHH_SCAN(
         input.vcf_condensed,
         metadata.for_samples,
-        metadata.focal_populations
+        metadata.focal_populations,
+        params.gs_window_size,
+        params.gs_step_size,
+        params.gs_min_sites
     )
+
+    publish:
+    popgen = RUN_POPGEN_WINDOWS.out.collect()
+    ihs = RUN_EHH_SCAN.out.ihs.collect()
+    xpehh = RUN_EHH_SCAN.out.xpehh.collect()
+}
+
+output {
+    
+    popgen { path "genome_scan" }
+    ihs { path "genome_scan" }
+    xpehh { path "genome_scan" }
 
 }
