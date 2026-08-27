@@ -41,9 +41,7 @@ process GENOMICS_GENERAL_POPGEN_WINDOWS {
 
     input:
     path(genomics_general)
-    tuple path(geno), path(target_sample_list)
-    path(target_population_list)
-    path(metadata)
+    tuple path(geno), path(target_sample_list), path(metadata)
     val(window_size)
     val(step_size)
     val(min_sites)
@@ -54,10 +52,9 @@ process GENOMICS_GENERAL_POPGEN_WINDOWS {
     script:
     """
     awk -F, '
-      FILENAME=="${target_sample_list}"            {samples_in_geno[\$0]=1;next}
-      FILENAME=="${target_population_list}"        {samples_in_pops[\$0]=1;next}
-      samples_in_geno[\$1] && samples_in_pops[\$3] {print \$1, \$3}
-    ' ${target_sample_list} ${target_population_list} ${metadata} > sample.pops
+      FILENAME=="${target_sample_list}" {samples_in_geno[\$0]=1;next}
+      samples_in_geno[\$1] {print \$1, \$3}
+    ' ${target_sample_list} ${metadata} > sample.pops
 
     echo '-w ${window_size}' >> popgenWindows.args
     echo '-s ${step_size}' >> popgenWindows.args

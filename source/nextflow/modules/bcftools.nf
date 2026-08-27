@@ -175,6 +175,26 @@ process BCFTOOLS_PICK_SAMPLES {
     """
 }
 
+process BCFTOOLS_MERGE_VCFS {
+
+    label "BCFTOOLS"
+
+    input:
+    tuple val(shared_key), val(name_a), val(name_b), path(vcf_a), path(vcf_b)
+
+    output:
+    path("${shared_key}_${name_a}_${name_b}.vcf.gz")
+
+    script:
+    """
+    bcftools index ${vcf_a}
+    bcftools index ${vcf_b}
+    bcftools merge \
+        --output-type z --output ${shared_key}_${name_a}_${name_b}.vcf.gz \
+        ${vcf_a} ${vcf_b}
+    """
+}
+
 process BCFTOOLS_SAMPLE_VCF {
 
     label "BCFTOOLS"
