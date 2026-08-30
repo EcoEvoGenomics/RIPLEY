@@ -147,7 +147,9 @@ process PLINK_PCA {
     tuple path(bed), path(bim), path(fam), val(n_chroms)
 
     output:
-    tuple path("${bed.simpleName}.eigenvec"), path("${bed.simpleName}.eigenval"), path("plink.log")
+    path("${bed.simpleName}.eigenval"), emit: eigenval
+    path("${bed.simpleName}.eigenvec"), emit: eigenvec
+    path("plink.log"), emit: log
 
     script:
     """
@@ -156,8 +158,8 @@ process PLINK_PCA {
     --allow-extra-chr --chr-set ${n_chroms} \
     --pca
 
-    mv plink.eigenvec ${bed.simpleName}.eigenvec
     mv plink.eigenval ${bed.simpleName}.eigenval
+    mv plink.eigenvec ${bed.simpleName}.eigenvec
     """
 }
 

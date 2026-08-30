@@ -15,6 +15,25 @@ process PLOT_PLINK_LD_DECAY {
     """
 }
 
+process PLOT_PLINK_PCA {
+
+    label "RPLOT"
+
+    input:
+    path(plot_script)
+    path(eigenval)
+    path(eigenvec)
+    path(metadata)
+
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${plot_script} ${eigenval} ${eigenvec} ${metadata}
+    """
+}
+
 process PLOT_REHH_XPEHH {
 
     label "RPLOT"

@@ -21,7 +21,7 @@ workflow {
     RUN_PAIRWISE_FST(input.vcf_condensed, metadata.focal_populations, metadata.for_samples)
 
     RUN_ADMIXTURE(pruned.plinkfiles, params.ps_admixture_kmin, params.ps_admixture_kmax, params.ps_aim_variance_threshold)
-    RUN_PCA(pruned.plinkfiles)
+    RUN_PCA(pruned.plinkfiles, metadata.for_samples)
 
     publish:
     kinship_table = RUN_KINSHIP_ANALYSIS.out.data
@@ -29,7 +29,8 @@ workflow {
     pairwise_mean_fst = RUN_PAIRWISE_FST.out.mean
     admixture = RUN_ADMIXTURE.out.data
     aims = RUN_ADMIXTURE.out.aims
-    pca = RUN_PCA.out
+    pca_eigens = RUN_PCA.out.data
+    pca_plot = RUN_PCA.out.plot
 
 }
 
@@ -40,6 +41,7 @@ output {
     pairwise_mean_fst { path "population_structure/fst" }
     admixture { path "population_structure/admixture" }
     aims { path "population_structure/aims" }
-    pca { path "population_structure/pca" }
+    pca_eigens { path "population_structure/pca" }
+    pca_plot { path "population_structure/pca" }
 
 }
