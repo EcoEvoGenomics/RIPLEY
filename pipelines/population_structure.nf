@@ -20,28 +20,34 @@ workflow {
     RUN_KINSHIP_ANALYSIS(input.vcf_condensed, metadata.for_samples)
     RUN_PAIRWISE_FST(input.vcf_condensed, metadata.focal_populations, metadata.for_samples)
 
-    RUN_ADMIXTURE(pruned.plinkfiles, params.ps_admixture_kmin, params.ps_admixture_kmax, params.ps_aim_variance_threshold)
     RUN_PCA(pruned.plinkfiles, metadata.for_samples)
+    RUN_ADMIXTURE(pruned.plinkfiles, params.ps_admixture_kmin, params.ps_admixture_kmax, params.ps_aim_variance_threshold)
 
     publish:
-    kinship_table = RUN_KINSHIP_ANALYSIS.out.data
-    kinship_matrix = RUN_KINSHIP_ANALYSIS.out.plot
-    pairwise_mean_fst = RUN_PAIRWISE_FST.out.mean
+    kinship_data = RUN_KINSHIP_ANALYSIS.out.data
+    kinship_plot = RUN_KINSHIP_ANALYSIS.out.plot
+    fst_data = RUN_PAIRWISE_FST.out.data
+    fst_logs = RUN_PAIRWISE_FST.out.logfile
+    fst_mean = RUN_PAIRWISE_FST.out.mean
+    fst_plot = RUN_PAIRWISE_FST.out.plot
     admixture = RUN_ADMIXTURE.out.data
     aims = RUN_ADMIXTURE.out.aims
-    pca_eigens = RUN_PCA.out.data
+    pca_data = RUN_PCA.out.data
     pca_plot = RUN_PCA.out.plot
 
 }
 
 output {
 
-    kinship_table { path "population_structure/kinship" }
-    kinship_matrix { path "population_structure/kinship" }
-    pairwise_mean_fst { path "population_structure/fst" }
-    admixture { path "population_structure/admixture" }
-    aims { path "population_structure/aims" }
-    pca_eigens { path "population_structure/pca" }
+    kinship_data { path "population_structure/kinship" }
+    kinship_plot { path "population_structure/kinship" }
+    fst_data { path "population_structure/fst/full" }
+    fst_logs { path "population_structure/fst/full" }
+    fst_mean { path "population_structure/fst" }
+    fst_plot { path "population_structure/fst" }
+    pca_data { path "population_structure/pca" }
     pca_plot { path "population_structure/pca" }
+    admixture { path "population_structure/admixture" }
+    aims { path "population_structure/admixture/aims" }
 
 }

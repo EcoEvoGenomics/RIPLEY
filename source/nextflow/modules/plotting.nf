@@ -119,3 +119,20 @@ process PLOT_VCFTOOLS_VCF_STATS {
     Rscript ${plot_script} ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
     """
 }
+
+process PLOT_VCFTOOLS_PAIRWISE_MEAN_FST {
+
+    label "RPLOT"
+
+    input:
+    path(plot_script)
+    path(means)
+
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${plot_script} ${means}
+    """
+}
