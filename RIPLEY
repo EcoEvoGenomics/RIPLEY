@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+nextflow -log ".nextflow/nextflow.log" run "nf/main/${0}.nf" \
+    -params-file "options.yaml"
