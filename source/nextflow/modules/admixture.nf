@@ -7,17 +7,25 @@ process ADMIXTURE {
     each(K)
 
     output:
-    path("${bed.simpleName}.k${K}.out"), emit: outfile
-    path("${bed.simpleName}.k${K}.Q"), emit: qfile
+    tuple path("${bed.simpleName}.k${K}.out"), path("${bed.simpleName}.k${K}.Q"), path("${bed.simpleName}.k${K}.P"), emit: data
     path("${bed.simpleName}.k${K}.P"), emit: pfile
+    path("${bed.simpleName}.clust"), emit: clust
+    tuple val(K), env("cv_error"), emit: error
 
     script:
     """
     awk '{\$1="0";print \$0}' ${bed.simpleName}.bim > ${bed.simpleName}.bim.tmp
     mv ${bed.simpleName}.bim.tmp ${bed.simpleName}.bim
+
     admixture --cv -j${task.cpus} ${bed.simpleName}.bed ${K} > ${bed.simpleName}.k${K}.out
     mv ${bed.simpleName}.${K}.P ${bed.simpleName}.k${K}.P
-    awk 'NR==FNR {f2[FNR]=\$1; next} {print f2[FNR] " " \$0}' ${fam} ${bed.simpleName}.${K}.Q > ${bed.simpleName}.k${K}.Q
+    mv ${bed.simpleName}.${K}.Q ${bed.simpleName}.k${K}.Q
+
+    awk 'NR==FNR {f2[FNR]=\$1; next} {print ${K}, f2[FNR], \$0}' ${fam} ${bed.simpleName}.k${K}.Q > ${bed.simpleName}.clust
+
+    cv_error=\$(grep "CV error (K=" "${bed.simpleName}.k${K}.out" | awk '{print \$NF}')
+    cv_error=\${cv_error:-NA}
+    export cv_error
     """
 }
 
