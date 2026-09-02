@@ -4,5 +4,6 @@ set -o errexit
 set -o nounset
 
 nextflow -log ".nextflow/nextflow.log" run "nf/main/${0}.nf" \
+    -with-report "output/${0}/report.html" \
     -params-file "options.yaml" \
     -resume
