@@ -15,7 +15,7 @@ workflow RUN_SNP_DENSITY {
         .map { chroms -> chroms.join(",") }
 
     data = VCFTOOLS_SNP_DENSITY(vcf, bin_size)
-    plot = PLOT_VCFTOOLS_SNP_DENSITY("${launchDir}/source/R/plot_snp_density.R", data, chrom_flag, chrom_labels)
+    plot = PLOT_VCFTOOLS_SNP_DENSITY(data, chrom_flag, chrom_labels)
 
     emit:
     data = data

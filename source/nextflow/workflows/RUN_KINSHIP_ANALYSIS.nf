@@ -9,7 +9,7 @@ workflow RUN_KINSHIP_ANALYSIS {
 
     main:
     kinship = VCFTOOLS_CALCULATE_RELATEDNESS(vcf)
-    matrix = PLOT_VCFTOOLS_RELATEDNESS("${launchDir}/source/R/plot_kinship_matrix.R", kinship, metadata)
+    matrix = PLOT_VCFTOOLS_RELATEDNESS(kinship, metadata)
 
     emit:
     data = kinship

@@ -23,7 +23,7 @@ workflow RUN_PAIRWISE_FST {
             "${pop_a},${pop_b},${fst}\n"
         }
         .collectFile( name: "weighted_mean_fst.csv", sort: { pop_pair -> pop_pair[0] } )
-    plot = PLOT_VCFTOOLS_PAIRWISE_MEAN_FST("${launchDir}/source/R/plot_pairwise_fst.R", mean)
+    plot = PLOT_VCFTOOLS_PAIRWISE_MEAN_FST(mean)
 
     emit:
     logfile = results.logfile

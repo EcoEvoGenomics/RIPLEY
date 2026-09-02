@@ -3,7 +3,6 @@ process PLOT_PLINK_LD_DECAY {
     label "RPLOT"
 
     input:
-    path(plot_script)
     path(ld_decay)
 
     output:
@@ -11,7 +10,7 @@ process PLOT_PLINK_LD_DECAY {
 
     script:
     """
-    Rscript ${plot_script} ${ld_decay}
+    Rscript plot_linkage_decay.R ${ld_decay}
     """
 }
 
@@ -20,7 +19,6 @@ process PLOT_PLINK_PCA {
     label "RPLOT"
 
     input:
-    path(plot_script)
     path(eigenval)
     path(eigenvec)
     path(metadata)
@@ -30,7 +28,7 @@ process PLOT_PLINK_PCA {
 
     script:
     """
-    Rscript ${plot_script} ${eigenval} ${eigenvec} ${metadata}
+    Rscript plot_pca.R ${eigenval} ${eigenvec} ${metadata}
     """
 }
 
@@ -39,7 +37,6 @@ process PLOT_REHH_XPEHH {
     label "RPLOT"
 
     input:
-    path(plot_script)
     path(scans)
     path(cands)
     path(gff)
@@ -54,7 +51,7 @@ process PLOT_REHH_XPEHH {
 
     script:
     """
-    Rscript ${plot_script} ${scans} ${cands} ${gff} ${chrom_labels} ${cand_pval} 170 170 20
+    Rscript plot_xpehh.R ${scans} ${cands} ${gff} ${chrom_labels} ${cand_pval} 170 170 20
     """
 }
 
@@ -63,7 +60,6 @@ process PLOT_VCFTOOLS_RELATEDNESS {
     label "RPLOT"
 
     input:
-    path(plot_script)
     path(relatedness)
     path(metadata)
 
@@ -72,7 +68,7 @@ process PLOT_VCFTOOLS_RELATEDNESS {
 
     script:
     """
-    Rscript ${plot_script} ${relatedness} ${metadata}
+    Rscript plot_kinship_matrix.R ${relatedness} ${metadata}
     """
 }
 
@@ -81,7 +77,6 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
     label "RPLOT"
 
     input:
-    path(plot_script)
     each(snpden)
     val(chrom_string)
     path(chrom_labels)
@@ -91,7 +86,7 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
 
     script:
     """
-    Rscript ${plot_script} ${snpden} ${chrom_string} ${chrom_labels}
+    Rscript plot_snp_density.R ${snpden} ${chrom_string} ${chrom_labels}
     """
 }
 
@@ -100,7 +95,6 @@ process PLOT_VCFTOOLS_VCF_STATS {
     label "RBASE"
 
     input:
-    path(plot_script)
     tuple \
         path(frq),
         path(idepth),
@@ -116,7 +110,7 @@ process PLOT_VCFTOOLS_VCF_STATS {
 
     script:
     """
-    Rscript ${plot_script} ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
+    Rscript plot_vcf_statistics.R ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
     """
 }
 
@@ -125,7 +119,6 @@ process PLOT_VCFTOOLS_PAIRWISE_MEAN_FST {
     label "RPLOT"
 
     input:
-    path(plot_script)
     path(means)
 
     output:
@@ -133,6 +126,6 @@ process PLOT_VCFTOOLS_PAIRWISE_MEAN_FST {
 
     script:
     """
-    Rscript ${plot_script} ${means}
+    Rscript plot_pairwise_fst.R ${means}
     """
 }

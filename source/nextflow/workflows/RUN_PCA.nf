@@ -9,7 +9,7 @@ workflow RUN_PCA {
 
     main:
     pca = PLINK_PCA(plinkfiles)
-    plot = PLOT_PLINK_PCA("${launchDir}/source/R/plot_pca.R", pca.eigenval, pca.eigenvec, metadata)
+    plot = PLOT_PLINK_PCA(pca.eigenval, pca.eigenvec, metadata)
 
     emit:
     data = pca.mix()
