@@ -16,8 +16,8 @@ process ADMIXTURE {
     awk '{\$1="0";print \$0}' ${bed.simpleName}.bim > ${bed.simpleName}.bim.tmp
     mv ${bed.simpleName}.bim.tmp ${bed.simpleName}.bim
     admixture --cv -j${task.cpus} ${bed.simpleName}.bed ${K} > ${bed.simpleName}.k${K}.out
-    mv ${bed.simpleName}.${K}.Q ${bed.simpleName}.k${K}.Q
     mv ${bed.simpleName}.${K}.P ${bed.simpleName}.k${K}.P
+    awk 'NR==FNR {f2[FNR]=\$1; next} {print f2[FNR] " " \$0}' ${fam} ${bed.simpleName}.${K}.Q > ${bed.simpleName}.k${K}.Q
     """
 }
 

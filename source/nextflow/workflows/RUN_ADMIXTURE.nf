@@ -11,14 +11,14 @@ workflow RUN_ADMIXTURE {
 
     main:
     k_values = Channel.of(kmin..kmax)
-    admix = ADMIXTURE(plinkfiles, k_values)
+    admixture = ADMIXTURE(plinkfiles, k_values)
 
     snp_list = PLINK_WRITE_SNPLIST(plinkfiles)
-    aim_snps = ADMIXTURE_AIMS(admix.pfile, snp_list, aim_variance_threshold)
-    vcfs = PLINK_EXTRACT_SITES(plinkfiles, aim_snps.flatten()) | PLINK_TO_VCF
+    aim_snps = ADMIXTURE_AIMS(admixture.pfile, snp_list, aim_variance_threshold)
+    aim_vcfs = PLINK_EXTRACT_SITES(plinkfiles, aim_snps.flatten()) | PLINK_TO_VCF
 
     emit:
-    data = admix.concat()
-    aims = vcfs
+    data = admixture.concat()
+    aims = aim_vcfs
 
 }
