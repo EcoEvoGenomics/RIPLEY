@@ -159,7 +159,7 @@ process PLINK_PCA {
     --pca
 
     mv plink.eigenval ${bed.simpleName}.eigenval
-    mv plink.eigenvec ${bed.simpleName}.eigenvec
+    awk '{\$2=""; \$1=\$1; print}' plink.eigenvec > ${bed.simpleName}.eigenvec
     """
 }
 

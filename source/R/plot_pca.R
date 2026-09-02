@@ -11,8 +11,6 @@ variance_percent <- variance_explained * 100
 
 eigenvectors <- read.table(args[2], header = FALSE)
 eigenvectors_id_index  <- 1
-eigenvectors_pid_index <- 2
-eigenvectors <- eigenvectors[-eigenvectors_pid_index]
 n_pc <- ncol(eigenvectors[-eigenvectors_id_index])
 pc_indices <- seq(from = eigenvectors_id_index, to = n_pc) + 1
 pc_names <- paste("PC", seq(n_pc), sep = "")
