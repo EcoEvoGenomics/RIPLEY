@@ -28,6 +28,44 @@ meta <- read.table(
 n_species <- length(unique(meta$Species))
 n_populations <- length(unique(meta$Population))
 
+draw_scree <- function(variance) {
+
+  scribble <- data.frame(
+    PC = factor(
+      seq_len(length(variance)),
+      levels = seq_len(length(variance))
+    ),
+    VAR = variance
+  )
+
+  scree_plot <- scribble |>
+    ggplot(
+      aes(
+        x = PC,
+        y = VAR
+      )
+    ) +
+    coord_cartesian(expand = FALSE) +
+    geom_col() +
+    xlab("Principal Component") +
+    ylab("Variance Explained (%)") +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_blank(),
+      panel.grid = element_blank()
+    )
+
+  ggsave(
+    plot = scree_plot,
+    filename = "scree.png",
+    dpi = 600,
+    width = 6.75 / 2,
+    height = 6.75 / 2,
+    bg = "white"
+  )
+
+}
+
 draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, meta, grouping) {
 
   pcx <- paste("PC", pcx_num, sep = "")
@@ -137,3 +175,5 @@ for (pc in plot_pcs) {
   draw_pca(eigenvectors, pcx, pcy, variance_percent, meta, "Species")
 
 }
+
+draw_scree(variance_percent)
