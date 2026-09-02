@@ -3,6 +3,10 @@
 set -o errexit
 set -o nounset
 
+this=$(readlink -f "$0")
+repo=$(dirname "$this")
+cd $repo
+
 nextflow -log ".nextflow/nextflow.log" run "nf/main/${0}.nf" \
     -with-report "output/${0}/report.html" \
     -params-file "options.yaml" \
