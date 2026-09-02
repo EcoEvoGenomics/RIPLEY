@@ -28,6 +28,6 @@ repo=$(dirname "$this")
 cd $repo
 
 nextflow -log ".nextflow/nextflow.log" run "./source/nf/main/${1}.nf" \
-    -with-report "output/${0}/report.html" \
+    -with-report "output/${1}/report.html" \
     -params-file "options.yaml" \
     -resume
