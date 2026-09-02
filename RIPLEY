@@ -3,6 +3,26 @@
 set -o errexit
 set -o nounset
 
+case "$1" in
+    consensus_haplotree |
+    genome_scan |
+    linkage_disequilibrium |
+    population_structure |
+    variant_diagnostics)
+        echo "Launching pipeline: $1"
+        ;;
+    *)
+        echo "Error: '$1' is not a pipeline." >&2
+        echo "Valid options are ..." >&2
+        echo "1: consensus_haplotree" >&2
+        echo "2: genome_scan" >&2
+        echo "3: linkage_disequilibrium" >&2
+        echo "4: population_structure" >&2
+        echo "5: variant_diagnostics" >&2
+        exit 1
+        ;;
+esac
+
 this=$(readlink -f "$0")
 repo=$(dirname "$this")
 cd $repo
