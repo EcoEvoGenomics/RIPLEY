@@ -4,11 +4,7 @@ set -o errexit
 set -o nounset
 
 case "$1" in
-    consensus_haplotree |
-    genome_scan |
-    linkage_disequilibrium |
-    population_structure |
-    variant_diagnostics)
+    consensus_haplotree | genome_scan | linkage_disequilibrium | population_structure | variant_diagnostics)
         echo "Launching pipeline: $1"
         ;;
     *)
