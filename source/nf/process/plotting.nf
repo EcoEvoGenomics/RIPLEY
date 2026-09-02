@@ -10,7 +10,7 @@ process PLOT_PLINK_LD_DECAY {
 
     script:
     """
-    Rscript ${projectDir}/source/R/plot_linkage_decay.R ${ld_decay}
+    Rscript ${projectDir}/../../R/plot_linkage_decay.R ${ld_decay}
     """
 }
 
@@ -28,7 +28,7 @@ process PLOT_PLINK_PCA {
 
     script:
     """
-    Rscript ${projectDir}/source/R/plot_pca.R ${eigenval} ${eigenvec} ${metadata}
+    Rscript ${projectDir}/../../R/plot_pca.R ${eigenval} ${eigenvec} ${metadata}
     """
 }
 
@@ -51,7 +51,7 @@ process PLOT_REHH_XPEHH {
 
     script:
     """
-    Rscript ${projectDir}/source/R/plot_xpehh.R ${scans} ${cands} ${gff} ${chrom_labels} ${cand_pval} 170 170 20
+    Rscript ${projectDir}/../../R/plot_xpehh.R ${scans} ${cands} ${gff} ${chrom_labels} ${cand_pval} 170 170 20
     """
 }
 
@@ -68,7 +68,7 @@ process PLOT_VCFTOOLS_RELATEDNESS {
 
     script:
     """
-    Rscript ${projectDir}/source/R/plot_kinship.R ${relatedness} ${metadata}
+    Rscript ${projectDir}/../../R/plot_kinship.R ${relatedness} ${metadata}
     """
 }
 
@@ -86,7 +86,7 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
 
     script:
     """
-    Rscript ${projectDir}/source/R/plot_snpden.R ${snpden} ${chrom_string} ${chrom_labels}
+    Rscript ${projectDir}/../../R/plot_snpden.R ${snpden} ${chrom_string} ${chrom_labels}
     """
 }
 
@@ -110,7 +110,7 @@ process PLOT_VCFTOOLS_VCF_STATS {
 
     script:
     """
-    Rscript ${projectDir}/source/R/plot_vcfstats.R ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
+    Rscript ${projectDir}/../../R/plot_vcfstats.R ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
     """
 }
 
@@ -126,6 +126,6 @@ process PLOT_VCFTOOLS_PAIRWISE_MEAN_FST {
 
     script:
     """
-    Rscript ${projectDir}/source/R/plot_fst.R ${means}
+    Rscript ${projectDir}/../../R/plot_fst.R ${means}
     """
 }
