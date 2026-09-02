@@ -7,7 +7,7 @@ this=$(readlink -f "$0")
 repo=$(dirname "$this")
 cd $repo
 
-nextflow -log ".nextflow/nextflow.log" run "nf/main/${0}.nf" \
+nextflow -log ".nextflow/nextflow.log" run "./nf/main/${1}.nf" \
     -with-report "output/${0}/report.html" \
     -params-file "options.yaml" \
     -resume
