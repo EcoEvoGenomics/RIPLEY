@@ -68,7 +68,7 @@ process PLOT_VCFTOOLS_RELATEDNESS {
 
     script:
     """
-    Rscript plot_kinship_matrix.R ${relatedness} ${metadata}
+    Rscript plot_kinship.R ${relatedness} ${metadata}
     """
 }
 
@@ -86,7 +86,7 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
 
     script:
     """
-    Rscript plot_snp_density.R ${snpden} ${chrom_string} ${chrom_labels}
+    Rscript plot_snpden.R ${snpden} ${chrom_string} ${chrom_labels}
     """
 }
 
@@ -110,7 +110,7 @@ process PLOT_VCFTOOLS_VCF_STATS {
 
     script:
     """
-    Rscript plot_vcf_statistics.R ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
+    Rscript plot_vcfstats.R ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
     """
 }
 
@@ -126,6 +126,6 @@ process PLOT_VCFTOOLS_PAIRWISE_MEAN_FST {
 
     script:
     """
-    Rscript plot_pairwise_fst.R ${means}
+    Rscript plot_fst.R ${means}
     """
 }
