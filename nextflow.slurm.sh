@@ -20,5 +20,4 @@ conda clean --yes --index-cache
 
 # CONFIGURE: NEXTFLOW OPTIONS
 nextflow -log .nextflow/nextflow.log run nf/main/${pipeline}.nf \
-    -params-file nextflow.yaml \
-    -profile saga_nn10082k
+    -params-file nextflow.yaml
