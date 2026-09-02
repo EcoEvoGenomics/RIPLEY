@@ -77,8 +77,8 @@ process PLINK_LD_PRUNE {
     val(r2_threshold)
 
     output:
-    path("prune.in"), emit: prune_in
-    path("prune.out"), emit: prune_out
+    path("pruned.in"), emit: pruned_in
+    path("pruned.out"), emit: pruned_out
 
     script:
     """
@@ -87,8 +87,8 @@ process PLINK_LD_PRUNE {
     --allow-extra-chr --chr-set ${n_chroms} \
     --indep-pairwise ${window_size}'kb' ${step_size} ${r2_threshold} \
     --make-bed --out ${bed.simpleName}
-    mv ${bed.simpleName}.prune.in prune.in
-    mv ${bed.simpleName}.prune.out prune.out   
+    mv ${bed.simpleName}.prune.in pruned.in
+    mv ${bed.simpleName}.prune.out pruned.out   
     """
 }
 
