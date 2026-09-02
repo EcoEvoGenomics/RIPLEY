@@ -1,8 +1,8 @@
 include { SPLIT_VCF } from "./SPLIT_VCF.nf"
 include { PAIR_CHANNEL_TO_SELF } from "./PAIR_CHANNEL_TO_SELF.nf"
 include { DROP_MISMATCHED_FILEKEY_PAIRS } from "./DROP_MISMATCHED_FILEKEY_PAIRS.nf"
-include { GET_GENOMICS_GENERAL; GENOMICS_GENERAL_VCF_TO_GENO; GENOMICS_GENERAL_POPGEN_WINDOWS } from "../modules/genomicsgeneral.nf"
-include { BCFTOOLS_MERGE_VCFS; BCFTOOLS_LIST_SAMPLES } from "../modules/bcftools.nf"
+include { GET_GENOMICS_GENERAL; GENOMICS_GENERAL_VCF_TO_GENO; GENOMICS_GENERAL_POPGEN_WINDOWS } from "../process/genomicsgeneral.nf"
+include { BCFTOOLS_MERGE_VCFS; BCFTOOLS_LIST_SAMPLES } from "../process/bcftools.nf"
 
 workflow RUN_POPGEN_WINDOWS {
 

@@ -19,6 +19,6 @@ conda activate /cluster/projects/nn10082k/conda_group/Nextflow25.04.6
 conda clean --yes --index-cache
 
 # CONFIGURE: NEXTFLOW OPTIONS
-nextflow -log .nextflow/nextflow.log run pipelines/${pipeline}.nf \
+nextflow -log .nextflow/nextflow.log run nf/main/${pipeline}.nf \
     -params-file nextflow.yaml \
     -profile saga_nn10082k

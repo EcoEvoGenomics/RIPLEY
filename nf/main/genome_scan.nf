@@ -1,9 +1,9 @@
-include { PARSE_REFERENCE_GENOME } from "../source/nextflow/workflows/PARSE_REFERENCE_GENOME.nf"
-include { PARSE_VCF } from "../source/nextflow/workflows/PARSE_VCF.nf"
-include { PARSE_METADATA } from "../source/nextflow/workflows/PARSE_METADATA.nf"
-include { SPLIT_VCF } from "../source/nextflow/workflows/SPLIT_VCF.nf"
-include { RUN_POPGEN_WINDOWS } from "../source/nextflow/workflows/RUN_POPGEN_WINDOWS.nf"
-include { RUN_EHH_SCAN } from "../source/nextflow/workflows/RUN_EHH_SCAN.nf"
+include { PARSE_REFERENCE_GENOME } from "../workflow/PARSE_REFERENCE_GENOME.nf"
+include { PARSE_VCF } from "../workflow/PARSE_VCF.nf"
+include { PARSE_METADATA } from "../workflow/PARSE_METADATA.nf"
+include { SPLIT_VCF } from "../workflow/SPLIT_VCF.nf"
+include { RUN_POPGEN_WINDOWS } from "../workflow/RUN_POPGEN_WINDOWS.nf"
+include { RUN_EHH_SCAN } from "../workflow/RUN_EHH_SCAN.nf"
 
 nextflow.preview.output = true
 

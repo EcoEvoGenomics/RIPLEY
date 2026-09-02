@@ -1,4 +1,4 @@
-include { BCFTOOLS_LIST_SAMPLES } from "../modules/bcftools.nf"
+include { BCFTOOLS_LIST_SAMPLES } from "../process/bcftools.nf"
 
 workflow PARSE_METADATA {
 

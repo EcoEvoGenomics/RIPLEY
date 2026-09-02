@@ -1,11 +1,11 @@
-include { BCFTOOLS_CALL_REGION_VARIANTS; BCFTOOLS_NORMALISE } from "../source/nextflow/modules/bcftools.nf"
-include { BCFTOOLS_INDEX; BCFTOOLS_INDEX as BCFTOOLS_INDEX_NORMALISED} from "../source/nextflow/modules/bcftools.nf"
-include { BCFTOOLS_MAKE_CONSENSUS_FASTA } from "../source/nextflow/modules/bcftools.nf"
-include { SAMTOOLS_EXTRACT_REGION; SAMTOOLS_INDEX_FASTA } from "../source/nextflow/modules/samtools.nf"
-include { CONCATENATE_FILES as CONCATENATE_FASTAS } from "../source/nextflow/modules/system.nf"
-include { MAFFT_ALIGN } from "../source/nextflow/modules/mafft.nf"
-include { IQTREE_BUILD_TREE; IQTREE_TO_PLAIN_NEWICK } from "../source/nextflow/modules/iqtree.nf"
-include { METADATA_TO_SPART } from "../source/nextflow/modules/system.nf"
+include { BCFTOOLS_CALL_REGION_VARIANTS; BCFTOOLS_NORMALISE } from "../process/bcftools.nf"
+include { BCFTOOLS_INDEX; BCFTOOLS_INDEX as BCFTOOLS_INDEX_NORMALISED} from "../process/bcftools.nf"
+include { BCFTOOLS_MAKE_CONSENSUS_FASTA } from "../process/bcftools.nf"
+include { SAMTOOLS_EXTRACT_REGION; SAMTOOLS_INDEX_FASTA } from "../process/samtools.nf"
+include { CONCATENATE_FILES as CONCATENATE_FASTAS } from "../process/system.nf"
+include { MAFFT_ALIGN } from "../process/mafft.nf"
+include { IQTREE_BUILD_TREE; IQTREE_TO_PLAIN_NEWICK } from "../process/iqtree.nf"
+include { METADATA_TO_SPART } from "../process/system.nf"
 
 nextflow.preview.output = true
 

@@ -1,5 +1,5 @@
-include { PLINK_TO_VCF; PLINK_WRITE_SNPLIST; PLINK_EXTRACT_SITES } from "../modules/plink.nf"
-include { ADMIXTURE; ADMIXTURE_AIMS } from "../modules/admixture.nf"
+include { PLINK_TO_VCF; PLINK_WRITE_SNPLIST; PLINK_EXTRACT_SITES } from "../process/plink.nf"
+include { ADMIXTURE; ADMIXTURE_AIMS } from "../process/admixture.nf"
 
 workflow RUN_ADMIXTURE {
 

@@ -1,7 +1,7 @@
 include { PAIR_CHANNEL_TO_SELF } from "./PAIR_CHANNEL_TO_SELF.nf"
-include { WRITE_POPULATION_CENSUS } from "../modules/system.nf"
-include { VCFTOOLS_CALCULATE_PAIRWISE_FST } from "../modules/vcftools.nf"
-include { PLOT_VCFTOOLS_PAIRWISE_MEAN_FST } from "../modules/plotting.nf"
+include { WRITE_POPULATION_CENSUS } from "../process/system.nf"
+include { VCFTOOLS_CALCULATE_PAIRWISE_FST } from "../process/vcftools.nf"
+include { PLOT_VCFTOOLS_PAIRWISE_MEAN_FST } from "../process/plotting.nf"
 
 workflow RUN_PAIRWISE_FST {
 

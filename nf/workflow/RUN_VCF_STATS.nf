@@ -1,5 +1,5 @@
-include { VCFTOOLS_VCF_STATS } from "../modules/vcftools.nf"
-include { PLOT_VCFTOOLS_VCF_STATS } from "../modules/plotting.nf"
+include { VCFTOOLS_VCF_STATS } from "../process/vcftools.nf"
+include { PLOT_VCFTOOLS_VCF_STATS } from "../process/plotting.nf"
 
 workflow RUN_VCF_STATS {
     

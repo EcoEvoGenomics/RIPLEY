@@ -1,6 +1,6 @@
-include { WRITE_POPULATION_CENSUS } from "../modules/system.nf"
-include { VCFTOOLS_EXCLUDE_BED } from "../modules/vcftools.nf"
-include { BCFTOOLS_PICK_SAMPLES } from "../modules/bcftools.nf"
+include { WRITE_POPULATION_CENSUS } from "../process/system.nf"
+include { VCFTOOLS_EXCLUDE_BED } from "../process/vcftools.nf"
+include { BCFTOOLS_PICK_SAMPLES } from "../process/bcftools.nf"
 
 workflow SPLIT_VCF {
 

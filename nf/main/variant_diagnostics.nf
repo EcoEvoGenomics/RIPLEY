@@ -1,8 +1,8 @@
-include { PARSE_REFERENCE_GENOME } from "../source/nextflow/workflows/PARSE_REFERENCE_GENOME.nf"
-include { PARSE_VCF } from "../source/nextflow/workflows/PARSE_VCF.nf"
-include { THIN_VCF } from "../source/nextflow/workflows/THIN_VCF.nf"
-include { RUN_SNP_DENSITY } from "../source/nextflow/workflows/RUN_SNP_DENSITY.nf"
-include { RUN_VCF_STATS } from "../source/nextflow/workflows/RUN_VCF_STATS.nf"
+include { PARSE_REFERENCE_GENOME } from "../workflow/PARSE_REFERENCE_GENOME.nf"
+include { PARSE_VCF } from "../workflow/PARSE_VCF.nf"
+include { THIN_VCF } from "../workflow/THIN_VCF.nf"
+include { RUN_SNP_DENSITY } from "../workflow/RUN_SNP_DENSITY.nf"
+include { RUN_VCF_STATS } from "../workflow/RUN_VCF_STATS.nf"
 
 nextflow.preview.output = true
 

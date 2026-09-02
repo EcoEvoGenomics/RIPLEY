@@ -1,4 +1,4 @@
-include { GET_WINPCA; WINPCA_CHROM; WINPCA_GENOMEPLOT } from "../modules/winpca.nf"
+include { GET_WINPCA; WINPCA_CHROM; WINPCA_GENOMEPLOT } from "../process/winpca.nf"
 
 workflow RUN_WINPCA {
 

@@ -1,11 +1,11 @@
-include { PARSE_REFERENCE_GENOME } from "../source/nextflow/workflows/PARSE_REFERENCE_GENOME.nf"
-include { PARSE_VCF } from "../source/nextflow/workflows/PARSE_VCF.nf"
-include { PARSE_METADATA } from "../source/nextflow/workflows/PARSE_METADATA.nf"
-include { RUN_KINSHIP_ANALYSIS } from "../source/nextflow/workflows/RUN_KINSHIP_ANALYSIS.nf"
-include { RUN_PAIRWISE_FST } from "../source/nextflow/workflows/RUN_PAIRWISE_FST.nf"
-include { RUN_LD_PRUNING } from "../source/nextflow/workflows/RUN_LD_PRUNING.nf"
-include { RUN_ADMIXTURE } from "../source/nextflow/workflows/RUN_ADMIXTURE.nf"
-include { RUN_PCA } from "../source/nextflow/workflows/RUN_PCA.nf"
+include { PARSE_REFERENCE_GENOME } from "../workflow/PARSE_REFERENCE_GENOME.nf"
+include { PARSE_VCF } from "../workflow/PARSE_VCF.nf"
+include { PARSE_METADATA } from "../workflow/PARSE_METADATA.nf"
+include { RUN_KINSHIP_ANALYSIS } from "../workflow/RUN_KINSHIP_ANALYSIS.nf"
+include { RUN_PAIRWISE_FST } from "../workflow/RUN_PAIRWISE_FST.nf"
+include { RUN_LD_PRUNING } from "../workflow/RUN_LD_PRUNING.nf"
+include { RUN_ADMIXTURE } from "../workflow/RUN_ADMIXTURE.nf"
+include { RUN_PCA } from "../workflow/RUN_PCA.nf"
 
 nextflow.preview.output = true
 

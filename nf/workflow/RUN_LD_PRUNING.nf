@@ -1,4 +1,4 @@
-include { PLINK_LD_PRUNE; PLINK_EXTRACT_SITES } from "../modules/plink.nf"
+include { PLINK_LD_PRUNE; PLINK_EXTRACT_SITES } from "../process/plink.nf"
 
 workflow RUN_LD_PRUNING {
 
