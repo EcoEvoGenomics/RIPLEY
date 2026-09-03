@@ -1,3 +1,21 @@
+process PLOT_ADMIXTURE {
+
+    label "RPLOT"
+
+    input:
+    path(admixture_clusts)
+    val(k_min_error)
+    path(metadata)
+
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${projectDir}/../../R/plot_admixture.R ${admixture_clusts} ${k_min_error} ${metadata}
+    """
+}
+
 process PLOT_PLINK_LD_DECAY {
 
     label "RPLOT"

@@ -32,6 +32,7 @@ workflow {
     fst_plot = RUN_PAIRWISE_FST.out.plot
     pca_data = RUN_PCA.out.data
     pca_plot = RUN_PCA.out.plot
+    admixture_plot = RUN_ADMIXTURE.out.plot
     admixture_data = RUN_ADMIXTURE.out.data
     admixture_aims = RUN_ADMIXTURE.out.aims
     admixture_clusts = RUN_ADMIXTURE.out.clusts
@@ -49,6 +50,7 @@ output {
     fst_plot { path "population_structure/fst" }
     pca_data { path "population_structure/pca" }
     pca_plot { path "population_structure/pca" }
+    admixture_plot { path "population_structure/admixture" }
     admixture_data { path "population_structure/admixture/data" }
     admixture_aims { path "population_structure/admixture/aims" }
     admixture_errors { path "population_structure/admixture" }
