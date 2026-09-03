@@ -25,9 +25,9 @@ workflow {
 
 output {
 
-    snpden_data { path "diagnostics/variants" }
-    snpden_plot { path "diagnostics/variants" }
-    stats_data { path "diagnostics/variants" }
-    stats_plot { path "diagnostics/variants" }
+    snpden_data { path "variant_diagnostics" }
+    snpden_plot { path "variant_diagnostics" }
+    stats_data { path "variant_diagnostics" }
+    stats_plot { path "variant_diagnostics" }
 
 }
