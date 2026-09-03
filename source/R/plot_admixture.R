@@ -1,6 +1,6 @@
 library(tidyverse)
-library(ggdendro)
 library(patchwork)
+library(ggdendro)
 
 args <- commandArgs(trailing = TRUE)
 
@@ -32,7 +32,7 @@ admixture_clusters <- admixture |>
   column_to_rownames("ID") |>
   select(!K) |>
   dist() |>
-  hclust(method = "average")
+  hclust(method = "ward.D2")
 
 dendro_data <- as.dendrogram(admixture_clusters) |> dendro_data()
 ids_sorted <- data.frame(
