@@ -13,7 +13,7 @@ meta <- read.table(
   col.names = c("ID", "Species", "Population", "Sex")
 )
 
-admixture <- data.table::fread(args[1], fill = TRUE) |>
+admixture <- data.table::fread(args[1], fill = Inf) |>
   as_tibble() |>
   rename(K = V1, ID = V2)
 
@@ -71,7 +71,7 @@ admixture_plot <- admixture_long |>
       vjust = 1,
       angle = 0,
       size = 6,
-      margin = margin(t = 1.5, r = -6, unit = "mm")
+      margin = margin(t = 1.5, r = -7.5, unit = "mm")
     )
   )
 
@@ -90,7 +90,10 @@ pop_meta <- admixture_long |>
   coord_cartesian(expand = FALSE, xlim = c(xmin, xmax)) +
   geom_tile() +
   guides(
-    fill = guide_legend(override.aes = list(colour = "black", linewidth = 0.15))
+    fill = guide_legend(
+      order = 1,
+      override.aes = list(colour = "black", linewidth = 0.15)
+    )
   ) +
   theme_void() +
   theme(
@@ -104,7 +107,10 @@ spp_meta <- admixture_long |>
   coord_cartesian(expand = FALSE, xlim = c(xmin, xmax)) +
   geom_tile() +
   guides(
-    fill = guide_legend(override.aes = list(colour = "black", linewidth = 0.15))
+    fill = guide_legend(
+      order = 2,
+      override.aes = list(colour = "black", linewidth = 0.15)
+    )
   ) +
   theme_void() +
   theme(
@@ -150,6 +156,6 @@ ggsave(
   file = "admixture.png",
   dpi = 600,
   width = 6.75,
-  height = 0.75 * max(admixture$K),
+  height = 0.75 * length(unique(admixture$K)),
   bg = "white"
 )

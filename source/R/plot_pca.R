@@ -114,7 +114,13 @@ draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, meta, grouping) {
     geom_point(size = point_size, stroke = 0.15) +
     scale_shape_manual(values = c(21, 22)) +
     guides(
-      fill = guide_legend(override.aes = list(shape = 22))
+      fill = guide_legend(
+        order = 1,
+        override.aes = list(shape = 22)
+      ),
+      shape = guide_legend(
+        order = 2
+      )
     ) +
     theme_bw() +
     theme(
