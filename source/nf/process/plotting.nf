@@ -92,7 +92,7 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
 
 process PLOT_VCFTOOLS_VCF_STATS {
 
-    label "RBASE"
+    label "RPLOT"
 
     input:
     tuple \
