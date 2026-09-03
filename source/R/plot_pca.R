@@ -28,39 +28,17 @@ n_populations <- length(unique(meta$Population))
 
 draw_scree <- function(variance) {
 
-  scribble <- data.frame(
-    PC = factor(
-      seq_len(length(variance)),
-      levels = seq_len(length(variance))
-    ),
-    VAR = variance
+  png("scree.png")
+  plot(
+    variance,
+    type = "h",
+    xlab = "Principal Component",
+    ylab = "Variance Explained (%)",
+    xlim = c(0, length(variance)),
+    ylim = c(0, 1.25 * max(variance)),
+    frame.plot = FALSE
   )
-
-  scree_plot <- scribble |>
-    ggplot(
-      aes(
-        x = PC,
-        y = VAR
-      )
-    ) +
-    coord_cartesian(expand = FALSE) +
-    geom_col() +
-    xlab("Principal Component") +
-    ylab("Variance Explained (%)") +
-    theme_minimal() +
-    theme(
-      axis.text.x = element_blank(),
-      panel.grid = element_blank()
-    )
-
-  ggsave(
-    plot = scree_plot,
-    filename = "scree.png",
-    dpi = 600,
-    width = 6.75 / 2,
-    height = 6.75 / 2,
-    bg = "white"
-  )
+  dev.off()
 
 }
 
@@ -87,7 +65,7 @@ draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, meta, grouping) {
       aes(
         x = .data[[pcx]],
         y = .data[[pcy]],
-        colour = .data[[grouping]],
+        fill = .data[[grouping]],
         shape = Sex
       )
     ) +
@@ -133,15 +111,28 @@ draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, meta, grouping) {
       hjust = 1, vjust = 0,
       colour = line_colour, size = text_size
     ) +
-    geom_point(size = point_size) +
+    geom_point(size = point_size, stroke = 0.15) +
+    scale_shape_manual(values = c(21, 22)) +
+    guides(
+      fill = guide_legend(override.aes = list(shape = 22))
+    ) +
     theme_bw() +
     theme(
       axis.text = element_blank(),
       axis.ticks = element_blank(),
       axis.title = element_blank(),
-      legend.justification = "top",
-      legend.key.spacing.y = unit(-2.5, "mm"),
-      legend.margin = margin(t = 0, b = 2.5, unit = "mm"),
+      legend.position = "inside",
+      legend.position.inside = c(
+        ifelse(abs(xmax) > abs(xmin), 1, 0),
+        ifelse(abs(ymax) > abs(ymin), 1, 0)
+      ),
+      legend.justification = c(
+        ifelse(abs(xmax) > abs(xmin), 1, 0),
+        ifelse(abs(ymax) > abs(ymin), 1, 0)
+      ),
+      legend.key.height = unit(2, "mm"),
+      legend.key.spacing.y = unit(0, "mm"),
+      legend.margin = margin(t = 0, b = 0, unit = "mm"),
       legend.text = element_text(size = 6),
       legend.title = element_text(size = 6, face = "bold"),
       panel.grid = element_blank(),
@@ -153,8 +144,8 @@ draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, meta, grouping) {
     plot = pca_plot,
     filename = paste(pcx, "_", pcy, "_", grouping, ".png", sep = ""),
     dpi = 600,
-    width = 6.75,
-    height = 6.75,
+    width = (6.75 / 2),
+    height = (6.75 / 2) * (sum(abs(c(ymin, ymax))) / sum(abs(c(xmin, xmax)))),
     bg = "white"
   )
 
@@ -163,8 +154,8 @@ draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, meta, grouping) {
 plot_pcs <- seq(from = 1, to =  n_populations - 1)
 for (pc in plot_pcs) {
 
-  pcx <- pc
-  pcy <- pcx + 1
+  pcx <- 1
+  pcy <- pc + 1
 
   if (pcy > max(plot_pcs)) break
   draw_pca(eigenvectors, pcx, pcy, variance_percent, meta, "Population")
