@@ -20,9 +20,9 @@ workflow RUN_PAIRWISE_FST {
             def pop_b = result[1] as String
             def fst   = result[2] as Double
             if (fst <= 0) { fst = 0 }
-            "${pop_a},${pop_b},${fst}\n"
+            "${pop_a}\t${pop_b}\t${fst}\n"
         }
-        .collectFile( name: "weighted_mean_fst.csv", sort: { pop_pair -> pop_pair[0] } )
+        .collectFile( name: "weighted.fst", sort: { pop_pair -> pop_pair[0] } )
     plot = PLOT_VCFTOOLS_PAIRWISE_MEAN_FST(mean)
 
     emit:

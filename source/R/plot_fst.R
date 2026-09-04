@@ -2,7 +2,7 @@ library(tidyverse)
 
 args <- commandArgs(trailing = TRUE)
 fst <- read.table(
-  args[1], sep = ",", header = FALSE,
+  args[1], header = FALSE,
   col.names = c("POP_A", "POP_B", "FST")
 )
 
