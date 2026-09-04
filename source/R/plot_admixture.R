@@ -97,7 +97,7 @@ pop_meta <- admixture_long |>
   ) +
   theme_void() +
   theme(
-    plot.margin = unit(c(1, 0, 0, 0), units = "mm"),
+    plot.margin = unit(c(2, 0, 0, 0), units = "mm"),
     panel.border = element_rect(colour = "black", linewidth = 0.15)
   )
 
@@ -118,25 +118,26 @@ spp_meta <- admixture_long |>
     panel.border = element_rect(colour = "black", linewidth = 0.15)
   )
 
-combined_plot <- (admixture_plot / dendrogram) +
+combined_plot <- (admixture_plot / pop_meta / dendrogram) +
   plot_layout(
     guides = "collect",
-    heights = c(33, 7)
-  )
-
-if (length(unique(meta$Population)) > 1) {
-  combined_plot <- (admixture_plot / pop_meta / dendrogram) +
-    plot_layout(
-      guides = "collect",
-      heights = c(33, 1, 6)
+    heights = c(
+      43.5 - (length(unique(admixture$K))) / 2,
+      0 + (length(unique(admixture$K))) / 2,
+      6.5
     )
-}
+  )
 
 if (length(unique(meta$Population)) > 1 && length(unique(meta$Species)) > 1) {
   combined_plot <- (admixture_plot / pop_meta / spp_meta / dendrogram) +
     plot_layout(
       guides = "collect",
-      heights = c(33, 1, 1, 5)
+      heights = c(
+        44 - (length(unique(admixture$K))) / 2,
+        0 + (length(unique(admixture$K))) / 2,
+        0 + (length(unique(admixture$K))) / 2,
+        6
+      )
     )
 }
 
@@ -146,9 +147,21 @@ combined_plot <- combined_plot &
     legend.justification = "top",
     legend.key.size = unit(2, "mm"),
     legend.key.spacing.y = unit(0.5, "mm"),
-    legend.margin = margin(t = 0, b = 2.5, unit = "mm"),
+    legend.margin = margin(t = 0, b = -1, unit = "mm"),
     legend.text = element_text(size = 6),
     legend.title = element_text(size = 6, face = "bold")
+  )
+
+small_plot <- combined_plot &
+  theme(
+    legend.position = "none",
+    strip.text.y.left = element_text(
+      hjust = 0,
+      vjust = 1,
+      angle = 0,
+      size = 7,
+      margin = margin(t = 1.5, r = -7.5, unit = "mm")
+    )
   )
 
 ggsave(
@@ -156,6 +169,15 @@ ggsave(
   file = "admixture.png",
   dpi = 600,
   width = 6.75,
-  height = 0.75 * length(unique(admixture$K)),
+  height = 1 + (0.3 * length(unique(admixture$K))),
+  bg = "white"
+)
+
+ggsave(
+  plot = small_plot,
+  file = "admixture_small.png",
+  dpi = 600,
+  width = (6.75 / 2),
+  height = 1 + (0.15 * length(unique(admixture$K))),
   bg = "white"
 )
