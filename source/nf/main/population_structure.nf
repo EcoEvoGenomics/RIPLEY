@@ -19,9 +19,14 @@ workflow {
 
     RUN_KINSHIP_ANALYSIS(input.vcf_condensed, metadata.for_samples)
     RUN_PAIRWISE_FST(input.vcf_condensed, metadata.focal_populations, metadata.for_samples)
-
     RUN_PCA(pruned.plinkfiles, metadata.for_samples)
-    RUN_ADMIXTURE(pruned.plinkfiles, metadata.for_samples, params.ps_admixture_kmin, params.ps_admixture_kmax, params.ps_aim_variance_threshold)
+    RUN_ADMIXTURE(
+        pruned.plinkfiles, 
+        metadata.for_samples, 
+        params.ps_admixture_kmin, 
+        params.ps_admixture_kmax, 
+        params.ps_aim_variance_threshold
+    )
 
     publish:
     kinship_data = RUN_KINSHIP_ANALYSIS.out.data

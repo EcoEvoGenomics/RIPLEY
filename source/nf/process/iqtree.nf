@@ -18,7 +18,7 @@ process IQTREE_BUILD_TREE {
 
 process IQTREE_TO_PLAIN_NEWICK {
 
-    label "RBASE"
+    label "RDATA"
 
     input:
     path(contree)

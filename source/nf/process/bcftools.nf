@@ -233,3 +233,20 @@ process BCFTOOLS_SAMPLE_VCF {
     bcftools view -R chrom_pos_sampled.txt -O z -o ${vcf.simpleName}.sample.vcf.gz ${vcf}
     """
 }
+
+process BCFTOOLS_VCF_TO_GENOTABLE {
+
+    label "BCFTOOLS"
+
+    input:
+    path(vcf)
+
+    output:
+    path("${vcf.simpleName}.gt"), emit: gt
+
+    script:
+    """
+    bcftools query -l "${vcf}" | paste -sd'\\t' | sed 's/^/ID\\t/' > "${vcf.simpleName}.gt"
+    bcftools query -f '%ID[\\t%TGT]\\n' "${vcf}" > "${vcf.simpleName}.gt"
+    """
+}
