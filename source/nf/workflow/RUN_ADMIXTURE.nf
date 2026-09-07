@@ -1,5 +1,5 @@
 include { PLINK_TO_VCF; PLINK_WRITE_SNPLIST; PLINK_EXTRACT_SITES } from "../process/plink.nf"
-include { ADMIXTURE; ADMIXTURE_AIMS } from "../process/admixture.nf"
+include { ADMIXTURE; ADMIXTURE_AIMS; CALCULATE_AIM_HIHET } from "../process/admixture.nf"
 include { BCFTOOLS_VCF_TO_GENOTABLE } from "../process/bcftools.nf"
 include { PLOT_ADMIXTURE } from "../process/plotting.nf"
 
@@ -32,16 +32,26 @@ workflow RUN_ADMIXTURE {
     admixture_plot = PLOT_ADMIXTURE(admixture_clusts, k_min_error, metadata)
 
     aim_snps = ADMIXTURE_AIMS(admixture.alleles, aim_variance_threshold)
-    aim_vcfs = PLINK_EXTRACT_SITES(plinkfiles, aim_snps.snpids.flatten()) | PLINK_TO_VCF
+    aim_vcfs = PLINK_EXTRACT_SITES(
+        plinkfiles,
+        aim_snps.snpids.flatten().filter { snplist -> snplist.readLines().size > 0 }
+    ) | PLINK_TO_VCF
     aim_gts = BCFTOOLS_VCF_TO_GENOTABLE(aim_vcfs)
-        .map { gt ->
-            def stem = gt.tokenize('_')
+
+    aim_hihet = aim_snps.alleles
+        .flatten()
+        .mix(aim_gts)
+        .map { it ->
+            def stem = it.simpleName.tokenize('_')
             def k = stem[-2][1..-1]
             def pops = stem[-1].tokenize('p')
-            tuple(k, pops[0], pops[1], gt)
+            def key = "${k}_${pops[0]}_${pops[1]}"
+            tuple(key, it)
         }
+        .groupTuple(by: 0)
+        .map { it -> it[1] }
+        .filter { it -> it.size() == 2 } | CALCULATE_AIM_HIHET
 
-    // TO-DO: Calculate hybrid index and heterozygosity
     // TO-DO: Plot triangle plots
 
     emit:
@@ -49,6 +59,7 @@ workflow RUN_ADMIXTURE {
     plot = admixture_plot
     clusts = admixture_clusts
     errors = admixture_errors
-    aims = aim_gts
+    aims = aim_hihet.aims
+    hihet = aim_hihet.hihet
 
 }

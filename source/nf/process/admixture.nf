@@ -84,3 +84,58 @@ process ADMIXTURE_AIMS {
     }
     """
 }
+
+process CALCULATE_AIM_HIHET {
+
+    label "RDATA"
+
+    input:
+    tuple path(allelefile), path(genotable)
+
+    output:
+    path("${genotable.simpleName}.aims"), emit: aims
+    path("${genotable.simpleName}.hihet"), emit: hihet
+
+    script:
+    """
+    #!/usr/bin/env Rscript
+    library(tidyverse)
+
+    al <- read.table("${allelefile.toString()}", col.names = c("LOC", "A1", "P1_FREQA1", "A2", "P2_FREQA2"))
+    gt <- read.table("${genotable.toString()}", header = TRUE) |> rename(LOC = ID)
+
+    data <- left_join(al, gt, by = "LOC") |> mutate(across(c(P1_FREQA1, P2_FREQA2), ~ sprintf("%.3f", .)))
+    write.table(data, file = "${genotable.simpleName}.aims", quote = FALSE, row.names = FALSE, sep = "\\t")
+
+    data <- data |>
+        select(-c("P1_FREQA1", "P2_FREQA2")) |>
+        pivot_longer(
+            -c("LOC", "A1", "A2"),
+            names_to = "ID",
+            values_to = "GT"
+        ) |>
+        separate(GT, into = c("GT1", "GT2"), sep = "[/|]") |>
+        mutate(
+            called = !(GT1 == "." | GT2 == "."),
+            nA1 = (GT1 == A1) + (GT2 == A1),
+            nA2 = (GT1 == A2) + (GT2 == A2),
+            het = (GT1 == A1 & GT2 == A2) | (GT1 == A2 & GT2 == A1)
+        ) |>
+        group_by(ID) |>
+        summarise(
+            n_called = sum(called),
+            n_missing = sum(!called),
+            n_total = n_called + n_missing,
+            n_A1 = sum(nA1[called]),
+            n_A2 = sum(nA2[called]),
+            n_het = sum(het[called]),
+            HI = n_A1 / (n_A1 + n_A2),
+            HET = n_het / n_called,
+            MISS = n_missing / n_total
+        ) |>
+        select(ID, HI, HET, MISS) |>
+        mutate(across(c(HI, HET, MISS), ~ sprintf("%.3f", .)))
+    
+    write.table(data, file = "${genotable.simpleName}.hihet", quote = FALSE, row.names = FALSE, sep = "\\t")
+    """
+}

@@ -40,6 +40,7 @@ workflow {
     admixture_plot = RUN_ADMIXTURE.out.plot
     admixture_data = RUN_ADMIXTURE.out.data
     admixture_aims = RUN_ADMIXTURE.out.aims
+    admixture_hihet = RUN_ADMIXTURE.out.hihet
     admixture_clusts = RUN_ADMIXTURE.out.clusts
     admixture_errors = RUN_ADMIXTURE.out.errors
 
@@ -58,6 +59,7 @@ output {
     admixture_plot { path "population_structure/admixture" }
     admixture_data { path "population_structure/admixture/data" }
     admixture_aims { path "population_structure/admixture/aims" }
+    admixture_hihet { path "population_structure/admixture/aims" }
     admixture_errors { path "population_structure/admixture" }
     admixture_clusts { path "population_structure/admixture" }
 
