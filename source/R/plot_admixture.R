@@ -28,7 +28,7 @@ admixture_long <- admixture |>
   )
 
 admixture_clusters <- admixture |>
-  filter(K == k_min_error) |>
+  filter(K == max(K)) |>
   column_to_rownames("ID") |>
   select(!K) |>
   dist() |>
