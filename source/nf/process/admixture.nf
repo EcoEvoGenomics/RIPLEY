@@ -67,11 +67,13 @@ process ADMIXTURE_AIMS {
             vars <- apply(ptable[c(p1, p2)], 1, \\(x) var(x))
             aims <- snpids[which(vars >= ${variance_threshold})]
             aimtable <- ptable[which(ptable\$V1 %in% aims), c(metacols, p1, p2)]
-            aimtable[6] <- ifelse(aimtable[[4]] > aimtable[[5]], aimtable[[2]], aimtable[[3]])
-            aimtable[7] <- ifelse(aimtable[[4]] > aimtable[[5]], aimtable[[4]], 1 - aimtable[[4]])
-            aimtable[8] <- ifelse(aimtable[[5]] > aimtable[[4]], aimtable[[2]], aimtable[[3]])
-            aimtable[9] <- ifelse(aimtable[[5]] > aimtable[[4]], aimtable[[5]], 1 - aimtable[[5]])
-            aimtable <- aimtable[, c(1, 6 : 9)]
+            aimtable[6] <- rep(paste("p", i, sep = ""), nrow(aimtable))
+            aimtable[7] <- ifelse(aimtable[[4]] > aimtable[[5]], aimtable[[2]], aimtable[[3]])
+            aimtable[8] <- ifelse(aimtable[[4]] > aimtable[[5]], aimtable[[4]], 1 - aimtable[[4]])
+            aimtable[9] <- rep(paste("p", j, sep = ""), nrow(aimtable))
+            aimtable[10] <- ifelse(aimtable[[5]] > aimtable[[4]], aimtable[[2]], aimtable[[3]])
+            aimtable[11] <- ifelse(aimtable[[5]] > aimtable[[4]], aimtable[[5]], 1 - aimtable[[5]])
+            aimtable <- aimtable[, c(1, 6 : 11)]
             write.table(
                 aimtable,
                 row.names = FALSE,
@@ -101,7 +103,7 @@ process CALCULATE_AIM_HIHET {
     #!/usr/bin/env Rscript
     library(tidyverse)
 
-    al <- read.table("${allelefile.toString()}", col.names = c("LOC", "A1", "P1_FREQA1", "A2", "P2_FREQA2"))
+    al <- read.table("${allelefile.toString()}", col.names = c("LOC", "P1", "A1", "P1_FREQA1", "P2", "A2", "P2_FREQA2"))
     gt <- read.table("${genotable.toString()}", header = TRUE) |> rename(LOC = ID)
 
     data <- left_join(al, gt, by = "LOC") |> mutate(across(c(P1_FREQA1, P2_FREQA2), ~ sprintf("%.3f", .)))
@@ -109,8 +111,10 @@ process CALCULATE_AIM_HIHET {
 
     data <- data |>
         select(-c("P1_FREQA1", "P2_FREQA2")) |>
+        mutate(COMPARISON = paste(P1, P2, sep = "-")) |>
+        select(-c("P1", "P2")) |>
         pivot_longer(
-            -c("LOC", "A1", "A2"),
+            -c("LOC", "COMPARISON", "A1", "A2"),
             names_to = "ID",
             values_to = "GT"
         ) |>
@@ -121,7 +125,7 @@ process CALCULATE_AIM_HIHET {
             nA2 = (GT1 == A2) + (GT2 == A2),
             het = (GT1 == A1 & GT2 == A2) | (GT1 == A2 & GT2 == A1)
         ) |>
-        group_by(ID) |>
+        group_by(COMPARISON, ID) |>
         summarise(
             n_called = sum(called),
             n_missing = sum(!called),
@@ -133,7 +137,7 @@ process CALCULATE_AIM_HIHET {
             HET = n_het / n_called,
             MISS = n_missing / n_total
         ) |>
-        select(ID, HI, HET, MISS) |>
+        select(COMPARISON, ID, HI, HET, MISS) |>
         mutate(across(c(HI, HET, MISS), ~ sprintf("%.3f", .)))
     
     write.table(data, file = "${genotable.simpleName}.hihet", quote = FALSE, row.names = FALSE, sep = "\\t")

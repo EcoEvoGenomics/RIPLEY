@@ -16,6 +16,22 @@ process PLOT_ADMIXTURE {
     """
 }
 
+process PLOT_HIHET {
+
+    label "RPLOT"
+
+    input:
+    tuple path(hihet), path(metadata)
+
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${projectDir}/../../R/plot_hihet.R ${hihet} ${metadata}
+    """
+}
+
 process PLOT_PLINK_LD_DECAY {
 
     label "RPLOT"

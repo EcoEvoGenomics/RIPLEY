@@ -1,7 +1,7 @@
 include { PLINK_TO_VCF; PLINK_WRITE_SNPLIST; PLINK_EXTRACT_SITES } from "../process/plink.nf"
 include { ADMIXTURE; ADMIXTURE_AIMS; CALCULATE_AIM_HIHET } from "../process/admixture.nf"
 include { BCFTOOLS_VCF_TO_GENOTABLE } from "../process/bcftools.nf"
-include { PLOT_ADMIXTURE } from "../process/plotting.nf"
+include { PLOT_ADMIXTURE; PLOT_HIHET } from "../process/plotting.nf"
 
 workflow RUN_ADMIXTURE {
 
@@ -42,9 +42,9 @@ workflow RUN_ADMIXTURE {
         .flatten()
         .mix(aim_gts)
         .map { it ->
-            def stem = it.simpleName.tokenize('_')
+            def stem = it.simpleName.tokenize("_")
             def k = stem[-2][1..-1]
-            def pops = stem[-1].tokenize('p')
+            def pops = stem[-1].tokenize("p")
             def key = "${k}_${pops[0]}_${pops[1]}"
             tuple(key, it)
         }
@@ -52,11 +52,22 @@ workflow RUN_ADMIXTURE {
         .map { it -> it[1] }
         .filter { it -> it.size() == 2 } | CALCULATE_AIM_HIHET
 
-    // TO-DO: Plot triangle plots
+    hihet_plots = aim_hihet.hihet
+        .map { it ->
+            def k = it.simpleName.tokenize("_")[-2][1..-1]
+            tuple(k, it)
+        }
+        .collectFile(
+            name: { k -> k },
+            keepHeader: true,
+            skip: 1,
+            sort: true
+        )
+        .combine(metadata) | PLOT_HIHET
 
     emit:
     data = admixture.data
-    plot = admixture_plot
+    plot = admixture_plot.mix(hihet_plots)
     clusts = admixture_clusts
     errors = admixture_errors
     aims = aim_hihet.aims
