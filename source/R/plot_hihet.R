@@ -15,6 +15,15 @@ plot_data <- hihet |>
   left_join(meta, by = "ID") |>
   separate(COMPARISON, into = c("P1", "P2"), sep = "-")
 
+triangle_data <- plot_data |>
+  distinct(P1, P2) |>
+  crossing(
+    data.frame(
+      x = c(0, 1, 0.5, 0),
+      y = c(0, 0, 1, 0)
+    )
+  )
+
 hihet_plot <- plot_data |>
   ggplot(
     aes(
@@ -27,6 +36,21 @@ hihet_plot <- plot_data |>
   ylab("Heterozygosity") +
   coord_equal() +
   facet_grid(cols = vars(P1), rows = vars(P2), switch = "x") +
+  geom_polygon(
+    data = triangle_data,
+    aes(x = x, y = y),
+    colour = "black",
+    fill = NA,
+    linewidth = 0.1,
+    inherit.aes = FALSE
+  ) +
+  stat_function(
+    fun = \(x) x * 2 * (1 - x),
+    xlim = c(0, 1),
+    linetype = 2,
+    linewidth = 0.15,
+    colour = "black"
+  ) +
   geom_text(
     data = plot_data |> distinct(P1, P2) |> mutate(LABEL = P1),
     aes(
@@ -53,6 +77,16 @@ hihet_plot <- plot_data |>
     inherit.aes = FALSE,
     show.legend = FALSE
   ) +
+  geom_point(
+    size = min(2.5, 2.5 / (0.75 * length(unique(plot_data$P1)))),
+    pch = 21,
+    stroke = 0.15
+  ) +
+  guides(
+    fill = guide_legend(
+      override.aes = list(shape = 22, size = 2.5)
+    )
+  ) +
   scale_colour_brewer(palette = "Set1") +
   scale_x_continuous(
     expand = expansion(add = 0.2),
@@ -67,23 +101,6 @@ hihet_plot <- plot_data |>
     limits = c(0, 1),
     breaks = c(0, 0.5, 1),
     labels = c(0, 0.5, 1)
-  ) +
-  stat_function(
-    fun = \(x) x * 2 * (1 - x),
-    xlim = c(0, 1),
-    linetype = 2,
-    linewidth = 0.15,
-    colour = "black"
-  ) +
-  geom_point(
-    size = min(2.5, 2.5 / (0.75 * length(unique(plot_data$P1)))),
-    pch = 21,
-    stroke = 0.15
-  ) +
-  guides(
-    fill = guide_legend(
-      override.aes = list(shape = 22, size = 2.5)
-    )
   ) +
   theme_bw() +
   theme(
