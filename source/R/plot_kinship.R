@@ -140,7 +140,7 @@ combined_plot <- (
     plot_layout(guides = "collect", heights = c(37, 0.5, 2.5)
     ) |
     (plot_spacer() / kinship_key / plot_spacer()) +
-      plot_layout(heights = c(0.01, 36.6, 3.4)
+      plot_layout(heights = c(0.01, 36.5, 3.5)
       )
 ) + plot_layout(widths = c(39, 1))
 
@@ -150,7 +150,7 @@ if (length(unique(data$Population)) > 1 && length(unique(data$Species)) > 1) {
       plot_layout(guides = "collect", heights = c(37, 0.5, 0.5, 2)
       ) |
       (plot_spacer() / kinship_key / plot_spacer()) +
-        plot_layout(heights = c(0.01, 36.6, 3.4)
+        plot_layout(heights = c(0.01, 36.5, 3.5)
         )
   ) + plot_layout(widths = c(39, 1))
 }
