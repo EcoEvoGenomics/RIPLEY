@@ -1,6 +1,6 @@
 process GET_WINPCA {
 
-    // Obtains Moritz Blumer's WinPCA software
+    // Downloads Moritz Blumer's WinPCA software
     // See https://github.com/MoritzBlumer/winpca
 
     label "SYSTEM"
@@ -15,50 +15,30 @@ process GET_WINPCA {
     """
 }
 
-process WINPCA_CHROM {
+process WINPCA_PCA_CHROMWISE {
 
     label "WINPCA"
 
-    // If there is no data for a chromosome, we ignore the resultant error
+    // Exits with an unhelpful WinPCA error for VCFs with fewer than 10 000 sites.
     errorStrategy "ignore"
 
     input:
-    path(winpca)
-    path(metadata_csv)
-    tuple path(vcf), val(chrom), val(chrom_length)
+    path(repo)
+    tuple path(vcf), val(chrom), val(chrom_length), val(window_size), val(step_size)
 
     output:
-    path("${vcf.simpleName}_${chrom}*"), emit: data
-    path("*.html"), emit: plot
+    path("${vcf.simpleName}*")
 
     script:
     """
-    echo -e "sample_id\\tspecies\\tpopulation" > metadata.tsv
-    cat ${metadata_csv} | awk -F, '{print \$1"\\t"\$2"\\t"\$3}' >> metadata.tsv
-    python3 winpca pca ${vcf.simpleName}_${chrom} ${vcf} ${chrom}:1-${chrom_length} --np
-    python3 winpca chromplot ${vcf.simpleName}_${chrom} ${chrom}:1-${chrom_length} -m metadata.tsv -g species
-    """
-}
-
-process WINPCA_GENOMEPLOT {
-
-    label "WINPCA"
-
-    input:
-    path(winpca)
-    path(vcf)
-    path(metadata_csv)
-    path(inputs)
-    val(chrom_list)
-
-    output:
-    path("*.html")
-
-    script:
-    """
-    echo -e "sample_id\\tspecies\\tpopulation" > metadata.tsv
-    cat ${metadata_csv} | awk -F, '{print \$1"\\t"\$2"\\t"\$3}' >> metadata.tsv
-    python3 winpca genomeplot ${vcf.simpleName}_ '${chrom_list}' -m metadata.tsv -g species
-    mv ${vcf.simpleName}_.genomeplot.pc_1.html ${vcf.simpleName}.genomeplot.pc_1.html 
+    python3 winpca pca ${vcf.simpleName} ${vcf} ${chrom}:1-${chrom_length} \
+        --threads ${task.cpus} \
+        --window_size ${window_size} \
+        --increment ${step_size} \
+        --np
+    gunzip ${vcf.simpleName}.pc_1.tsv.gz
+    gunzip ${vcf.simpleName}.pc_2.tsv.gz
+    gunzip ${vcf.simpleName}.hetp.tsv.gz
+    gunzip ${vcf.simpleName}.stat.tsv.gz
     """
 }

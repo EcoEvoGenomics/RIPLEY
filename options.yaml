@@ -33,7 +33,8 @@ ch_mafft_iterations: 1000
 ch_iqtree_bootstraps: 1000
 
 ############ gs: Genome Scan ##############
-gs_vcfdir: 
+gs_vcfdir_selection: 
+gs_vcfdir_structure: 
 gs_window_size: 100000
 gs_step_size: 10000
 gs_min_sites: 1000
