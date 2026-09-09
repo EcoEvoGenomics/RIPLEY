@@ -29,6 +29,7 @@ process VCFTOOLS_SNP_DENSITY {
     script:
     """
     vcftools --gzvcf ${vcf} --SNPdensity ${binsize} --out ${vcf.simpleName}
+    sed -i -E 's/^([0-9]+)\\t/chr\\1\\t/' ${vcf.simpleName}.snpden
     """
 }
 
