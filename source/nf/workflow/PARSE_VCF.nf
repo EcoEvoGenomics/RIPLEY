@@ -8,6 +8,7 @@ workflow PARSE_VCF {
     vcf_path
     exclude_coords
     chrom_names
+    permit_vcf
     permit_dir
 
     main:
@@ -15,6 +16,7 @@ workflow PARSE_VCF {
     def input_is_dir = file(vcf_path).isDirectory()
     if (input_is_vcf && input_is_dir) { exit(1, "The input path may be interpreted both as file and directory.") }
     if (!(input_is_vcf || input_is_dir)) { exit(1, "The input path does not exist or is not a directory or VCF.") }
+    if (input_is_vcf && !permit_vcf) { exit(1, "This pipeline cannot process a single VCF file, only a directory.") }
     if (input_is_dir && !permit_dir) { exit(1, "This pipeline cannot process a directory, only a single VCF file.") }
     keep_chroms = chrom_names.collect()
 

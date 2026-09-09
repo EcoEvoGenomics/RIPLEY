@@ -10,7 +10,7 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input = PARSE_VCF(params.vd_vcf, params.ref_exclude_coords, genome.chrom_names, true)
+    input = PARSE_VCF(params.vd_vcf, params.ref_exclude_coords, genome.chrom_names, true, true)
 
     RUN_SNP_DENSITY(input.vcf_condensed, params.vd_snpden_binsize, genome.chrom_names, genome.chrom_labels)
     THIN_VCF(input.vcf_annotated, params.vd_thin_to) | RUN_VCF_STATS
