@@ -4,12 +4,6 @@ process REHH_LOAD_VCF {
 
     label "REHH"
 
-    cpus 1
-    time { 2.h * task.attempt }
-    memory { 256.MB * Math.ceil(vcf.size() / 1024 ** 2) * task.attempt }
-    errorStrategy "retry"
-    maxRetries 2
-
     input:
     path(vcf)
 
@@ -34,33 +28,6 @@ process REHH_LOAD_VCF {
 process REHH_SCAN_HAPLOTYPE_HOMOZYGOSITY {
 
     label "REHH"
-
-    cpus {
-        def haplohh_size_mb = Math.ceil(haplohh.size() / 1024 ** 2)
-        haplohh_size_mb < 15
-        ? 8
-        : haplohh_size_mb < 30
-          ? 16
-          : 32
-    }
-    time {
-        def haplohh_size_mb = Math.ceil(haplohh.size() / 1024 ** 2)
-        task.exitStatus == 140
-        ? task.previousTrace.time * 2
-        : haplohh_size_mb < 5
-          ? 4.h
-          : haplohh_size_mb < 20
-            ? 8.h
-            : 16.h
-    }
-    memory {
-        def haplohh_size_mb = Math.ceil(haplohh.size() / 1024 ** 2)
-        task.exitStatus == 137
-        ? 256.MB * haplohh_size_mb * task.attempt
-        : 256.MB * haplohh_size_mb
-    }
-    errorStrategy "retry"
-    maxRetries 3
 
     input:
     path(haplohh)
@@ -88,12 +55,6 @@ process REHH_CALCULATE_IHS {
     // NB! Parameter freqbin = 0 assumes original input unpolarised (see process REHH_LOAD_VCF)
 
     label "REHH"
-
-    cpus 1
-    time { 2.h * task.attempt }
-    memory { 16.MB * Math.ceil(csv.size() / 1024 ** 2) * task.attempt }
-    errorStrategy "retry"
-    maxRetries 2
 
     input:
     path(csv)
@@ -131,12 +92,6 @@ process REHH_CALCULATE_IHS {
 process REHH_CALCULATE_XPEHH {
 
     label "REHH"
-
-    cpus 1
-    time { 2.h * task.attempt }
-    memory { 16.MB * Math.ceil((csv_a.size() + csv_b.size()) / 1024 ** 2) * task.attempt }
-    errorStrategy "retry"
-    maxRetries 2
 
     input:
     tuple val(key), val(pop_a), val(pop_b), path(csv_a), path(csv_b)
