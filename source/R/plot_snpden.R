@@ -22,6 +22,7 @@ density_plot <- data |>
       fill = log10(SNP_COUNT)
     )
   ) +
+  geom_tile(height = 0.75, colour = "black", fill = "black") +
   geom_tile(height = 0.75) +
   scale_fill_viridis_c(
     name = expression(log[10] ~ (SNPs)),
@@ -40,7 +41,7 @@ density_plot <- data |>
     )
   ) +
   scale_y_discrete(
-    expand = 0.4 / n_chroms,
+    expand = expansion(add = 1),
     labels = rev(names(renamed_chroms))
   ) +
   theme_void() +
