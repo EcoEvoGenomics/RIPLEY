@@ -12,8 +12,8 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input_selection = PARSE_VCF_SELECTION(params.gs_vcfdir_selection, params.ref_exclude_coords, genome.chrom_names, false, true)
-    input_structure = PARSE_VCF_STRUCTURE(params.gs_vcfdir_structure, params.ref_exclude_coords, genome.chrom_names, false, true)
+    input_selection = PARSE_VCF_SELECTION(params.gs_vcfdir_selection, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, false, true)
+    input_structure = PARSE_VCF_STRUCTURE(params.gs_vcfdir_structure, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, false, true)
     metadata_selection = PARSE_METADATA_SELECTION(params.metadata, params.focal_populations, input_selection.vcf_condensed)
     metadata_structure = PARSE_METADATA_STRUCTURE(params.metadata, params.focal_populations, input_structure.vcf_condensed)
 

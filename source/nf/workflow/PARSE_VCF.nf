@@ -7,6 +7,7 @@ workflow PARSE_VCF {
     take:
     vcf_path
     exclude_coords
+    total_chroms
     chrom_names
     permit_vcf
     permit_dir
@@ -31,13 +32,11 @@ workflow PARSE_VCF {
             }
             .map { i -> i[0] }
             .ifEmpty { exit(1, "Path ${vcf_path} contains no vcf.gz files.") }
-        plink_n_chroms = Channel.value(1)
     }
 
     if (input_is_vcf) {
         chrom_flag = keep_chroms.map { i -> i.join(",")}
         vcf_annotated = BCFTOOLS_SELECT_CHROMS(vcf_path, chrom_flag)
-        plink_n_chroms = chrom_names.count()
     }
 
     // To-do: Add test for strictly alphanumeric input VCF names (e.g. myVars.vcf.gz)
@@ -49,7 +48,7 @@ workflow PARSE_VCF {
         vcf_filtered = vcf_annotated
     }
 
-    plinkfiles = PLINK_INIT_PLINKFILES(vcf_filtered, plink_n_chroms)
+    plinkfiles = PLINK_INIT_PLINKFILES(vcf_filtered, total_chroms)
     vcf_condensed = PLINK_TO_VCF(plinkfiles)
 
     emit:

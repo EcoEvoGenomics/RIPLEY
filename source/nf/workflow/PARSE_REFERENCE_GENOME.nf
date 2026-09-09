@@ -19,6 +19,11 @@ workflow PARSE_REFERENCE_GENOME {
     genome_annotations = Channel.fromPath("${file(genome_path).parent}/${file(genome_path).baseName}.gff", checkIfExists: true)
     chrom_labels = Channel.fromPath("${label_table}", checkIfExists: true)
 
+    total_chroms = genome_index
+        .splitCsv( sep:"\t" )
+        .filter { row -> !(pattern != null && row[0].toString().contains(pattern))}
+        .count()
+
     index_entries = genome_index
         .splitCsv( sep:"\t" )
         .filter { row -> !(pattern != null && row[0].toString().contains(pattern)) && !(exclude.contains(row[0])) }
@@ -33,6 +38,7 @@ workflow PARSE_REFERENCE_GENOME {
     fasta = genome
     fai = genome_index
     gff = genome_annotations
+    total_chroms = total_chroms
     chrom_indices = index_entries
     chrom_names = chrom_names
     chrom_labels = chrom_labels
