@@ -1,4 +1,5 @@
 library(tidyverse)
+library(patchwork)
 
 args <- commandArgs(trailing = TRUE)
 chroms <- strsplit(args[2], ",")[[1]]
@@ -22,9 +23,11 @@ density_plot <- data |>
       fill = log10(SNP_COUNT)
     )
   ) +
+  ggtitle("Chromosome") +
   geom_tile(height = 0.75, colour = "black", fill = "black") +
   geom_tile(height = 0.75) +
   scale_fill_viridis_c(
+    limits = c(0, max(log10(data$SNP_COUNT))),
     name = expression(log[10] ~ (SNPs)),
     option = "magma"
   ) +
@@ -33,7 +36,7 @@ density_plot <- data |>
     expand = expansion(add = 0),
     limits = c((xmax * -0.015), (xmax * 1.03)),
     breaks = seq(from = 0, to = xmax, length.out = 3),
-    position = "top",
+    # position = "top",
     labels = scales::label_number(
       accuracy = 1,
       scale  = 1 / 1e6,
@@ -47,24 +50,56 @@ density_plot <- data |>
   theme_void() +
   theme(
     axis.line.x = element_line(colour = "black", linewidth = 0.1),
-    axis.text.x = element_text(size = 6),
-    axis.text.y = element_text(size = 6, hjust = 1),
+    axis.text.x = element_text(size = 5, margin = margin(t = 1, unit = "mm")),
+    axis.text.y = element_text(size = 5, hjust = 1),
     axis.ticks.length = unit(0.5, "mm"),
     axis.ticks.x = element_line(colour = "black", linewidth = 0.1),
-    legend.position = "bottom",
-    legend.justification.bottom = c("right", "top"),
-    legend.margin = margin(t = -0.2, r = 0.5, unit = "cm"),
-    legend.text = element_text(size = 6),
-    legend.ticks = element_blank(),
-    legend.title = element_text(size = 6, face = "bold", vjust = 0.85),
-    legend.key.width  = unit(0.75, "cm"),
-    legend.key.height = unit(0.4, "cm")
+    plot.title = element_text(size = 6, face = "bold", hjust = 0),
+    legend.position = "none"
+  )
+
+density_key <- data |>
+  ggplot(
+    aes(
+      y = 0,
+      x = seq(
+        0,
+        max(log10(data$SNP_COUNT), na.rm = TRUE),
+        length.out = length(data$SNP_COUNT)
+      ),
+      fill = seq(
+        0,
+        max(log10(data$SNP_COUNT), na.rm = TRUE),
+        length.out = length(data$SNP_COUNT)
+      )
+    )
+  ) +
+  ggtitle(expression(bold("Number of SNPs (" ~ italic("log"[10]) ~ ")"))) +
+  coord_cartesian(expand = FALSE) +
+  geom_tile(show.legend = FALSE, height = 1.075, colour = "black") +
+  geom_raster(show.legend = FALSE) +
+  scale_x_continuous(
+    expand = expansion(add = 0),
+    limit = c(
+      max(log10(data$SNP_COUNT), na.rm = TRUE) * - 0.015,
+      max(log10(data$SNP_COUNT), na.rm = TRUE) * 1.03
+    ),
+    labels = scales::number_format(accuracy = 0.1)
+  ) +
+  scale_fill_viridis_c(option = "magma") +
+  theme_void() +
+  theme(
+    axis.text.y = element_blank(),
+    axis.text.x = element_text(size = 5, margin = margin(t = 1, unit = "mm")),
+    axis.ticks.length = unit(0.25, units = "mm"),
+    axis.ticks.x = element_line(colour = "black", linewidth = 0.15),
+    plot.title = element_text(size = 6, face = "bold", hjust = 0, vjust = 4)
   )
 
 inches_per_chrom <- 0.125
 
 ggsave(
-  plot = density_plot,
+  plot = (density_key / plot_spacer() / density_plot) + plot_layout(heights = c(0.75, 0.75, n_chroms)),
   filename = paste(name, ".png", sep = ""),
   dpi = 600,
   height = (n_chroms * inches_per_chrom) + 1,
