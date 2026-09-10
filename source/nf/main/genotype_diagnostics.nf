@@ -13,7 +13,7 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
     input = PARSE_VCF(params.gd_vcf, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, true, true)
-    metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed)
+    metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed, null)
 
     RUN_SNP_DENSITY(input.vcf_condensed, params.gd_snpden_binsize, genome.chrom_names, genome.chrom_labels)
     THIN_VCF(input.vcf_annotated, params.gd_thin_to) | RUN_VCF_STATS

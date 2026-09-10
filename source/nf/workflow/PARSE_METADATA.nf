@@ -2,17 +2,18 @@ include { BCFTOOLS_LIST_SAMPLES } from "../process/bcftools.nf"
 
 workflow PARSE_METADATA {
 
+    // To-do: Add test to ensure all metadata is strictly alphanumeric
+
     take:
     sample_metadata_path
     focal_population_input
-    vcfs
+    check_vcf
+    check_cram
 
     main:
     sample_metadata = Channel.fromPath(sample_metadata_path, checkIfExists: true)
 
-    // To-do: Add test to ensure all metadata is strictly alphanumeric
-
-    // Raise error if there are duplicate sample entries in metadata
+    // Samples must have no duplicate entries in metadata
     samples_in_metadata = sample_metadata
         .splitCsv()
         .map { i -> i[0] }
@@ -30,24 +31,7 @@ workflow PARSE_METADATA {
             } 
         }
 
-    // Raise error if not all samples in VCFs are in metadata
-    unique_samples_in_vcfs = BCFTOOLS_LIST_SAMPLES(vcfs)
-        .map { sample_list -> sample_list.readLines() }
-        .collect(sort: true)
-        .flatten()
-        .distinct()
-
-    unique_samples_in_vcfs
-        .combine(unique_samples_in_metadata.toList().toList())
-        .filter { i -> i[0] !in i[1] }
-        .count()
-        .map { n_lacking_metadata ->
-            if (n_lacking_metadata > 0) {
-                exit(1, "Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
-            }
-        }
-
-    // Parse focal populations: if none provided, use all in metadata
+    // If user set no focal populations, all are focal
     unique_populations_in_metadata = sample_metadata
         .splitCsv()
         .map { i -> i[2] }
@@ -63,7 +47,7 @@ workflow PARSE_METADATA {
         ? Channel.from(focal_population_input)
         : unique_populations_in_metadata
     
-    // Raise error if not all focal populations have members in metadata
+    // All focal populations must have members in metadata
     focal_populations
         .combine(unique_populations_in_metadata.toList().toList())
         .filter { i -> i[0] !in i[1] }
@@ -73,6 +57,40 @@ workflow PARSE_METADATA {
                 exit(1, "Metadata file ${sample_metadata_path} does not include members for all specified focal populations.")  
             }
         }
+    
+    // All samples in VCF channel must be specified by metadata
+    if (check_vcf != null) {
+        unique_samples_in_vcf = BCFTOOLS_LIST_SAMPLES(check_vcf)
+            .map { sample_list -> sample_list.readLines() }
+            .collect(sort: true)
+            .flatten()
+            .distinct()
+        unique_samples_in_vcf
+            .combine(unique_samples_in_metadata.toList().toList())
+            .filter { i -> i[0] !in i[1] }
+            .count()
+            .map { n_lacking_metadata ->
+                if (n_lacking_metadata > 0) {
+                    exit(1, "Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
+                }
+            }
+    }
+
+    // All filenames in CRAM channel must be specified by metadata
+    if (check_cram != null) {
+        check_cram.map{ cram -> cram.simpleName }
+            .collect()
+            .flatten()
+            .distinct()
+            .combine(unique_samples_in_metadata.toList().toList())
+            .filter { i -> i[0] !in i[1] }
+            .count()
+            map { n_lacking_metadata ->
+                if (n_lacking_metadata > 0) {
+                    exit(1, "Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
+                }
+            }
+    }
     
     emit:
     focal_populations_set_by_user = focal_populations_set_by_user

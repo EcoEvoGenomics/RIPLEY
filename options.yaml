@@ -10,6 +10,8 @@ ref_exclude_coords:
 ref_exclude_prefix: 
 ref_chrom_labels: 
 
+######### Alignment Diagnostics ############
+ad_cram: 
 
 ######### Genotype Diagnostics #############
 gd_vcf: 

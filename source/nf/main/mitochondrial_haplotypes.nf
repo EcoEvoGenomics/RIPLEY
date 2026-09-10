@@ -1,7 +1,7 @@
 include { BCFTOOLS_CALL_REGION_VARIANTS; BCFTOOLS_NORMALISE } from "../process/bcftools.nf"
 include { BCFTOOLS_INDEX; BCFTOOLS_INDEX as BCFTOOLS_INDEX_NORMALISED} from "../process/bcftools.nf"
 include { BCFTOOLS_MAKE_CONSENSUS_FASTA } from "../process/bcftools.nf"
-include { SAMTOOLS_EXTRACT_REGION; SAMTOOLS_INDEX_FASTA } from "../process/samtools.nf"
+include { SAMTOOLS_EXTRACT_FASTA; SAMTOOLS_INDEX_FASTA } from "../process/samtools.nf"
 include { CONCATENATE_FILES as CONCATENATE_FASTAS } from "../process/system.nf"
 include { MAFFT_ALIGN } from "../process/mafft.nf"
 include { IQTREE_BUILD_TREE; IQTREE_TO_PLAIN_NEWICK } from "../process/iqtree.nf"
@@ -18,8 +18,8 @@ workflow {
     BCFTOOLS_INDEX_NORMALISED(BCFTOOLS_NORMALISE.out.normalised_vcf)
     BCFTOOLS_MAKE_CONSENSUS_FASTA(BCFTOOLS_INDEX_NORMALISED.out.indexed_vcf, params.mt_filt_indelgap, params.mt_filt_inclusions, params.ref_genome)
     SAMTOOLS_INDEX_FASTA(BCFTOOLS_MAKE_CONSENSUS_FASTA.out.fasta)
-    SAMTOOLS_EXTRACT_REGION(SAMTOOLS_INDEX_FASTA.out.indexed_fasta, params.mt_genome_region)
-    haplotype_fastas = SAMTOOLS_EXTRACT_REGION.out.extracted.collect()
+    SAMTOOLS_EXTRACT_FASTA(SAMTOOLS_INDEX_FASTA.out.indexed_fasta, params.mt_genome_region)
+    haplotype_fastas = SAMTOOLS_EXTRACT_FASTA.out.extracted.collect()
 
     CONCATENATE_FASTAS(haplotype_fastas, "${params.mt_genome_region}.fasta")
     MAFFT_ALIGN(CONCATENATE_FASTAS.out.concat, params.mt_mafft_iterations)
@@ -29,7 +29,7 @@ workflow {
     METADATA_TO_SPART(params.metadata)
 
     publish:
-    fasta = SAMTOOLS_EXTRACT_REGION.out
+    fasta = SAMTOOLS_EXTRACT_FASTA.out
     iqtree = IQTREE_BUILD_TREE.out.all_treefiles
     alignment = MAFFT_ALIGN.out.aligned
     plain_newick = IQTREE_TO_PLAIN_NEWICK.out

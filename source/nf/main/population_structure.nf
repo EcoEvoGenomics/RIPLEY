@@ -14,7 +14,7 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
     input = PARSE_VCF(params.ps_vcf, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, true, false)
-    metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed)
+    metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed, null)
     pruned = RUN_LD_PRUNING(input.as_plinkfiles, params.ps_prune_window_kb, params.ps_prune_step_snps, params.ps_prune_threshold)
 
     RUN_KINSHIP_ANALYSIS(input.vcf_condensed, metadata.for_samples)

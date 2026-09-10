@@ -4,20 +4,22 @@ include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../process/plink.nf"
 
 workflow PARSE_VCF {
 
+    // To-do: Add test for strictly alphanumeric input VCF names (e.g. genotypes.vcf.gz, chr1.vcf.gz, chr2.vcf.gz, etc.)
+
     take:
     vcf_path
     exclude_coords
     total_chroms
     chrom_names
-    permit_vcf
+    permit_solo
     permit_dir
 
     main:
-    def input_is_vcf = (file(vcf_path).isFile() && file(vcf_path).name.contains(".vcf"))
+    def input_is_solo = (file(vcf_path).isFile() && file(vcf_path).name.contains(".vcf"))
     def input_is_dir = file(vcf_path).isDirectory()
-    if (input_is_vcf && input_is_dir) { exit(1, "The input path may be interpreted both as file and directory.") }
-    if (!(input_is_vcf || input_is_dir)) { exit(1, "The input path does not exist or is not a directory or VCF.") }
-    if (input_is_vcf && !permit_vcf) { exit(1, "This pipeline cannot process a single VCF file, only a directory.") }
+    if (input_is_solo && input_is_dir) { exit(1, "The input path may be interpreted both as file and directory.") }
+    if (!(input_is_solo || input_is_dir)) { exit(1, "The input path does not exist or is not a directory or VCF.") }
+    if (input_is_solo && !permit_solo) { exit(1, "This pipeline cannot process a single VCF file, only a directory.") }
     if (input_is_dir && !permit_dir) { exit(1, "This pipeline cannot process a directory, only a single VCF file.") }
     keep_chroms = chrom_names.collect()
 
@@ -34,12 +36,10 @@ workflow PARSE_VCF {
             .ifEmpty { exit(1, "Path ${vcf_path} contains no vcf.gz files.") }
     }
 
-    if (input_is_vcf) {
-        chrom_flag = keep_chroms.map { i -> i.join(",")}
+    if (input_is_solo) {
+        chrom_flag = keep_chroms.map { i -> i.join(",") }
         vcf_annotated = BCFTOOLS_SELECT_CHROMS(vcf_path, chrom_flag)
     }
-
-    // To-do: Add test for strictly alphanumeric input VCF names (e.g. myVars.vcf.gz)
 
     def exclude_path = exclude_coords ?: null
     if (exclude_path != null) {
