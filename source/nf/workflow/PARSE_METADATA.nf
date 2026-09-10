@@ -54,6 +54,10 @@ workflow PARSE_METADATA {
         .collect(sort: true)
         .flatten()
         .distinct()
+
+    focal_populations_set_by_user = (focal_population_input != null)
+        ? Channel.of(true)
+        : Channel.of(false)
         
     focal_populations = (focal_population_input != null)
         ? Channel.from(focal_population_input)
@@ -71,6 +75,7 @@ workflow PARSE_METADATA {
         }
     
     emit:
+    focal_populations_set_by_user = focal_populations_set_by_user
     focal_populations = focal_populations
     for_samples = sample_metadata
 
