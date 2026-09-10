@@ -3,7 +3,7 @@ include { PARSE_METADATA } from "../workflow/PARSE_METADATA.nf"
 include { PARSE_VCF } from "../workflow/PARSE_VCF.nf"
 include { SPLIT_VCF } from "../workflow/SPLIT_VCF.nf"
 include { THIN_VCF; THIN_VCF as THIN_VCF_POPWISE } from "../workflow/THIN_VCF.nf"
-include { RUN_SNP_DENSITY; RUN_SNP_DENSITY as RUN_SNP_DENSITY_POPWISE } from "../workflow/RUN_SNP_DENSITY.nf"
+include { RUN_SNP_DENSITY } from "../workflow/RUN_SNP_DENSITY.nf"
 include { RUN_VCF_STATS; RUN_VCF_STATS as RUN_VCF_STATS_POPWISE } from "../workflow/RUN_VCF_STATS.nf"
 
 nextflow.preview.output = true
@@ -21,9 +21,8 @@ workflow {
     if (metadata.focal_populations_set_by_user) {
 
         popwise_vcf = SPLIT_VCF(input.vcf_annotated, metadata.for_samples, metadata.focal_populations)
-        RUN_SNP_DENSITY_POPWISE(popwise_vcf, params.vd_snpden_binsize, genome.chrom_names, genome.chrom_labels)
         THIN_VCF_POPWISE(popwise_vcf, params.vd_thin_to) | RUN_VCF_STATS_POPWISE
-
+        
     }
 
     publish:
@@ -31,8 +30,6 @@ workflow {
     snpden_plot = RUN_SNP_DENSITY.out.plot
     stats_data = RUN_VCF_STATS.out.data
     stats_plot = RUN_VCF_STATS.out.plot
-    popwise_snpden_data = RUN_SNP_DENSITY_POPWISE.out.data
-    popwise_snpden_plot = RUN_SNP_DENSITY_POPWISE.out.plot
     popwise_stats_data = RUN_VCF_STATS_POPWISE.out.data
     popwise_stats_plot = RUN_VCF_STATS_POPWISE.out.plot
 
@@ -44,8 +41,6 @@ output {
     snpden_plot { path "variant_diagnostics" }
     stats_data { path "variant_diagnostics" }
     stats_plot { path "variant_diagnostics" }
-    popwise_snpden_data { path "variant_diagnostics/pop" }
-    popwise_snpden_plot { path "variant_diagnostics/pop" }
     popwise_stats_data { path "variant_diagnostics/pop" }
     popwise_stats_plot { path "variant_diagnostics/pop" }
 
