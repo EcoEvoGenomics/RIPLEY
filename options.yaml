@@ -10,12 +10,28 @@ ref_exclude_coords:
 ref_exclude_prefix: 
 ref_chrom_labels: 
 
-########## vd: VCF Diagnostics ############
-vd_vcf: 
-vd_snpden_binsize: 100000
-vd_thin_to: 100000
 
-######### ps: Population Structure ########
+######### Genotype Diagnostics #############
+gd_vcf: 
+gd_snpden_binsize: 100000
+gd_thin_to: 100000
+
+########## Linkage Diagnostics #############
+ld_vcf: 
+ld_thin: 0.5
+ld_window: 100
+ld_window_kb: 1000
+ld_bin_size: 1000
+
+######## Mitochondrial Haplotypes ##########
+mt_cramdir: 
+mt_genome_region: 
+mt_filt_indelgap: 5
+mt_filt_inclusions: 'QUAL>20 & FMT/DP>5 & FMT/DP<75'
+mt_mafft_iterations: 1000
+mt_iqtree_bootstraps: 1000
+
+########## Population Structure ############
 ps_vcf: 
 ps_prune_window_kb: 50
 ps_prune_step_snps: 10
@@ -24,24 +40,9 @@ ps_admixture_kmin: 1
 ps_admixture_kmax: 3
 ps_aim_variance_threshold: 0.05
 
-######### ch: Consensus Haplotree #########
-ch_cramdir: 
-ch_genome_region: 
-ch_filt_indelgap: 5
-ch_filt_inclusions: 'QUAL>20 & FMT/DP>5 & FMT/DP<75'
-ch_mafft_iterations: 1000
-ch_iqtree_bootstraps: 1000
-
-############ gs: Genome Scan ##############
-gs_vcfdir_selection: 
-gs_vcfdir_structure: 
-gs_window_size: 100000
-gs_step_size: 10000
-gs_min_sites: 1000
-
-######## ld: Linkage Disequilibrium #######
-ld_vcf: 
-ld_thin: 0.5
-ld_window: 100
-ld_window_kb: 1000
-ld_bin_size: 1000
+############ Selection Scan ################
+sl_vcfdir_selection: 
+sl_vcfdir_structure: 
+sl_window_size: 100000
+sl_step_size: 10000
+sl_min_sites: 1000

@@ -19,7 +19,7 @@ workflow {
 }
 
 output {
-    ld_stats { path "linkage_disequilibrium" }
-    ld_decay { path "linkage_disequilibrium" }
-    ld_decay_plot { path "linkage_disequilibrium" }
+    ld_stats { path "linkage_diagnostics" }
+    ld_decay { path "linkage_diagnostics" }
+    ld_decay_plot { path "linkage_diagnostics" }
 }
