@@ -45,7 +45,7 @@ process VCFTOOLS_VCF_STATS {
         path("${vcf.simpleName}.frq"), \
         path("${vcf.simpleName}.idepth"), \
         path("${vcf.simpleName}.imiss"), \
-        path("${vcf.simpleName}.ldepth.mean"), \
+        path("${vcf.simpleName}.ldepth"), \
         path("${vcf.simpleName}.lqual"), \
         path("${vcf.simpleName}.lmiss"), \
         path("${vcf.simpleName}.het"), \
@@ -61,6 +61,7 @@ process VCFTOOLS_VCF_STATS {
     vcftools --gzvcf ${vcf} --missing-site --out ${vcf.simpleName}
     vcftools --gzvcf ${vcf} --het --out ${vcf.simpleName}
     vcftools --gzvcf ${vcf} --hardy --out ${vcf.simpleName}
+    mv ${vcf.simpleName}.ldepth.mean ${vcf.simpleName}.ldepth
     """
 }
 

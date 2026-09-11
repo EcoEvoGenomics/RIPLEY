@@ -6,7 +6,7 @@ name <- tools::file_path_sans_ext(basename(args[1]))
 frq_path <- args[1]
 idepth <- read.table(args[2], header = TRUE)
 imiss <- read.table(args[3], header = TRUE)
-ldepth_mean <- read.table(args[4], header = TRUE)
+ldepth <- read.table(args[4], header = TRUE)
 lqual <- read.table(args[5], header = TRUE)
 lmiss <- read.table(args[6], header = TRUE)
 het <- read.table(args[7], header = TRUE)
@@ -97,10 +97,10 @@ p3 <- draw_histogram(
 )
 
 p4 <- draw_histogram(
-  ldepth_mean, "MEAN_DEPTH",
+  ldepth, "MEAN_DEPTH",
   "Site Mean Sequencing Depth (0th - 99th Percentile)",
   "",
-  subset = ldepth_mean$MEAN_DEPTH <= quantile(ldepth_mean$MEAN_DEPTH, 0.99)
+  subset = ldepth$MEAN_DEPTH <= quantile(ldepth$MEAN_DEPTH, 0.99)
 )
 
 p5 <- draw_histogram(

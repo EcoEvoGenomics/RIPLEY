@@ -148,6 +148,22 @@ process PLOT_VCFTOOLS_VCF_STATS {
     """
 }
 
+process PLOT_POPWISE_VCF_STATS {
+
+    label "RPLOT"
+
+    input:
+    path(stats, stageAs: "stats/*")
+    
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${projectDir}/../../R/plot_vcfstats_popwise.R stats/
+    """
+}
+
 process PLOT_VCFTOOLS_PAIRWISE_MEAN_FST {
 
     label "RPLOT"

@@ -1,5 +1,7 @@
 workflow PARSE_REFERENCE_GENOME {
 
+    // To-do: Add test for strictly alphanumeric chromosome names
+
     take:
     genome_path
     exclude_chroms
@@ -31,8 +33,6 @@ workflow PARSE_REFERENCE_GENOME {
 
     chrom_names = index_entries
         .map { row -> row[0] }
-    
-    // To-do: Add test for strictly alphanumeric chromosome names
         
     emit:
     fasta = genome
