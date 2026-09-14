@@ -9,10 +9,10 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input = PARSE_CRAM(params.ad_cram, genome.fasta, genome.fai, params.ref_exclude_coords, genome.chrom_indices)
-    metadata = PARSE_METADATA(params.metadata, params.focal_populations, null, input.parsed)
+    input = PARSE_CRAM(params.ad_cram, genome.fasta, genome.fai, params.ref_exclude_coords, genome.chrom_indices, true, true)
+    // metadata = PARSE_METADATA(params.metadata, params.focal_populations, null, input.parsed)
 
-    stats = RUN_CRAM_STATS(input.parsed, genome.fasta, genome.fai)
+    stats = RUN_CRAM_STATS(input.parsed)
 
     publish:
     data = stats.data
