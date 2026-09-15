@@ -148,7 +148,7 @@ process PLOT_VCFTOOLS_VCF_STATS {
     """
 }
 
-process PLOT_POPWISE_VCF_STATS {
+process PLOT_COLLATED_VCF_STATS {
 
     label "RPLOT"
 

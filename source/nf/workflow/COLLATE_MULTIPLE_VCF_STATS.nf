@@ -1,21 +1,21 @@
-include { METADATA_PREPEND_KEY_COLUMN as PREPEND_POPULATION_COLUMN } from "../process/metadata.nf"
-include { PLOT_POPWISE_VCF_STATS } from "../process/plot.nf"
+include { METADATA_PREPEND_KEY_COLUMN } from "../process/metadata.nf"
+include { PLOT_COLLATED_VCF_STATS } from "../process/plot.nf"
 
-workflow PROCESS_POPWISE_VCF_STATS {
+workflow COLLATE_MULTIPLE_VCF_STATS {
 
     take:
     vcf_stats
 
     main:
-    with_pop = vcf_stats
+    with_key = vcf_stats
         .flatten()
         .map { it ->
-            def pop = it.simpleName.tokenize("_")[1]
-            tuple("POP", pop, it)
+            def key = it.simpleName.tokenize("_")[1]
+            tuple("KEY", key, it)
         } \
-        | PREPEND_POPULATION_COLUMN
+        | METADATA_PREPEND_KEY_COLUMN
     
-    across_pop = with_pop
+    across_keys = with_key
         .flatten()
         .map { it ->
             def ext = it.extension
@@ -28,10 +28,10 @@ workflow PROCESS_POPWISE_VCF_STATS {
         )
         .collect()
 
-    plot = PLOT_POPWISE_VCF_STATS(across_pop)
+    plot = PLOT_COLLATED_VCF_STATS(across_keys)
 
     emit:
-    data = across_pop
+    data = across_keys
     plot = plot
 
 }

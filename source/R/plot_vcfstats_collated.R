@@ -42,7 +42,7 @@ draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
   ggplot(data, aes(x = .data[[x]])) +
     facet_grid(
-      rows = vars(.data[["POP"]])
+      rows = vars(.data[["KEY"]])
     ) +
     geom_histogram(
       bins = bins,
@@ -158,7 +158,7 @@ for (idx in seq_along(statfiles)) {
     filename = paste0(file_key, "_popwise.", file_ext, ".png"),
     dpi = 600,
     width = (6.75 / 2),
-    height = (6.75 / 12) * length(unique(idepth$POP)),
+    height = (6.75 / 12) * length(unique(idepth$KEY)),
     bg = "white"
   )
 }
