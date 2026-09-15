@@ -1,4 +1,5 @@
 include { BCFTOOLS_LIST_SAMPLES } from "../process/bcftools.nf"
+include { METADATA_LIST_POPULATION_MEMBERS } from "../process/metadata.nf"
 
 workflow PARSE_METADATA {
 
@@ -91,10 +92,18 @@ workflow PARSE_METADATA {
                 }
             }
     }
+
+    sample_census = sample_metadata
+        .map { entry -> def id = entry[0]; id }
+        .collectFile( name: "samples.list", sort: { id -> id } )
+
+    focal_populations_censuses = METADATA_LIST_POPULATION_MEMBERS(focal_populations, sample_metadata)
     
     emit:
-    focal_populations_set_by_user = focal_populations_set_by_user
+    sample_metadata = sample_metadata
+    sample_census = sample_census
     focal_populations = focal_populations
-    for_samples = sample_metadata
+    focal_populations_censuses = focal_populations_censuses
+    focal_populations_set_by_user = focal_populations_set_by_user
 
 }

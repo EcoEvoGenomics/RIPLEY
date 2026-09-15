@@ -1,7 +1,7 @@
 include { PARSE_REFERENCE_GENOME } from "../workflow/PARSE_REFERENCE_GENOME.nf"
 include { PARSE_VCF as PARSE_VCF_SELECTION; PARSE_VCF as PARSE_VCF_STRUCTURE } from "../workflow/PARSE_VCF.nf"
 include { PARSE_METADATA as PARSE_METADATA_SELECTION; PARSE_METADATA as PARSE_METADATA_STRUCTURE } from "../workflow/PARSE_METADATA.nf"
-include { SPLIT_VCF as SPLIT_VCF_SELECTION; SPLIT_VCF as SPLIT_VCF_STRUCTURE } from "../workflow/SPLIT_VCF.nf"
+include { SPLIT_VCF_BY_POPULATION as SPLIT_VCF_SELECTION; SPLIT_VCF_BY_POPULATION as SPLIT_VCF_STRUCTURE } from "../workflow/SPLIT_VCF_BY_POPULATION.nf"
 include { RUN_POPGEN_WINDOWS_SCAN } from "../workflow/RUN_POPGEN_WINDOWS_SCAN.nf"
 include { RUN_EHH_SCAN } from "../workflow/RUN_EHH_SCAN.nf"
 include { RUN_WINDOWED_PCA_SCAN } from "../workflow/RUN_WINDOWED_PCA_SCAN.nf"
@@ -17,12 +17,12 @@ workflow {
     metadata_selection = PARSE_METADATA_SELECTION(params.metadata, params.focal_populations, input_selection.vcf_condensed, null)
     metadata_structure = PARSE_METADATA_STRUCTURE(params.metadata, params.focal_populations, input_structure.vcf_condensed, null)
 
-    popwise_vcf_selection = SPLIT_VCF_SELECTION(input_selection.vcf_condensed, metadata_selection.for_samples, metadata_selection.focal_populations)
-    popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf_condensed, metadata_structure.for_samples, metadata_structure.focal_populations)
+    popwise_vcf_selection = SPLIT_VCF_SELECTION(input_selection.vcf_condensed, metadata_selection.focal_populations_censuses)
+    popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf_condensed, metadata_structure.focal_populations_censuses)
 
     RUN_POPGEN_WINDOWS_SCAN(
         popwise_vcf_selection,
-        metadata_selection.for_samples,
+        metadata_selection.sample_metadata,
         params.sl_window_size,
         params.sl_step_size,
         params.sl_min_sites

@@ -17,12 +17,12 @@ workflow {
     metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed, null)
     pruned = RUN_LD_PRUNING(input.as_plinkfiles, params.ps_prune_window_kb, params.ps_prune_step_snps, params.ps_prune_threshold)
 
-    RUN_KINSHIP_ANALYSIS(input.vcf_condensed, metadata.for_samples)
-    RUN_PAIRWISE_FST(input.vcf_condensed, metadata.focal_populations, metadata.for_samples)
-    RUN_PCA(pruned.plinkfiles, metadata.for_samples)
+    RUN_KINSHIP_ANALYSIS(input.vcf_condensed, metadata.sample_metadata)
+    RUN_PAIRWISE_FST(input.vcf_condensed, metadata.focal_populations_censuses)
+    RUN_PCA(pruned.plinkfiles, metadata.sample_metadata)
     RUN_ADMIXTURE(
         pruned.plinkfiles, 
-        metadata.for_samples, 
+        metadata.sample_metadata, 
         params.ps_admixture_kmin, 
         params.ps_admixture_kmax, 
         params.ps_aim_variance_threshold

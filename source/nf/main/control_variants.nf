@@ -1,7 +1,7 @@
 include { PARSE_REFERENCE_GENOME } from "../workflow/PARSE_REFERENCE_GENOME.nf"
 include { PARSE_METADATA } from "../workflow/PARSE_METADATA.nf"
 include { PARSE_VCF } from "../workflow/PARSE_VCF.nf"
-include { SPLIT_VCF } from "../workflow/SPLIT_VCF.nf"
+include { SPLIT_VCF_BY_POPULATION } from "../workflow/SPLIT_VCF_BY_POPULATION.nf"
 include { THIN_VCF; THIN_VCF as THIN_VCF_POPWISE } from "../workflow/THIN_VCF.nf"
 include { RUN_SNP_DENSITY } from "../workflow/RUN_SNP_DENSITY.nf"
 include { RUN_VCF_STATS; RUN_VCF_STATS as RUN_VCF_STATS_POPWISE } from "../workflow/RUN_VCF_STATS.nf"
@@ -21,7 +21,7 @@ workflow {
 
     if (metadata.focal_populations_set_by_user) {
 
-        popwise_vcf = SPLIT_VCF(input.vcf_annotated, metadata.for_samples, metadata.focal_populations)
+        popwise_vcf = SPLIT_VCF_BY_POPULATION(input.vcf_annotated, metadata.focal_populations_censuses)
         popwise_stats = THIN_VCF_POPWISE(popwise_vcf, params.cv_thin_to) | RUN_VCF_STATS_POPWISE
         PROCESS_POPWISE_VCF_STATS(popwise_stats.data)
 
