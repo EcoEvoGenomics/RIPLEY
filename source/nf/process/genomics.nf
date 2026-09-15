@@ -3,7 +3,7 @@ process GET_GENOMICS_GENERAL {
     // See https://simonmartinlab.org/software/
     // Replaces "NaN" with "nan" for compatibility with recent Numpy versions
 
-    label "SYSTEM"
+    label "BASE"
 
     output:
     path("genomics_general-0.5/*")

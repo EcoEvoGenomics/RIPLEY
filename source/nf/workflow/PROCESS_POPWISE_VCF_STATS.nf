@@ -1,4 +1,5 @@
-include { PLOT_POPWISE_VCF_STATS } from "../process/plotting.nf"
+include { METADATA_PREPEND_KEY_COLUMN as PREPEND_POPULATION_COLUMN } from "../process/metadata.nf"
+include { PLOT_POPWISE_VCF_STATS } from "../process/plot.nf"
 
 workflow PROCESS_POPWISE_VCF_STATS {
 
@@ -10,9 +11,9 @@ workflow PROCESS_POPWISE_VCF_STATS {
         .flatten()
         .map { it ->
             def pop = it.simpleName.tokenize("_")[1]
-            tuple(pop, it)
+            tuple("POP", pop, it)
         } \
-        | PREPEND_POP_COLUMN
+        | PREPEND_POPULATION_COLUMN
     
     across_pop = with_pop
         .flatten()
@@ -33,20 +34,4 @@ workflow PROCESS_POPWISE_VCF_STATS {
     data = across_pop
     plot = plot
 
-}
-
-process PREPEND_POP_COLUMN {
-
-    label "SYSTEM"
-
-    input:
-    tuple val(pop), path(table)
-
-    output:
-    path(table)
-
-    script:
-    """
-    sed -e '1s/^/POP\\t/' -e '2,\$s/^/${pop}\\t/' ${table} > tmp && mv tmp ${table} 
-    """
 }

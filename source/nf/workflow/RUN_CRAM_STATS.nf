@@ -1,4 +1,4 @@
-include { SAMTOOLS_STAT_CRAM } from "../process/samtools.nf"
+include { SAMTOOLS_STATS; SAMTOOLS_COVERAGE; SAMTOOLS_BEDCOV } from "../process/samtools.nf"
 
 workflow RUN_CRAM_STATS {
 
@@ -6,9 +6,13 @@ workflow RUN_CRAM_STATS {
     cram_indexed
 
     main:
-    stats = SAMTOOLS_STAT_CRAM(cram_indexed)
+    stats = SAMTOOLS_STATS(cram_indexed)
+    coverage = SAMTOOLS_COVERAGE(cram_indexed)
+    // bedcov = SAMTOOLS_BEDCOV(cram_indexed)
 
     emit:
-    data = stats.cov.mix(stats.stat)
+    stats = stats
+    coverage = coverage
+    // bedcov = bedcov
 
 }

@@ -1,7 +1,7 @@
 include { PAIR_CHANNEL_TO_SELF } from "./PAIR_CHANNEL_TO_SELF.nf"
-include { WRITE_POPULATION_CENSUS } from "../process/system.nf"
+include { METADATA_LIST_POPULATION_MEMBERS } from "../process/metadata.nf"
 include { VCFTOOLS_CALCULATE_PAIRWISE_FST } from "../process/vcftools.nf"
-include { PLOT_VCFTOOLS_PAIRWISE_MEAN_FST } from "../process/plotting.nf"
+include { PLOT_VCFTOOLS_PAIRWISE_MEAN_FST } from "../process/plot.nf"
 
 workflow RUN_PAIRWISE_FST {
 
@@ -11,7 +11,7 @@ workflow RUN_PAIRWISE_FST {
     metadata
 
     main:
-    pop_censuses = WRITE_POPULATION_CENSUS(pop_list, metadata)
+    pop_censuses = METADATA_LIST_POPULATION_MEMBERS(pop_list, metadata)
     pairwise_pop_censuses = PAIR_CHANNEL_TO_SELF(pop_censuses)
     results = VCFTOOLS_CALCULATE_PAIRWISE_FST(vcf.combine(pairwise_pop_censuses))
     mean = results.mean

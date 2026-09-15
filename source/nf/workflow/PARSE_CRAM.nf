@@ -1,6 +1,6 @@
-include { SAMTOOLS_INDEX_CRAM as INDEX_CRAM_IN; SAMTOOLS_INDEX_CRAM as INDEX_CRAM_TMP; SAMTOOLS_INDEX_CRAM as INDEX_CRAM_OUT } from "../process/samtools.nf"
-include { SAMTOOLS_EXTRACT_CRAM as SAMTOOLS_PICK_COORDS;  } from "../process/samtools.nf"
-include { SAMTOOLS_EXTRACT_CRAM as SAMTOOLS_PICK_CHROMS } from "../process/samtools.nf"
+include { SAMTOOLS_INDEX as INDEX_CRAM_IN; SAMTOOLS_INDEX as INDEX_CRAM_TMP; SAMTOOLS_INDEX as INDEX_CRAM_OUT } from "../process/samtools.nf"
+include { SAMTOOLS_VIEW_TARGETS as SAMTOOLS_PICK_COORDS;  } from "../process/samtools.nf"
+include { SAMTOOLS_VIEW_TARGETS as SAMTOOLS_PICK_CHROMS } from "../process/samtools.nf"
 
 workflow PARSE_CRAM {
 

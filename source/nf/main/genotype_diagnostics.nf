@@ -39,11 +39,11 @@ workflow {
 
 output {
 
-    snpden_data { path "genotype_diagnostics" }
+    snpden_data { path "genotype_diagnostics/data" }
+    stats_data { path "genotype_diagnostics/data" }
+    popwise_stats_data { path "genotype_diagnostics/data" }
     snpden_plot { path "genotype_diagnostics" }
-    stats_data { path "genotype_diagnostics" }
     stats_plot { path "genotype_diagnostics" }
-    popwise_stats_data { path "genotype_diagnostics/pop" }
-    popwise_stats_plot { path "genotype_diagnostics/pop" }
+    popwise_stats_plot { path "genotype_diagnostics" }
 
 }

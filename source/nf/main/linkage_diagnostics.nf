@@ -1,5 +1,5 @@
 include { PLINK_INIT_PLINKFILES; PLINK_PAIRWISE_LD; PARSE_PLINK_LD_DECAY } from "../process/plink.nf"
-include { PLOT_PLINK_LD_DECAY } from "../process/plotting.nf"
+include { PLOT_PLINK_LD_DECAY } from "../process/plot.nf"
 
 nextflow.preview.output = true
 

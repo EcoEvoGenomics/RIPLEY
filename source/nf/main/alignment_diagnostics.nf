@@ -10,17 +10,27 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
     input = PARSE_CRAM(params.ad_cram, genome.fasta, genome.fai, params.ref_exclude_coords, genome.chrom_indices, true, true)
-    // metadata = PARSE_METADATA(params.metadata, params.focal_populations, null, input.parsed)
+    metadata = PARSE_METADATA(params.metadata, params.focal_populations, null, input.parsed)
 
     stats = RUN_CRAM_STATS(input.parsed)
 
+    if (metadata.focal_populations_set_by_user) {
+
+
+
+    }
+
     publish:
-    data = stats.data
+    stats = stats.stats
+    coverage = stats.coverage
+    // bedcov = stats.bedcov
 
 }
 
 output {
 
-    data { path "alignment_diagnostics" }
+    stats { path "alignment_diagnostics/data" }
+    coverage { path "alignment_diagnostics/data" }
+    // bedcov { path "alignment_diagnostics/data" }
 
 }

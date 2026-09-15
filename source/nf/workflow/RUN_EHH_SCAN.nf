@@ -2,7 +2,7 @@ include { PAIR_CHANNEL_TO_SELF } from "./PAIR_CHANNEL_TO_SELF.nf"
 include { DROP_MISMATCHED_FILEKEY_PAIRS } from "./DROP_MISMATCHED_FILEKEY_PAIRS.nf"
 include { REHH_LOAD_VCF; REHH_SCAN_HAPLOTYPE_HOMOZYGOSITY } from "../process/rehh.nf"
 include { REHH_CALCULATE_IHS; REHH_CALCULATE_XPEHH } from "../process/rehh.nf"
-include { PLOT_REHH_XPEHH } from "../process/plotting.nf"
+include { PLOT_REHH_XPEHH } from "../process/plot.nf"
 
 workflow RUN_EHH_SCAN {
 

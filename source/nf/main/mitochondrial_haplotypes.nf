@@ -1,11 +1,10 @@
 include { BCFTOOLS_CALL_REGION_VARIANTS; BCFTOOLS_NORMALISE } from "../process/bcftools.nf"
 include { BCFTOOLS_INDEX; BCFTOOLS_INDEX as BCFTOOLS_INDEX_NORMALISED} from "../process/bcftools.nf"
 include { BCFTOOLS_MAKE_CONSENSUS_FASTA } from "../process/bcftools.nf"
-include { SAMTOOLS_EXTRACT_FASTA; SAMTOOLS_INDEX_FASTA } from "../process/samtools.nf"
-include { CONCATENATE_FILES as CONCATENATE_FASTAS } from "../process/system.nf"
+include { SAMTOOLS_FAIDX_EXTRACT; SAMTOOLS_FAIDX } from "../process/samtools.nf"
 include { MAFFT_ALIGN } from "../process/mafft.nf"
 include { IQTREE_BUILD_TREE; IQTREE_TO_PLAIN_NEWICK } from "../process/iqtree.nf"
-include { METADATA_TO_SPART } from "../process/system.nf"
+include { METADATA_TO_SPART } from "../process/metadata.nf"
 
 nextflow.preview.output = true
 
@@ -17,9 +16,9 @@ workflow {
     BCFTOOLS_NORMALISE(BCFTOOLS_INDEX.out.indexed_vcf, params.ref_genome)
     BCFTOOLS_INDEX_NORMALISED(BCFTOOLS_NORMALISE.out.normalised_vcf)
     BCFTOOLS_MAKE_CONSENSUS_FASTA(BCFTOOLS_INDEX_NORMALISED.out.indexed_vcf, params.mt_filt_indelgap, params.mt_filt_inclusions, params.ref_genome)
-    SAMTOOLS_INDEX_FASTA(BCFTOOLS_MAKE_CONSENSUS_FASTA.out.fasta)
-    SAMTOOLS_EXTRACT_FASTA(SAMTOOLS_INDEX_FASTA.out.indexed_fasta, params.mt_genome_region)
-    haplotype_fastas = SAMTOOLS_EXTRACT_FASTA.out.extracted.collect()
+    SAMTOOLS_FAIDX(BCFTOOLS_MAKE_CONSENSUS_FASTA.out.fasta)
+    SAMTOOLS_FAIDX_EXTRACT(SAMTOOLS_FAIDX.out, params.mt_genome_region)
+    haplotype_fastas = SAMTOOLS_FAIDX_EXTRACT.out.collect()
 
     CONCATENATE_FASTAS(haplotype_fastas, "${params.mt_genome_region}.fasta")
     MAFFT_ALIGN(CONCATENATE_FASTAS.out.concat, params.mt_mafft_iterations)
@@ -29,7 +28,7 @@ workflow {
     METADATA_TO_SPART(params.metadata)
 
     publish:
-    fasta = SAMTOOLS_EXTRACT_FASTA.out
+    fasta = SAMTOOLS_FAIDX_EXTRACT.out
     iqtree = IQTREE_BUILD_TREE.out.all_treefiles
     alignment = MAFFT_ALIGN.out.aligned
     plain_newick = IQTREE_TO_PLAIN_NEWICK.out
@@ -42,4 +41,21 @@ output {
     alignment { path "mitochondrial_haplotypes/hapsolutely" }
     plain_newick { path "mitochondrial_haplotypes/hapsolutely" }
     spart { path "mitochondrial_haplotypes/hapsolutely" }
+}
+
+process CONCATENATE_FASTAS {
+
+    label "BASE"
+
+    input:
+    path(files, stageAs: "inputs/*")
+    val(catfile)
+
+    output:
+    path("${catfile}"), emit: concat
+
+    script:
+    """
+    find inputs/ -type f,l | xargs cat > ${catfile}
+    """
 }

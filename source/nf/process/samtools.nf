@@ -1,4 +1,4 @@
-process SAMTOOLS_INDEX_CRAM {
+process SAMTOOLS_INDEX {
 
     label "SAMTOOLS"
 
@@ -18,7 +18,7 @@ process SAMTOOLS_INDEX_CRAM {
     """
 }
 
-process SAMTOOLS_EXTRACT_CRAM {
+process SAMTOOLS_VIEW_TARGETS {
 
     label "SAMTOOLS"
 
@@ -51,7 +51,7 @@ process SAMTOOLS_EXTRACT_CRAM {
     """
 }
 
-process SAMTOOLS_STAT_CRAM {
+process SAMTOOLS_STATS {
 
     label "SAMTOOLS"
 
@@ -59,17 +59,44 @@ process SAMTOOLS_STAT_CRAM {
     tuple path(cram), path(crai), path(ref_fasta), path(ref_fai)
 
     output:
-    path("${cram.simpleName}.cramcov"), emit: cov
-    path("${cram.simpleName}.cramstat"), emit: stat
+    path("${cram.simpleName}.stats")
 
     script:
     """
-    samtools coverage --reference ${ref_fasta} ${cram} > ${cram.simpleName}.cramcov
-    samtools stats ${cram} > ${cram.simpleName}.cramstat
+    samtools stats ${cram} > ${cram.simpleName}.stats
     """
 }
 
-process SAMTOOLS_INDEX_FASTA {
+process SAMTOOLS_COVERAGE {
+
+    label "SAMTOOLS"
+
+    input:
+    tuple path(cram), path(crai), path(ref_fasta), path(ref_fai)
+
+    output:
+    path("${cram.simpleName}.coverage")
+
+    script:
+    """
+    samtools coverage --reference ${ref_fasta} ${cram} > ${cram.simpleName}.coverage
+    """
+}
+
+process SAMTOOLS_BEDCOV {
+
+    label "SAMTOOLS"
+
+    input:
+    tuple path(cram), path(crai), path(ref_fasta), path(ref_fai)
+
+    script:
+    """
+    # Placeholder
+    """
+}
+
+process SAMTOOLS_FAIDX {
 
     label "SAMTOOLS"
 
@@ -77,7 +104,7 @@ process SAMTOOLS_INDEX_FASTA {
     tuple val(sample), path(fasta)
 
     output:
-    tuple val(sample), path(fasta, includeInputs: true), path("${fasta.name}.fai"), emit: indexed_fasta
+    tuple val(sample), path(fasta, includeInputs: true), path("${fasta.name}.fai")
 
     script:
     """
@@ -85,7 +112,7 @@ process SAMTOOLS_INDEX_FASTA {
     """
 }
 
-process SAMTOOLS_EXTRACT_FASTA {
+process SAMTOOLS_FAIDX_EXTRACT {
 
     label "SAMTOOLS"
 
@@ -94,7 +121,7 @@ process SAMTOOLS_EXTRACT_FASTA {
     val(region)
 
     output:
-    path("${sample}_${region}.fasta"), emit: extracted
+    path("${sample}_${region}.fasta")
 
     script:
     """

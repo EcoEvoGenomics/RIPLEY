@@ -1,45 +1,22 @@
-process CONCATENATE_FILES {
+process METADATA_PREPEND_KEY_COLUMN {
 
-    label "SYSTEM"
+    label "BASE"
 
     input:
-    path(files, stageAs: "inputs/*")
-    val(catfile)
+    tuple val(key), path(table)
 
     output:
-    path("${catfile}"), emit: concat
+    path(table)
 
     script:
     """
-    find inputs/ -type f,l | xargs cat > ${catfile}
+    sed -e '1s/^/POP\\t/' -e '2,\$s/^/${key}\\t/' ${table} > tmp && mv tmp ${table} 
     """
 }
 
-process JOIN_GROUPED_CSVS {
+process METADATA_LIST_POPULATION_MEMBERS {
 
-    label "SYSTEM"
-
-    input:
-    tuple val(groupname), path(csvs, stageAs: "inputs/*")
-    
-    output:
-    path("${groupname}.csv"), emit: joined
-
-    script:
-    """
-    # WRITE HEADER FROM FIRST FILE
-    find inputs/ -type f,l | head -n 1 | xargs head -n 1 >> ${groupname}.csv
-    # WRITE CONTENT OF ALL FILES EXCEPT HEADERS
-    find inputs/ -type f,l | sort -V > inputs.list.tmp
-    while read -r input; do
-        tail -n +2 \$input >> ${groupname}.csv
-    done < inputs.list.tmp
-    """
-}
-
-process WRITE_POPULATION_CENSUS {
-
-    label "SYSTEM"
+    label "BASE"
 
     input:
     each(population)
@@ -63,7 +40,7 @@ process METADATA_TO_SPART {
     // For a description of SPART, see Miralles et al. (2021): https://doi.org/10.1111/1755-0998.13470
     // This format works with Hapsolutely (Vences et al. 2024): https://doi.org/10.1093/bioadv/vbae083
 
-    label "SYSTEM"
+    label "BASE"
 
     input:
     path(metadata)
