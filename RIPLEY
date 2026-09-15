@@ -4,15 +4,15 @@ set -o errexit
 set -o nounset
 
 case "$1" in
-    mitochondrial_haplotypes | selection_scan | linkage_diagnostics | population_structure | genotype_diagnostics | alignment_diagnostics)
+    mitochondrial_haplotypes | selection_scan | control_linkage | population_structure | control_variants | control_alignments)
         echo "Launching pipeline: $1"
         ;;
     *)
         echo "Error: '$1' is not a pipeline." >&2
         echo "Valid options are ..." >&2
-        echo "> alignment_diagnostics" >&2
-        echo "> genotype_diagnostics" >&2
-        echo "> linkage_diagnostics" >&2
+        echo "> control_alignments" >&2
+        echo "> control_variants" >&2
+        echo "> control_linkage" >&2
         echo "> mitochondrial_haplotypes" >&2
         echo "> population_structure" >&2
         echo "> selection_scan" >&2

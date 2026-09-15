@@ -10,20 +10,20 @@ ref_exclude_coords:
 ref_exclude_prefix: 
 ref_chrom_labels: 
 
-######### Alignment Diagnostics ############
-ad_cram: 
+########### Control Alignments #############
+ca_cram: 
 
-######### Genotype Diagnostics #############
-gd_vcf: 
-gd_snpden_binsize: 100000
-gd_thin_to: 100000
+########### Control Variants ###############
+cv_vcf: 
+cv_snpden_binsize: 100000
+cv_thin_to: 100000
 
-########## Linkage Diagnostics #############
-ld_vcf: 
-ld_thin: 0.5
-ld_window: 100
-ld_window_kb: 1000
-ld_bin_size: 1000
+############ Control Linkage ###############
+cl_vcf: 
+cl_thin: 0.5
+cl_window: 100
+cl_window_kb: 1000
+cl_bin_size: 1000
 
 ######## Mitochondrial Haplotypes ##########
 mt_cramdir: 

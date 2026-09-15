@@ -13,16 +13,16 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input = PARSE_VCF(params.gd_vcf, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, true, true)
+    input = PARSE_VCF(params.cv_vcf, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, true, true)
     metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed, null)
 
-    RUN_SNP_DENSITY(input.vcf_condensed, params.gd_snpden_binsize, genome.chrom_names, genome.chrom_labels)
-    THIN_VCF(input.vcf_annotated, params.gd_thin_to) | RUN_VCF_STATS
+    RUN_SNP_DENSITY(input.vcf_condensed, params.cv_snpden_binsize, genome.chrom_names, genome.chrom_labels)
+    THIN_VCF(input.vcf_annotated, params.cv_thin_to) | RUN_VCF_STATS
 
     if (metadata.focal_populations_set_by_user) {
 
         popwise_vcf = SPLIT_VCF(input.vcf_annotated, metadata.for_samples, metadata.focal_populations)
-        popwise_stats = THIN_VCF_POPWISE(popwise_vcf, params.gd_thin_to) | RUN_VCF_STATS_POPWISE
+        popwise_stats = THIN_VCF_POPWISE(popwise_vcf, params.cv_thin_to) | RUN_VCF_STATS_POPWISE
         PROCESS_POPWISE_VCF_STATS(popwise_stats.data)
 
     }
@@ -39,11 +39,11 @@ workflow {
 
 output {
 
-    snpden_data { path "genotype_diagnostics/data" }
-    stats_data { path "genotype_diagnostics/data" }
-    popwise_stats_data { path "genotype_diagnostics/data" }
-    snpden_plot { path "genotype_diagnostics" }
-    stats_plot { path "genotype_diagnostics" }
-    popwise_stats_plot { path "genotype_diagnostics" }
+    snpden_data { path "control_variants/data" }
+    stats_data { path "control_variants/data" }
+    popwise_stats_data { path "control_variants/data" }
+    snpden_plot { path "control_variants" }
+    stats_plot { path "control_variants" }
+    popwise_stats_plot { path "control_variants" }
 
 }
