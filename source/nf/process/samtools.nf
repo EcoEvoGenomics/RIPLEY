@@ -88,11 +88,14 @@ process SAMTOOLS_BEDCOV {
     label "SAMTOOLS"
 
     input:
-    tuple path(cram), path(crai), path(ref_fasta), path(ref_fai)
+    tuple path(cram), path(crai), path(ref_fasta), path(ref_fai), path(windows_bed)
+
+    output:
+    path("${cram.simpleName}.bedcov")
 
     script:
     """
-    # Placeholder
+    samtools bedcov ${windows_bed} ${cram} > ${cram.simpleName}.bedcov
     """
 }
 

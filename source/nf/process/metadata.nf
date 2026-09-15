@@ -3,14 +3,14 @@ process METADATA_PREPEND_KEY_COLUMN {
     label "BASE"
 
     input:
-    tuple val(key), path(table)
+    tuple val(header), val(key), path(table)
 
     output:
     path(table)
 
     script:
     """
-    sed -e '1s/^/POP\\t/' -e '2,\$s/^/${key}\\t/' ${table} > tmp && mv tmp ${table} 
+    sed -e '1s/^/${header}\\t/' -e '2,\$s/^/${key}\\t/' ${table} > tmp && mv tmp ${table} 
     """
 }
 

@@ -12,6 +12,7 @@ ref_chrom_labels:
 
 ########### Control Alignments #############
 ca_cram: 
+ca_coverage_binsize: 100000
 
 ########### Control Variants ###############
 cv_vcf: 
