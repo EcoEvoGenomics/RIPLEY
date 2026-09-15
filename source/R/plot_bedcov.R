@@ -7,7 +7,10 @@ data <- read.table(
   args[1],
   header = FALSE,
   col.names = c("ID", "CHROM", "BIN_START", "BIN_END", "TOTAL_READ_BASE_COUNT")
-) |> filter(CHROM %in% chroms)
+) |>
+  filter(CHROM %in% chroms) |>
+  group_by(CHROM, BIN_START) |>
+  summarise(MEAN_READ_BASE_COUNT = mean(TOTAL_READ_BASE_COUNT))
 chroms <- chroms[chroms %in% data$CHROM] # If expected chroms are not in data
 name <- basename(args[1])
 chrom_labels <- read.table(args[3], sep = ",") |> filter(V1 %in% chroms)
@@ -24,14 +27,14 @@ depth_plot <- data |>
     aes(
       x = BIN_START,
       y = factor(CHROM, levels = rev(chroms)),
-      fill = TOTAL_READ_BASE_COUNT / bin_size
+      fill = log2(MEAN_READ_BASE_COUNT / bin_size)
     )
   ) +
   ggtitle("Chromosome") +
   geom_tile(height = 0.75, colour = "black", fill = "black") +
   geom_tile(height = 0.75) +
   scale_fill_viridis_c(
-    limits = c(0, max(data$TOTAL_READ_BASE_COUNT)),
+    limits = c(0, max(log2(data$MEAN_READ_BASE_COUNT / bin_size))),
     option = "mako"
   ) +
   scale_x_continuous(
@@ -66,25 +69,25 @@ depth_key <- data |>
       y = 0,
       x = seq(
         0,
-        max(data$TOTAL_READ_BASE_COUNT, na.rm = TRUE),
-        length.out = length(data$TOTAL_READ_BASE_COUNT)
+        max(log2(data$MEAN_READ_BASE_COUNT / bin_size), na.rm = TRUE),
+        length.out = length(log2(data$MEAN_READ_BASE_COUNT / bin_size))
       ),
       fill = seq(
         0,
-        max(data$TOTAL_READ_BASE_COUNT, na.rm = TRUE),
-        length.out = length(data$TOTAL_READ_BASE_COUNT)
+        max(log2(data$MEAN_READ_BASE_COUNT / bin_size), na.rm = TRUE),
+        length.out = length(log2(data$MEAN_READ_BASE_COUNT / bin_size))
       )
     )
   ) +
-  ggtitle(expression(bold("Mean Sequencing Depth (" ~ italic("X") ~ ")"))) +
+  ggtitle(expression(bold("Sequencing Depth" ~ italic("log")[2] ~ italic("Binned Means")))) +
   coord_cartesian(expand = FALSE) +
   geom_tile(show.legend = FALSE, height = 1.075, colour = "black") +
   geom_raster(show.legend = FALSE) +
   scale_x_continuous(
     expand = expansion(add = 0),
     limit = c(
-      max(data$TOTAL_READ_BASE_COUNT, na.rm = TRUE) * - 0.015,
-      max(data$TOTAL_READ_BASE_COUNT, na.rm = TRUE) * 1.03
+      max(log2(data$MEAN_READ_BASE_COUNT / bin_size), na.rm = TRUE) * - 0.015,
+      max(log2(data$MEAN_READ_BASE_COUNT / bin_size), na.rm = TRUE) * 1.03
     ),
     labels = scales::number_format(accuracy = 0.1)
   ) +

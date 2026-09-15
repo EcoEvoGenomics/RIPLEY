@@ -74,7 +74,7 @@ density_key <- data |>
       )
     )
   ) +
-  ggtitle(expression(bold("Number of SNPs (" ~ italic("log"[10]) ~ ")"))) +
+  ggtitle(expression(bold("Single Nucleotide Polymorphisms" ~ italic("log"[10]) ~ italic("Binned Counts")))) +
   coord_cartesian(expand = FALSE) +
   geom_tile(show.legend = FALSE, height = 1.075, colour = "black") +
   geom_raster(show.legend = FALSE) +
