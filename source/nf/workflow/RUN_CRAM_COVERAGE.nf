@@ -1,12 +1,15 @@
 include { BEDTOOLS_MAKEWINDOWS } from "../process/bedtools.nf"
 include { SAMTOOLS_BEDCOV; SAMTOOLS_COVERAGE } from "../process/samtools.nf"
-include { METADATA_PREPEND_KEY_COLUMN } from "../process/metadata.nf"
+include { METADATA_PREPEND_KEY_COLUMN as PREPEND_SAMPLE_COLUMN } from "../process/metadata.nf"
+include { PLOT_SAMTOOLS_BEDCOV } from "../process/plot.nf"
 
 workflow RUN_CRAM_COVERAGE {
 
     take:
     cram_indexed
     genome_index
+    chrom_names
+    chrom_labels
     binsize
 
     main:
@@ -16,10 +19,10 @@ workflow RUN_CRAM_COVERAGE {
     bedcov_with_key = bedcov
         .flatten()
         .map { it ->
-            def header = "SAMPLE"
             def key = it.simpleName
+            def header = key
             tuple(header, key, it)
-        } | METADATA_PREPEND_KEY_COLUMN
+        } | PREPEND_SAMPLE_COLUMN
 
     bedcov_combined = bedcov_with_key
         .map { it ->
@@ -31,7 +34,10 @@ workflow RUN_CRAM_COVERAGE {
             keepHeader: true
         )
 
+    bedcov_plot = PLOT_SAMTOOLS_BEDCOV(bedcov_combined, chrom_names, chrom_labels)
+
     emit:
     data = bedcov_combined
+    plot = bedcov_plot
 
 }

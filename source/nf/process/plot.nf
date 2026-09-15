@@ -89,6 +89,24 @@ process PLOT_REHH_XPEHH {
     """
 }
 
+process PLOT_SAMTOOLS_BEDCOV {
+
+    label "RPLOT"
+
+    input:
+    each(bedcov)
+    val(chrom_string)
+    path(chrom_labels)
+
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${projectDir}/../../R/plot_snpden.R ${bedcov} ${chrom_string} ${chrom_labels}
+    """
+}
+
 process PLOT_VCFTOOLS_RELATEDNESS {
 
     label "RPLOT"
