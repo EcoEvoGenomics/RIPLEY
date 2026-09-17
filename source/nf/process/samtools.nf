@@ -53,6 +53,8 @@ process SAMTOOLS_VIEW_TARGETS {
 
 process SAMTOOLS_STATS {
 
+    // Keeps only the SN summary section as key-value pairs
+
     label "SAMTOOLS"
 
     input:
@@ -63,7 +65,9 @@ process SAMTOOLS_STATS {
 
     script:
     """
-    samtools stats ${cram} > ${cram.simpleName}.stats
+    samtools stats ${cram} \
+        | awk -F '\\t' 'BEGIN { OFS = "\\t" } \$1 == "SN" { sub(/:\$/, "", \$2); print \$2, \$3 }' \
+        > ${cram.simpleName}.stats
     """
 }
 

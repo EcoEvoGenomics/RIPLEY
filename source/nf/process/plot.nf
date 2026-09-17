@@ -89,6 +89,22 @@ process PLOT_REHH_XPEHH {
     """
 }
 
+process PLOT_SAMTOOLS_CRAM_STATS {
+
+    label "RPLOT"
+
+    input:
+    path(stats)
+
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${projectDir}/../../R/plot_cramstats.R ${stats}
+    """
+}
+
 process PLOT_SAMTOOLS_BEDCOV {
 
     // bedcov_reference fixes one depth scale across all subsets so popwise plots are comparable
@@ -181,7 +197,7 @@ process PLOT_COLLATED_VCF_STATS {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_vcfstats_popwise.R stats/
+    Rscript ${projectDir}/../../R/plot_vcfstats_collated.R stats/
     """
 }
 
