@@ -93,9 +93,8 @@ workflow PARSE_METADATA {
             }
     }
 
-    sample_census = sample_metadata
-        .map { entry -> def id = entry[0]; id }
-        .collectFile( name: "samples.list", sort: { id -> id } )
+    sample_census = samples_in_metadata
+        .collectFile( name: "samples.list", newLine: true, sort: true )
 
     focal_populations_censuses = METADATA_LIST_POPULATION_MEMBERS(focal_populations, sample_metadata)
 
