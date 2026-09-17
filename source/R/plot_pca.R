@@ -17,14 +17,45 @@ pc_names <- paste("PC", seq(n_pc), sep = "")
 names(eigenvectors)[eigenvectors_id_index] <- "ID"
 names(eigenvectors)[pc_indices] <- pc_names
 
-meta <- read.table(
+sample_metadata <- read.table(
   args[3],
   sep = ",",
   header = FALSE,
   col.names = c("ID", "Species", "Population", "Sex")
 )
-n_species <- length(unique(meta$Species))
-n_populations <- length(unique(meta$Population))
+
+# Only the first two columns are named as additional metadata may be added later
+read_group_metadata <- function(path) {
+  group_metadata <- read.table(
+    path,
+    sep = ",",
+    header = FALSE,
+    comment.char = "" # Avoids hex codes reading in as comments
+  )
+  names(group_metadata)[1:2] <- c("GROUP", "COLOUR")
+  group_metadata
+}
+
+group_palette <- function(group_metadata) {
+  setNames(group_metadata$COLOUR, group_metadata$GROUP)
+}
+
+population_metadata <- read_group_metadata(args[4])
+species_metadata <- read_group_metadata(args[5])
+population_palette <- group_palette(population_metadata)
+species_palette <- group_palette(species_metadata)
+
+sample_metadata$Population <- factor(
+  sample_metadata$Population,
+  levels = population_metadata$GROUP
+)
+sample_metadata$Species <- factor(
+  sample_metadata$Species,
+  levels = species_metadata$GROUP
+)
+
+n_species <- nrow(species_metadata)
+n_populations <- nrow(population_metadata)
 
 draw_scree <- function(variance) {
 
@@ -42,7 +73,7 @@ draw_scree <- function(variance) {
 
 }
 
-draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, meta, grouping) {
+draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, sample_metadata, grouping, palette) {
 
   pcx <- paste("PC", pcx_num, sep = "")
   pcy <- paste("PC", pcy_num, sep = "")
@@ -60,7 +91,7 @@ draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, meta, grouping) {
   point_size <- 2.5
 
   pca_plot <- eigenvectors |>
-    left_join(meta, by = "ID") |>
+    left_join(sample_metadata, by = "ID") |>
     ggplot(
       aes(
         x = .data[[pcx]],
@@ -113,6 +144,7 @@ draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, meta, grouping) {
     ) +
     geom_point(size = point_size, stroke = 0.15) +
     scale_shape_manual(values = c(21, 22)) +
+    scale_fill_manual(values = palette, drop = TRUE) +
     guides(
       fill = guide_legend(
         order = 1,
@@ -164,10 +196,16 @@ for (pc in plot_pcs) {
   pcy <- pc + 1
 
   if (pcy > max(plot_pcs)) break
-  draw_pca(eigenvectors, pcx, pcy, variance_percent, meta, "Population")
+  draw_pca(
+    eigenvectors, pcx, pcy, variance_percent, sample_metadata,
+    "Population", population_palette
+  )
 
   if (n_species <= 1) next
-  draw_pca(eigenvectors, pcx, pcy, variance_percent, meta, "Species")
+  draw_pca(
+    eigenvectors, pcx, pcy, variance_percent, sample_metadata,
+    "Species", species_palette
+  )
 
 }
 

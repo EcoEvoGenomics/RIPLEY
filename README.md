@@ -6,7 +6,7 @@ RIPLEY is a repository of self-contained, reproducible Nextflow pipelines to run
 > Instructions for use will follow at a later time ...
 
 ## Examples
-### `metadata` (.csv)
+### `sample_metadata` (.csv)
 ```
 Sample0,SpeciesA,PopA,M
 Sample1,SpeciesA,PopB,F
@@ -18,6 +18,27 @@ Sample6,SpeciesB,PopG,M
 Sample7,SpeciesB,PopH,F
 Sample8,SpeciesB,PopI,F
 Sample9,SpeciesB,PopJ,F
+```
+
+### `population_metadata` (.csv)
+Rows are taken in order, so the order of populations here is the order in which they appear in plots and legends. Plots which cluster samples hierarchically always follow the clustering.
+```
+PopA,#1B9E77
+PopB,#D95F02
+PopC,#7570B3
+PopD,#E7298A
+PopE,#66A61E
+PopF,#E6AB02
+PopG,#A6761D
+PopH,#666666
+PopI,#1F78B4
+PopJ,#B2DF8A
+```
+
+### `species_metadata` (.csv)
+```
+SpeciesA,#4C72B0
+SpeciesB,#DD8452
 ```
 
 ### `ref_chrom_labels` (.csv)

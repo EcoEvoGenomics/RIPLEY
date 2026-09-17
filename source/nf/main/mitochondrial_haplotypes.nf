@@ -11,7 +11,7 @@ nextflow.preview.output = true
 workflow {
     main:
     crams = Channel.fromPath("${params.mt_cramdir}/**.cram")
-    BCFTOOLS_CALL_REGION_VARIANTS(crams, params.metadata, params.ref_genome, params.ref_ploidy, params.mt_genome_region)
+    BCFTOOLS_CALL_REGION_VARIANTS(crams, params.sample_metadata, params.ref_genome, params.ref_ploidy, params.mt_genome_region)
     BCFTOOLS_INDEX(BCFTOOLS_CALL_REGION_VARIANTS.out.vcf)
     BCFTOOLS_NORMALISE(BCFTOOLS_INDEX.out.indexed_vcf, params.ref_genome)
     BCFTOOLS_INDEX_NORMALISED(BCFTOOLS_NORMALISE.out.normalised_vcf)
@@ -25,7 +25,7 @@ workflow {
     IQTREE_BUILD_TREE(MAFFT_ALIGN.out.aligned, params.mt_iqtree_bootstraps)
     IQTREE_TO_PLAIN_NEWICK(IQTREE_BUILD_TREE.out.contree)
 
-    METADATA_TO_SPART(params.metadata)
+    METADATA_TO_SPART(params.sample_metadata)
 
     publish:
     fasta = SAMTOOLS_FAIDX_EXTRACT.out

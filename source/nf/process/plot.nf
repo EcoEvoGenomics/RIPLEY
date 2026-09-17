@@ -5,14 +5,16 @@ process PLOT_ADMIXTURE {
     input:
     path(admixture_clusts)
     val(k_min_error)
-    path(metadata)
+    path(sample_metadata)
+    path(population_metadata)
+    path(species_metadata)
 
     output:
     path("*.png")
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_admixture.R ${admixture_clusts} ${k_min_error} ${metadata}
+    Rscript ${projectDir}/../../R/plot_admixture.R ${admixture_clusts} ${k_min_error} ${sample_metadata} ${population_metadata} ${species_metadata}
     """
 }
 
@@ -21,14 +23,14 @@ process PLOT_HIHET {
     label "RPLOT"
 
     input:
-    tuple path(hihet), path(metadata)
+    tuple path(hihet), path(sample_metadata), path(population_metadata)
 
     output:
     path("*.png")
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_hihet.R ${hihet} ${metadata}
+    Rscript ${projectDir}/../../R/plot_hihet.R ${hihet} ${sample_metadata} ${population_metadata}
     """
 }
 
@@ -55,14 +57,16 @@ process PLOT_PLINK_PCA {
     input:
     path(eigenval)
     path(eigenvec)
-    path(metadata)
+    path(sample_metadata)
+    path(population_metadata)
+    path(species_metadata)
 
     output:
     path("*.png")
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_pca.R ${eigenval} ${eigenvec} ${metadata}
+    Rscript ${projectDir}/../../R/plot_pca.R ${eigenval} ${eigenvec} ${sample_metadata} ${population_metadata} ${species_metadata}
     """
 }
 
@@ -111,13 +115,14 @@ process PLOT_SAMTOOLS_CRAM_STATS_POPWISE {
 
     input:
     path(stats)
+    path(population_metadata)
 
     output:
     path("*.png")
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_cramstats_popwise.R ${stats}
+    Rscript ${projectDir}/../../R/plot_cramstats_popwise.R ${stats} ${population_metadata}
     """
 }
 
@@ -148,14 +153,16 @@ process PLOT_VCFTOOLS_RELATEDNESS {
 
     input:
     path(relatedness)
-    path(metadata)
+    path(sample_metadata)
+    path(population_metadata)
+    path(species_metadata)
 
     output:
     path("*.png")
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_kinship.R ${relatedness} ${metadata}
+    Rscript ${projectDir}/../../R/plot_kinship.R ${relatedness} ${sample_metadata} ${population_metadata} ${species_metadata}
     """
 }
 
@@ -207,13 +214,14 @@ process PLOT_VCFTOOLS_VCF_STATS_POPWISE {
 
     input:
     path(stats, stageAs: "stats/*")
+    path(population_metadata)
     
     output:
     path("*.png")
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_vcfstats_popwise.R stats/
+    Rscript ${projectDir}/../../R/plot_vcfstats_popwise.R stats/ ${population_metadata}
     """
 }
 

@@ -5,17 +5,36 @@ library(ggdendro)
 args <- commandArgs(trailing = TRUE)
 name <- basename(args[1])
 
-meta <- read.table(
+sample_metadata <- read.table(
   args[2],
   sep = ",",
   header = FALSE,
   col.names = c("ID", "Species", "Population", "Sex")
 )
 
+# Only the first two columns are named as additional metadata may be added later
+read_group_metadata <- function(path) {
+  group_metadata <- read.table(
+    path,
+    sep = ",",
+    header = FALSE,
+    comment.char = "" # Avoids hex codes reading in as comments
+  )
+  names(group_metadata)[1:2] <- c("GROUP", "COLOUR")
+  group_metadata
+}
+
+group_palette <- function(group_metadata) {
+  setNames(group_metadata$COLOUR, group_metadata$GROUP)
+}
+
+population_palette <- group_palette(read_group_metadata(args[3]))
+species_palette <- group_palette(read_group_metadata(args[4]))
+
 data <- read.table(args[1], header = TRUE) |>
   select(INDV1, INDV2, RELATEDNESS_PHI) |>
   rename(ID = INDV1, ID2 = INDV2, PHI = RELATEDNESS_PHI) |>
-  left_join(meta)
+  left_join(sample_metadata)
 
 dist <- data |>
   select(ID, ID2, PHI) |>
@@ -39,6 +58,19 @@ data <- data |>
   ) |>
   filter(SEQUENCE >= SEQUENCE2) |>
   mutate(PHI = ifelse(ID == ID2, NA, PHI))
+
+clustered_levels <- function(data, column) {
+  data |>
+    arrange(SEQUENCE) |>
+    pull({{ column }}) |>
+    unique()
+}
+
+data <- data |>
+  mutate(
+    Population = factor(Population, levels = clustered_levels(data, Population)),
+    Species = factor(Species, levels = clustered_levels(data, Species))
+  )
 
 xmin <- min(data$SEQUENCE) - 0.5
 xmax <- max(data$SEQUENCE) + 0.5
@@ -108,7 +140,9 @@ dendrogram <- ggdendro::segment(dendro_data) |>
 pop_meta <- data |>
   ggplot(aes(x = SEQUENCE, y = 0, fill = Population)) +
   coord_cartesian(expand = FALSE, xlim = c(xmin, xmax)) +
-  scale_fill_discrete(
+  scale_fill_manual(
+    values = population_palette,
+    drop = TRUE,
     guide = guide_legend(
       override.aes = list(colour = "black", linewidth = 0.15)
     )
@@ -123,7 +157,9 @@ pop_meta <- data |>
 spp_meta <- data |>
   ggplot(aes(x = SEQUENCE, y = 0, fill = Species)) +
   coord_cartesian(expand = FALSE, xlim = c(xmin, xmax)) +
-  scale_fill_discrete(
+  scale_fill_manual(
+    values = species_palette,
+    drop = TRUE,
     guide = guide_legend(
       override.aes = list(colour = "black", linewidth = 0.15)
     )

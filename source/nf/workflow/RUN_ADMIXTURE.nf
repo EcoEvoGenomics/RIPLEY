@@ -7,7 +7,9 @@ workflow RUN_ADMIXTURE {
 
     take:
     plinkfiles
-    metadata
+    sample_metadata
+    population_metadata
+    species_metadata
     kmin
     kmax
     aim_variance_threshold
@@ -29,7 +31,7 @@ workflow RUN_ADMIXTURE {
     k_min_error = admixture.error
         .reduce { i, j -> j[1] < i[1] ? j : i }
         .map { cv -> def k = cv[0]; k }
-    admixture_plot = PLOT_ADMIXTURE(admixture_clusts, k_min_error, metadata)
+    admixture_plot = PLOT_ADMIXTURE(admixture_clusts, k_min_error, sample_metadata, population_metadata, species_metadata)
 
     aim_snps = ADMIXTURE_AIMS(admixture.alleles, aim_variance_threshold)
     aim_vcfs = PLINK_EXTRACT_SITES(
@@ -63,7 +65,8 @@ workflow RUN_ADMIXTURE {
             skip: 1,
             sort: true
         )
-        .combine(metadata) | PLOT_HIHET
+        .combine(sample_metadata)
+        .combine(population_metadata) | PLOT_HIHET
 
     emit:
     data = admixture.data

@@ -7,7 +7,7 @@ workflow RUN_POPGEN_WINDOWS_SCAN {
 
     take:
     vcfs
-    metadata
+    sample_metadata
     window_size
     step_size
     min_sites
@@ -29,7 +29,7 @@ workflow RUN_POPGEN_WINDOWS_SCAN {
                 ? tuple(files[0], files[1])
                 : null
         }
-        .combine(metadata)
+        .combine(sample_metadata)
 
     GENOMICS_GENERAL_POPGEN_WINDOWS(repo, inputs, window_size, step_size, min_sites)
 

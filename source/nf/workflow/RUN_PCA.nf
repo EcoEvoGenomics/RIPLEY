@@ -5,11 +5,13 @@ workflow RUN_PCA {
 
     take:
     plinkfiles
-    metadata
+    sample_metadata
+    population_metadata
+    species_metadata
 
     main:
     pca = PLINK_PCA(plinkfiles)
-    plot = PLOT_PLINK_PCA(pca.eigenval, pca.eigenvec, metadata)
+    plot = PLOT_PLINK_PCA(pca.eigenval, pca.eigenvec, sample_metadata, population_metadata, species_metadata)
 
     emit:
     data = pca.mix()

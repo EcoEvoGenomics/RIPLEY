@@ -5,11 +5,13 @@ workflow RUN_KINSHIP_ANALYSIS {
 
     take:
     vcf
-    metadata
+    sample_metadata
+    population_metadata
+    species_metadata
 
     main:
     kinship = VCFTOOLS_CALCULATE_RELATEDNESS(vcf)
-    matrix = PLOT_VCFTOOLS_RELATEDNESS(kinship, metadata)
+    matrix = PLOT_VCFTOOLS_RELATEDNESS(kinship, sample_metadata, population_metadata, species_metadata)
 
     emit:
     data = kinship

@@ -16,6 +16,21 @@ stats <- read.table(
   mutate(VALUE = as.numeric(VALUE)) |>
   pivot_wider(id_cols = c(KEY, ID), names_from = METRIC, values_from = VALUE)
 
+# Only the first two columns are named as additional metadata may be added later
+read_group_metadata <- function(path) {
+  group_metadata <- read.table(
+    path,
+    sep = ",",
+    header = FALSE,
+    comment.char = "" # Avoids hex codes reading in as comments
+  )
+  names(group_metadata)[1:2] <- c("GROUP", "COLOUR")
+  group_metadata
+}
+
+population_metadata <- read_group_metadata(args[2])
+stats$KEY <- factor(stats$KEY, levels = population_metadata$GROUP)
+
 # SN reports counts, not proportions, so rates are taken against the sample total
 stats$PCT_MAPPED <- 100 * stats$`reads mapped` / stats$`sequences`
 stats$PCT_PROPERLY_PAIRED <- 100 * stats$`reads properly paired` / stats$`sequences`
@@ -30,7 +45,8 @@ draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
   ggplot(data, aes(x = .data[[x]])) +
     facet_grid(
-      rows = vars(.data[["KEY"]])
+      rows = vars(.data[["KEY"]]),
+      drop = TRUE
     ) +
     geom_histogram(
       bins = bins,

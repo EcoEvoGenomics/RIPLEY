@@ -33,12 +33,30 @@ lqual <- read.table(
   paste0(statdir, "/", statfiles[which(file_ext(statfiles) == "lqual")]),
   header = TRUE
 )
-
-# Missingness is reported as a fraction, so it is rescaled for percentage axes
 imiss$PCT_MISS <- 100 * imiss$F_MISS
 lmiss$PCT_MISS <- 100 * lmiss$F_MISS
-
 hwe$NEG_LOG10_P <- -log10(hwe$P_HWE)
+
+# Order facets by population metadata
+# Only the first two columns are named, so further columns may be added later
+read_group_metadata <- function(path) {
+  group_metadata <- read.table(
+    path,
+    sep = ",",
+    header = FALSE,
+    comment.char = "" # Avoids hex codes reading in as comments
+  )
+  names(group_metadata)[1:2] <- c("GROUP", "COLOUR")
+  group_metadata
+}
+
+population_metadata <- read_group_metadata(args[2])
+
+for (stat in c("het", "hwe", "idepth", "imiss", "ldepth", "lmiss", "lqual")) {
+  data <- get(stat)
+  data$POP <- factor(data$POP, levels = population_metadata$GROUP)
+  assign(stat, data)
+}
 
 draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
@@ -48,7 +66,8 @@ draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
   ggplot(data, aes(x = .data[[x]])) +
     facet_grid(
-      rows = vars(.data[["POP"]])
+      rows = vars(.data[["POP"]]),
+      drop = TRUE
     ) +
     geom_histogram(
       bins = bins,

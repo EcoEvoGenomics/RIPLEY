@@ -7,24 +7,79 @@ workflow PARSE_METADATA {
 
     take:
     sample_metadata_path
+    population_metadata_path
+    species_metadata_path
     focal_population_input
     check_vcf
     check_cram
 
     main:
     sample_metadata = Channel.fromPath(sample_metadata_path, checkIfExists: true)
+    population_metadata = Channel.fromPath(population_metadata_path, checkIfExists: true)
+    species_metadata = Channel.fromPath(species_metadata_path, checkIfExists: true)
 
-    // Samples must have no duplicate entries in metadata
     samples_in_metadata = sample_metadata
         .splitCsv()
         .map { i -> i[0] }
 
-    unique_samples_in_metadata = samples_in_metadata
+    populations_in_metadata = population_metadata
+        .splitCsv()
+        .map { i -> i[0] }
+
+    species_in_metadata = species_metadata
+        .splitCsv()
+        .map { i -> i[0] }
+
+    unique_samples_in_sample_metadata = samples_in_metadata
+        .collect(sort: true)
+        .flatten()
+        .distinct()
+    
+    unique_populations_in_sample_metadata = sample_metadata
+        .splitCsv()
+        .map { i -> i[2] }
         .collect(sort: true)
         .flatten()
         .distinct()
 
-    unique_samples_in_metadata.count()
+    unique_species_in_sample_metadata = sample_metadata
+        .splitCsv()
+        .map { i -> i[1] }
+        .collect(sort: true)
+        .flatten()
+        .distinct()
+
+    sample_metadata
+        .splitCsv()
+        .subscribe { entry ->
+            if (entry.size() != 4) {
+                error("Metadata file ${sample_metadata_path} must have exactly four columns: id, species, population, and sex.")
+            }
+        }
+
+    population_metadata
+        .splitCsv()
+        .subscribe { entry ->
+            if (entry.size() != 2) {
+                error("Metadata file ${population_metadata_path} must have exactly two columns: population and colour.")
+            }
+            if (!(entry[1] ==~ /^#[0-9A-Fa-f]{6}$/)) {
+                error("Metadata file ${population_metadata_path} gives non-hexadecimal colour '${entry[1]}' for population '${entry[0]}'.")
+            }
+        }
+
+    species_metadata
+        .splitCsv()
+        .subscribe { entry ->
+            if (entry.size() != 2) {
+                error("Metadata file ${species_metadata_path} must have exactly two columns: species and colour.")
+            }
+            if (!(entry[1] ==~ /^#[0-9A-Fa-f]{6}$/)) {
+                error("Metadata file ${species_metadata_path} gives non-hexadecimal colour '${entry[1]}' for species '${entry[0]}'.")
+            }
+        }
+
+    unique_samples_in_sample_metadata.count()
         .combine(samples_in_metadata.count())
         .subscribe { counts ->
             if (counts[0] != counts[1]) {
@@ -32,30 +87,46 @@ workflow PARSE_METADATA {
             } 
         }
 
-    // If user set no focal populations, all are focal
-    unique_populations_in_metadata = sample_metadata
-        .splitCsv()
-        .map { i -> i[2] }
-        .collect(sort: true)
-        .flatten()
-        .distinct()
+    unique_populations_in_sample_metadata.count()
+        .combine(populations_in_metadata.count())
+        .subscribe { counts ->
+            if (counts[0] != counts[1]) {
+                error("Metadata file ${population_metadata_path} has duplicate population entry or entries.")
+            }
+        }
 
-    focal_populations = (focal_population_input != null)
-        ? Channel.from(focal_population_input)
-        : unique_populations_in_metadata
-    
-    // All focal populations must have members in metadata
-    focal_populations
-        .combine(unique_populations_in_metadata.toList().toList())
+    unique_species_in_sample_metadata.count()
+        .combine(species_in_metadata.count())
+        .subscribe { counts ->
+            if (counts[0] != counts[1]) {
+                error("Metadata file ${species_metadata_path} has duplicate species entry or entries.")
+            }
+        }
+
+
+    // Populations in sample_metadata must be specified in population_metadata
+    unique_populations_in_sample_metadata
+        .combine(populations_in_metadata.toList().toList())
         .filter { i -> i[0] !in i[1] }
         .count()
-        .subscribe { n_undefined_focal_populations -> 
-            if (n_undefined_focal_populations > 0) {
-                error("Metadata file ${sample_metadata_path} does not include members for all specified focal populations.")  
+        .subscribe { n_uncoloured ->
+            if (n_uncoloured > 0) {
+                error("Metadata file ${population_metadata_path} lacks entry for ${n_uncoloured} populations.")
+            }
+        }
+
+    // Species in sample_metadata must be specified in species_metadata
+    unique_species_in_sample_metadata
+        .combine(species_in_metadata.toList().toList())
+        .filter { i -> i[0] !in i[1] }
+        .count()
+        .subscribe { n_uncoloured ->
+            if (n_uncoloured > 0) {
+                error("Metadata file ${species_metadata_path} lacks entry for ${n_uncoloured} species.")
             }
         }
     
-    // All samples in VCF channel must be specified by metadata
+    // Samples in VCFs must be specified by sample_metadata
     if (check_vcf != null) {
         unique_samples_in_vcf = BCFTOOLS_LIST_SAMPLES(check_vcf)
             .map { sample_list -> sample_list.readLines() }
@@ -63,7 +134,7 @@ workflow PARSE_METADATA {
             .flatten()
             .distinct()
         unique_samples_in_vcf
-            .combine(unique_samples_in_metadata.toList().toList())
+            .combine(unique_samples_in_sample_metadata.toList().toList())
             .filter { i -> i[0] !in i[1] }
             .count()
             .subscribe { n_lacking_metadata ->
@@ -73,13 +144,13 @@ workflow PARSE_METADATA {
             }
     }
 
-    // All filenames in CRAM channel must be specified by metadata
+    // Filenames among CRAMs must be specified by sample_metadata
     if (check_cram != null) {
         check_cram.map{ cram -> cram.simpleName }
             .collect()
             .flatten()
             .distinct()
-            .combine(unique_samples_in_metadata.toList().toList())
+            .combine(unique_samples_in_sample_metadata.toList().toList())
             .filter { i -> i[0] !in i[1] }
             .count()
             .subscribe { n_lacking_metadata ->
@@ -89,15 +160,30 @@ workflow PARSE_METADATA {
             }
     }
 
-    sample_census = samples_in_metadata
-        .collectFile( name: "samples.list", newLine: true, sort: true )
+    // All populations are focal unless specified
+    focal_populations = (focal_population_input != null)
+        ? Channel.from(focal_population_input)
+        : unique_populations_in_sample_metadata
+    
+    // All focal populations must have members in sample_metadata
+    focal_populations
+        .combine(unique_populations_in_sample_metadata.toList().toList())
+        .filter { i -> i[0] !in i[1] }
+        .count()
+        .subscribe { n_undefined_focal_populations -> 
+            if (n_undefined_focal_populations > 0) {
+                error("Metadata file ${sample_metadata_path} does not include members for all specified focal populations.")  
+            }
+        }
 
+    // Census lists for population specification in downstream software
+    sample_census = samples_in_metadata.collectFile( name: "samples.list", newLine: true, sort: true )
     focal_populations_censuses = METADATA_LIST_POPULATION_MEMBERS(focal_populations, sample_metadata)
 
+    // Populations maps [id, pop] for file matching in workflows
     sample_population_map = sample_metadata
         .splitCsv()
         .map { entry -> tuple(entry[0], entry[2]) }
-
     focal_population_map = sample_population_map
         .combine(focal_populations.toList().toList())
         .filter { _sample, population, focal -> population in focal }
@@ -105,6 +191,8 @@ workflow PARSE_METADATA {
 
     emit:
     sample_metadata = sample_metadata
+    population_metadata = population_metadata
+    species_metadata = species_metadata
     sample_census = sample_census
     sample_population_map = sample_population_map
     focal_populations = focal_populations

@@ -5,6 +5,7 @@ workflow COLLATE_MULTIPLE_VCF_STATS {
 
     take:
     vcf_stats
+    population_metadata
 
     main:
     with_key = vcf_stats
@@ -28,7 +29,7 @@ workflow COLLATE_MULTIPLE_VCF_STATS {
         )
         .collect()
 
-    plot = PLOT_VCFTOOLS_VCF_STATS_POPWISE(across_keys)
+    plot = PLOT_VCFTOOLS_VCF_STATS_POPWISE(across_keys, population_metadata)
 
     emit:
     data = across_keys

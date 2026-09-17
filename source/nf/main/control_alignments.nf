@@ -11,16 +11,10 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
     input = PARSE_CRAM(params.ca_cram, genome.fasta, genome.fai, params.ref_exclude_coords, genome.chrom_indices, true, true)
+    metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, params.focal_populations, null, input.parsed.map { cram_set -> cram_set[0] })
 
-    // Absent metadata yield no popwise output
-    def population_map = Channel.empty()
-    if (params.metadata != null) {
-        metadata = PARSE_METADATA(params.metadata, params.focal_populations, null, input.parsed.map { cram_set -> cram_set[0] })
-        population_map = metadata.focal_population_map
-    }
-
-    stats = RUN_CRAM_STATS(input.parsed, population_map)
-    coverage = RUN_CRAM_COVERAGE(input.parsed, genome.fai, genome.chrom_names, genome.chrom_labels, population_map, params.ca_coverage_binsize)
+    stats = RUN_CRAM_STATS(input.parsed, metadata.focal_population_map, metadata.population_metadata)
+    coverage = RUN_CRAM_COVERAGE(input.parsed, genome.fai, genome.chrom_names, genome.chrom_labels, metadata.focal_population_map, params.ca_coverage_binsize)
 
     publish:
     stats_data = stats.data

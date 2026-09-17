@@ -4,16 +4,35 @@ library(patchwork)
 args <- commandArgs(trailing = TRUE)
 hihet <- read.table(args[1], header = TRUE)
 k <- basename(args[1])
-meta <- read.table(
+sample_metadata <- read.table(
   args[2],
   sep = ",",
   header = FALSE,
   col.names = c("ID", "Species", "Population", "Sex")
 )
 
+# Only the first two columns are named as additional metadata may be added later
+read_group_metadata <- function(path) {
+  group_metadata <- read.table(
+    path,
+    sep = ",",
+    header = FALSE,
+    comment.char = "" # Avoids hex codes reading in as comments
+  )
+  names(group_metadata)[1:2] <- c("GROUP", "COLOUR")
+  group_metadata
+}
+
+group_palette <- function(group_metadata) {
+  setNames(group_metadata$COLOUR, group_metadata$GROUP)
+}
+
+population_palette <- group_palette(read_group_metadata(args[3]))
+
 plot_data <- hihet |>
-  left_join(meta, by = "ID") |>
-  separate(COMPARISON, into = c("P1", "P2"), sep = "-")
+  left_join(sample_metadata, by = "ID") |>
+  separate(COMPARISON, into = c("P1", "P2"), sep = "-") |>
+  mutate(Population = factor(Population, levels = names(population_palette)))
 
 triangle_data <- plot_data |>
   distinct(P1, P2) |>
@@ -88,6 +107,7 @@ hihet_plot <- plot_data |>
     )
   ) +
   scale_colour_brewer(palette = "Set1") +
+  scale_fill_manual(values = population_palette, drop = TRUE) +
   scale_x_continuous(
     expand = expansion(add = 0.2),
     guide = guide_axis(cap = "both"),

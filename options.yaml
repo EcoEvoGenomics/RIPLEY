@@ -1,5 +1,7 @@
 ################ Metadata ##################
-metadata: 
+sample_metadata: 
+population_metadata: 
+species_metadata: 
 focal_populations: 
 
 ################ Reference #################

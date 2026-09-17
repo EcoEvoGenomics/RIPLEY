@@ -9,6 +9,7 @@ workflow RUN_CRAM_STATS {
     take:
     cram_indexed
     population_map
+    population_metadata
 
     main:
     stats = SAMTOOLS_STATS(cram_indexed)
@@ -42,7 +43,7 @@ workflow RUN_CRAM_STATS {
         .collectFile( { it -> ["stats_popwise.${it[0]}", it[1]]} )
 
     stats_plot = PLOT_SAMTOOLS_CRAM_STATS(stats_combined)
-    stats_popwise_plot = PLOT_SAMTOOLS_CRAM_STATS_POPWISE(stats_popwise)
+    stats_popwise_plot = PLOT_SAMTOOLS_CRAM_STATS_POPWISE(stats_popwise, population_metadata)
 
     emit:
     data = stats_combined
