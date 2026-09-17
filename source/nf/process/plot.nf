@@ -91,19 +91,22 @@ process PLOT_REHH_XPEHH {
 
 process PLOT_SAMTOOLS_BEDCOV {
 
+    // bedcov_reference fixes one depth scale across all subsets so popwise plots are comparable
+
     label "RPLOT"
 
     input:
     each(bedcov)
     val(chrom_string)
     path(chrom_labels)
+    path(bedcov_reference, stageAs: "reference.bedcov")
 
     output:
     path("*.png")
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_bedcov.R ${bedcov} ${chrom_string} ${chrom_labels}
+    Rscript ${projectDir}/../../R/plot_bedcov.R ${bedcov} ${chrom_string} ${chrom_labels} ${bedcov_reference}
     """
 }
 

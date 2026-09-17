@@ -2,25 +2,31 @@ library(tidyverse)
 library(patchwork)
 
 args <- commandArgs(trailing = TRUE)
-chroms <- strsplit(args[2], ",")[[1]]
-data <- read.table(
-  args[1],
-  header = FALSE,
-  col.names = c("ID", "CHROM", "BIN_START", "BIN_END", "TOTAL_READ_BASE_COUNT")
-) |>
-  filter(CHROM %in% chroms) |>
-  group_by(CHROM, BIN_START) |>
-  summarise(MEAN_READ_BASE_COUNT = mean(TOTAL_READ_BASE_COUNT))
-chroms <- chroms[chroms %in% data$CHROM] # If expected chroms are not in data
 name <- basename(args[1])
-chrom_labels <- read.table(args[3], sep = ",") |> filter(V1 %in% chroms)
+chroms <- strsplit(args[2], ",")[[1]]
 
+read_bedcov <- function(path) {
+  read.table(
+    path,
+    header = FALSE,
+    col.names = c("ID", "CHROM", "BIN_START", "BIN_END", "TOTAL_READ_BASE_COUNT")
+  ) |>
+    filter(CHROM %in% chroms) |>
+    group_by(CHROM, BIN_START) |>
+    summarise(MEAN_READ_BASE_COUNT = mean(TOTAL_READ_BASE_COUNT))
+}
+
+data <- read_bedcov(args[1])
+scale_reference_data <- read_bedcov(args[4])
+chroms <- chroms[chroms %in% data$CHROM] # If expected chroms are not in data
+chrom_labels <- read.table(args[3], sep = ",") |> filter(V1 %in% chroms)
 renamed_chroms <- chrom_labels$V1
 names(renamed_chroms) <- chrom_labels$V2
 
 n_chroms <- length(chroms)
 bin_size <- data$BIN_START[2] - data$BIN_START[1]
 xmax <- max(data$BIN_START) + bin_size
+depth_max <- max(log2(scale_reference_data$MEAN_READ_BASE_COUNT / bin_size), na.rm = TRUE)
 
 depth_plot <- data |>
   ggplot(
@@ -34,7 +40,7 @@ depth_plot <- data |>
   geom_tile(height = 0.75, colour = "black", fill = "black") +
   geom_tile(height = 0.75) +
   scale_fill_viridis_c(
-    limits = c(0, max(log2(data$MEAN_READ_BASE_COUNT / bin_size))),
+    limits = c(0, depth_max),
     option = "mako"
   ) +
   scale_x_continuous(
@@ -67,16 +73,8 @@ depth_key <- data |>
   ggplot(
     aes(
       y = 0,
-      x = seq(
-        0,
-        max(log2(data$MEAN_READ_BASE_COUNT / bin_size), na.rm = TRUE),
-        length.out = length(log2(data$MEAN_READ_BASE_COUNT / bin_size))
-      ),
-      fill = seq(
-        0,
-        max(log2(data$MEAN_READ_BASE_COUNT / bin_size), na.rm = TRUE),
-        length.out = length(log2(data$MEAN_READ_BASE_COUNT / bin_size))
-      )
+      x = seq(0, depth_max, length.out = nrow(data)),
+      fill = seq(0, depth_max, length.out = nrow(data))
     )
   ) +
   ggtitle(expression(bold("Sequencing Depth" ~ italic("log")[2] ~ italic("Binned Means")))) +
@@ -85,10 +83,7 @@ depth_key <- data |>
   geom_raster(show.legend = FALSE) +
   scale_x_continuous(
     expand = expansion(add = 0),
-    limit = c(
-      max(log2(data$MEAN_READ_BASE_COUNT / bin_size), na.rm = TRUE) * - 0.015,
-      max(log2(data$MEAN_READ_BASE_COUNT / bin_size), na.rm = TRUE) * 1.03
-    ),
+    limit = c(depth_max * -0.015, depth_max * 1.03),
     labels = scales::number_format(accuracy = 0.1)
   ) +
   scale_fill_viridis_c(option = "mako") +
