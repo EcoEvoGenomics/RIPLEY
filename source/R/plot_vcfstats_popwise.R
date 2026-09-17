@@ -124,25 +124,26 @@ draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 }
 
 # To-Do: Add .frq-plot later
+# Ordered by filtering workflow, ending with F as an interpretive metric
 panels <- list(
-  list(slug = "het", data = het, column = "F",
-       title = "Sample Inbreeding Coefficient", xlab = "F"),
-  list(slug = "hwe", data = hwe, column = "NEG_LOG10_P",
-       title = "Site Deviation from Hardy-Weinberg Equilibrium",
-       xlab = expression(bolditalic(-log) * bold(""[10] ~ (P)))),
   list(slug = "idepth", data = idepth, column = "MEAN_DEPTH",
        title = "Sample Mean Sequencing Depth", xlab = ""),
-  list(slug = "imiss", data = imiss, column = "PCT_MISS",
-       title = "Sites Missing per Sample", xlab = "%"),
   list(slug = "ldepth", data = ldepth, column = "MEAN_DEPTH",
        title = "Site Mean Sequencing Depth (0th - 99th Percentile)", xlab = "",
        subset = ldepth$MEAN_DEPTH <= quantile(ldepth$MEAN_DEPTH, 0.99)),
+  list(slug = "imiss", data = imiss, column = "PCT_MISS",
+       title = "Sites Missing per Sample", xlab = "%"),
   list(slug = "lmiss", data = lmiss, column = "PCT_MISS",
        title = "Samples Missing per Site", xlab = "%"),
   list(slug = "lqual", data = lqual, column = "QUAL",
        title = "Site Quality (0th - 99th Percentile)",
        xlab = expression(bolditalic("PHRED") ~ bold("Score")),
-       subset = lqual$QUAL <= quantile(lqual$QUAL, 0.99))
+       subset = lqual$QUAL <= quantile(lqual$QUAL, 0.99)),
+  list(slug = "hwe", data = hwe, column = "NEG_LOG10_P",
+       title = "Site Deviation from Hardy-Weinberg Equilibrium",
+       xlab = expression(bolditalic(-log) * bold(""[10] ~ (P)))),
+  list(slug = "het", data = het, column = "F",
+       title = "Sample Inbreeding Coefficient", xlab = "F")
 )
 
 file_key <- str_split(statfiles[1], "_")[[1]][1]

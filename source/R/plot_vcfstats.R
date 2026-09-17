@@ -40,6 +40,7 @@ frq$MAF <- frq[grep("^A", names(frq), value = TRUE)] |> apply(1, \(x) min(x))
 # Missingness is reported as a fraction, so it is rescaled for percentage axes
 imiss$PCT_MISS <- 100 * imiss$F_MISS
 lmiss$PCT_MISS <- 100 * lmiss$F_MISS
+hwe$NEG_LOG10_P <- -log10(hwe$P_HWE)
 
 draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
@@ -81,59 +82,39 @@ draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
 }
 
-p1 <- draw_histogram(
-  het, "F",
-  "Sample Inbreeding Coefficient",
-  "F"
+# Ordered by filtering workflow, ending with F as an interpretive metric
+panels <- list(
+  list(data = idepth, column = "MEAN_DEPTH",
+       title = "Sample Mean Sequencing Depth", xlab = ""),
+  list(data = ldepth, column = "MEAN_DEPTH",
+       title = "Site Mean Sequencing Depth (0th - 99th Percentile)", xlab = "",
+       subset = ldepth$MEAN_DEPTH <= quantile(ldepth$MEAN_DEPTH, 0.99)),
+  list(data = imiss, column = "PCT_MISS",
+       title = "Sites Missing per Sample", xlab = "%"),
+  list(data = lmiss, column = "PCT_MISS",
+       title = "Samples Missing per Site", xlab = "%"),
+  list(data = lqual, column = "QUAL",
+       title = "Site Quality (0th - 99th Percentile)",
+       xlab = expression(bolditalic("PHRED") ~ bold("Score")),
+       subset = lqual$QUAL <= quantile(lqual$QUAL, 0.99)),
+  list(data = frq, column = "MAF",
+       title = "Site Minor Allele Frequency", xlab = ""),
+  list(data = hwe, column = "NEG_LOG10_P",
+       title = "Site Deviation from Hardy-Weinberg Equilibrium",
+       xlab = expression(bolditalic(-log) * bold(""[10] ~ (P)))),
+  list(data = het, column = "F",
+       title = "Sample Inbreeding Coefficient", xlab = "F")
 )
 
-p2 <- draw_histogram(
-  idepth, "MEAN_DEPTH",
-  "Sample Mean Sequencing Depth",
-  ""
-)
-
-p3 <- draw_histogram(
-  imiss,
-  "PCT_MISS",
-  "Sites Missing per Sample",
-  "%"
-)
-
-p4 <- draw_histogram(
-  ldepth, "MEAN_DEPTH",
-  "Site Mean Sequencing Depth (0th - 99th Percentile)",
-  "",
-  subset = ldepth$MEAN_DEPTH <= quantile(ldepth$MEAN_DEPTH, 0.99)
-)
-
-p5 <- draw_histogram(
-  lqual, "QUAL",
-  "Site Quality (0th - 99th Percentile)",
-  expression(bolditalic("PHRED") ~ bold("Score")),
-  subset = lqual$QUAL <= quantile(lqual$QUAL, 0.99)
-)
-
-p6 <- draw_histogram(
-  lmiss, "PCT_MISS",
-  "Samples Missing per Site",
-  "%"
-)
-
-p7 <- draw_histogram(
-  frq, "MAF",
-  "Site Minor Allele Frequency",
-  ""
-)
-
-hwe$NEG_LOG10_P <- -log10(hwe$P_HWE)
-p8 <- draw_histogram(
-  hwe, "NEG_LOG10_P",
-  "Site Deviation from Hardy-Weinberg Equilibrium",
-  expression(bolditalic(-log) * bold(""[10] ~ (P)))
-)
-
-combined_plot <- (p2 | p4) / (p3 | p6) / (p1 | p5) / (p7 | p8)
+combined_plot <- panels |>
+  lapply(\(panel) draw_histogram(
+    panel$data,
+    panel$column,
+    panel$title,
+    panel$xlab,
+    subset = panel$subset
+  )) |>
+  wrap_plots(ncol = 2)
 
 ggsave(
   plot = combined_plot,
