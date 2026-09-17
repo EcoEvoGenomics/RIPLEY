@@ -86,7 +86,7 @@ workflow PARSE_METADATA {
             .combine(unique_samples_in_metadata.toList().toList())
             .filter { i -> i[0] !in i[1] }
             .count()
-            map { n_lacking_metadata ->
+            .map { n_lacking_metadata ->
                 if (n_lacking_metadata > 0) {
                     exit(1, "Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
                 }
