@@ -33,7 +33,7 @@ workflow PARSE_VCF {
                 chroms.any { chrom -> vcf.simpleName.contains(chrom) }
             }
             .map { i -> i[0] }
-            .ifEmpty { exit(1, "Path ${vcf_path} contains no vcf.gz files.") }
+            .ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
     }
 
     if (input_is_solo) {

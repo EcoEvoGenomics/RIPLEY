@@ -13,7 +13,7 @@ workflow RUN_ADMIXTURE {
     aim_variance_threshold
 
     main:
-    plinkfiles.count().map { n -> n == 1 ?: exit(1, "Can only run ADMIXTURE on one VCF.") }
+    plinkfiles.count().subscribe { n -> n == 1 ?: error("Can only run ADMIXTURE on one VCF.") }
     
     k_values = Channel.of(kmin..kmax)
     admixture = ADMIXTURE(plinkfiles, k_values)

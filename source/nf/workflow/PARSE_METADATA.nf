@@ -26,9 +26,9 @@ workflow PARSE_METADATA {
 
     unique_samples_in_metadata.count()
         .combine(samples_in_metadata.count())
-        .map { counts ->
+        .subscribe { counts ->
             if (counts[0] != counts[1]) {
-                exit(1, "Metadata file ${sample_metadata_path} has duplicate sample entry or entries.")
+                error("Metadata file ${sample_metadata_path} has duplicate sample entry or entries.")
             } 
         }
 
@@ -53,9 +53,9 @@ workflow PARSE_METADATA {
         .combine(unique_populations_in_metadata.toList().toList())
         .filter { i -> i[0] !in i[1] }
         .count()
-        .map { n_undefined_focal_populations -> 
+        .subscribe { n_undefined_focal_populations -> 
             if (n_undefined_focal_populations > 0) {
-                exit(1, "Metadata file ${sample_metadata_path} does not include members for all specified focal populations.")  
+                error("Metadata file ${sample_metadata_path} does not include members for all specified focal populations.")  
             }
         }
     
@@ -70,9 +70,9 @@ workflow PARSE_METADATA {
             .combine(unique_samples_in_metadata.toList().toList())
             .filter { i -> i[0] !in i[1] }
             .count()
-            .map { n_lacking_metadata ->
+            .subscribe { n_lacking_metadata ->
                 if (n_lacking_metadata > 0) {
-                    exit(1, "Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
+                    error("Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
                 }
             }
     }
@@ -86,9 +86,9 @@ workflow PARSE_METADATA {
             .combine(unique_samples_in_metadata.toList().toList())
             .filter { i -> i[0] !in i[1] }
             .count()
-            .map { n_lacking_metadata ->
+            .subscribe { n_lacking_metadata ->
                 if (n_lacking_metadata > 0) {
-                    exit(1, "Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
+                    error("Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
                 }
             }
     }

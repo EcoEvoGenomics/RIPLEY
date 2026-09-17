@@ -29,7 +29,7 @@ workflow PARSE_REFERENCE_GENOME {
     index_entries = genome_index
         .splitCsv( sep:"\t" )
         .filter { row -> !(pattern != null && row[0].toString().contains(pattern)) && !(exclude.contains(row[0])) }
-        .ifEmpty { exit(1, "There are no contigs in the reference index after filtering.") }
+        .ifEmpty { error("There are no contigs in the reference index after filtering.") }
 
     chrom_names = index_entries
         .map { row -> row[0] }
