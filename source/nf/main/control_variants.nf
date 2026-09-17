@@ -14,18 +14,17 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
     input = PARSE_VCF(params.cv_vcf, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, true, true)
-    metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed, null)
 
-    RUN_SNP_DENSITY(input.vcf_condensed, params.cv_snpden_binsize, genome.chrom_names, genome.chrom_labels)
-    THIN_VCF(input.vcf_annotated, params.cv_thin_to) | RUN_VCF_STATS
-
-    if (metadata.focal_populations_set_by_user) {
-
+    // Absent metadata yield no popwise output
+    if (params.metadata != null) {
+        metadata = PARSE_METADATA(params.metadata, params.focal_populations, input.vcf_condensed, null)
         popwise_vcf = SPLIT_VCF_BY_POPULATION(input.vcf_annotated, metadata.focal_populations_censuses)
         popwise_stats = THIN_VCF_POPWISE(popwise_vcf, params.cv_thin_to) | RUN_VCF_STATS_POPWISE
         COLLATE_MULTIPLE_VCF_STATS(popwise_stats.data)
-
     }
+
+    RUN_SNP_DENSITY(input.vcf_condensed, params.cv_snpden_binsize, genome.chrom_names, genome.chrom_labels)
+    THIN_VCF(input.vcf_annotated, params.cv_thin_to) | RUN_VCF_STATS
 
     publish:
     snpden_data = RUN_SNP_DENSITY.out.data

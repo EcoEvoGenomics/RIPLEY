@@ -40,10 +40,6 @@ workflow PARSE_METADATA {
         .flatten()
         .distinct()
 
-    focal_populations_set_by_user = (focal_population_input != null)
-        ? Channel.of(true)
-        : Channel.of(false)
-        
     focal_populations = (focal_population_input != null)
         ? Channel.from(focal_population_input)
         : unique_populations_in_metadata
@@ -114,6 +110,5 @@ workflow PARSE_METADATA {
     focal_populations = focal_populations
     focal_populations_censuses = focal_populations_censuses
     focal_population_map = focal_population_map
-    focal_populations_set_by_user = focal_populations_set_by_user
 
 }
