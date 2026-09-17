@@ -105,6 +105,22 @@ process PLOT_SAMTOOLS_CRAM_STATS {
     """
 }
 
+process PLOT_SAMTOOLS_CRAM_STATS_POPWISE {
+
+    label "RPLOT"
+
+    input:
+    path(stats)
+
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${projectDir}/../../R/plot_cramstats_popwise.R ${stats}
+    """
+}
+
 process PLOT_SAMTOOLS_BEDCOV {
 
     // bedcov_reference fixes one depth scale across all subsets so popwise plots are comparable

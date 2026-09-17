@@ -19,12 +19,14 @@ workflow {
         population_map = metadata.focal_population_map
     }
 
-    stats = RUN_CRAM_STATS(input.parsed)
+    stats = RUN_CRAM_STATS(input.parsed, population_map)
     coverage = RUN_CRAM_COVERAGE(input.parsed, genome.fai, genome.chrom_names, genome.chrom_labels, population_map, params.ca_coverage_binsize)
 
     publish:
     stats_data = stats.data
     stats_plot = stats.plot
+    stats_popwise_data = stats.popwise_data
+    stats_popwise_plot = stats.popwise_plot
     coverage_data = coverage.data
     coverage_plot = coverage.plot
     coverage_popwise_data = coverage.popwise_data
@@ -35,6 +37,8 @@ output {
 
     stats_data { path "control_alignments/data" }
     stats_plot { path "control_alignments" }
+    stats_popwise_data { path "control_alignments/data" }
+    stats_popwise_plot { path "control_alignments" }
     coverage_data { path "control_alignments/data" }
     coverage_plot { path "control_alignments" }
     coverage_popwise_data { path "control_alignments/data" }
