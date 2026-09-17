@@ -1,5 +1,5 @@
 include { BEDTOOLS_MAKEWINDOWS } from "../process/bedtools.nf"
-include { SAMTOOLS_BEDCOV; SAMTOOLS_COVERAGE } from "../process/samtools.nf"
+include { SAMTOOLS_BEDCOV } from "../process/samtools.nf"
 include { METADATA_PREPEND_KEY_COLUMN as PREPEND_SAMPLE_COLUMN } from "../process/metadata.nf"
 include { PLOT_SAMTOOLS_BEDCOV } from "../process/plot.nf"
 include { PLOT_SAMTOOLS_BEDCOV as PLOT_SAMTOOLS_BEDCOV_POPWISE } from "../process/plot.nf"
