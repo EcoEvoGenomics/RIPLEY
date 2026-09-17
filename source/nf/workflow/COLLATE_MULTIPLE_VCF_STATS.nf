@@ -1,4 +1,4 @@
-include { METADATA_PREPEND_KEY_COLUMN } from "../process/metadata.nf"
+include { METADATA_PREPEND_KEY_COLUMN_WITH_HEADER } from "../process/metadata.nf"
 include { PLOT_COLLATED_VCF_STATS } from "../process/plot.nf"
 
 workflow COLLATE_MULTIPLE_VCF_STATS {
@@ -13,7 +13,7 @@ workflow COLLATE_MULTIPLE_VCF_STATS {
             def key = it.simpleName.tokenize("_")[1]
             tuple("KEY", key, it)
         } \
-        | METADATA_PREPEND_KEY_COLUMN
+        | METADATA_PREPEND_KEY_COLUMN_WITH_HEADER
     
     across_keys = with_key
         .flatten()

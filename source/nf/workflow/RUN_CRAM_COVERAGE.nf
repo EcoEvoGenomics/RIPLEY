@@ -20,8 +20,7 @@ workflow RUN_CRAM_COVERAGE {
         .flatten()
         .map { it ->
             def key = it.simpleName
-            def header = key
-            tuple(header, key, it)
+            tuple(key, it)
         } | PREPEND_SAMPLE_COLUMN
 
     bedcov_combined = bedcov_with_key
@@ -29,10 +28,7 @@ workflow RUN_CRAM_COVERAGE {
             def ext = it.extension
             tuple (ext, it)
         }
-        .collectFile( { it -> ["coverage.${it[0]}", it[1]]},
-            skip: 1,
-            keepHeader: true
-        )
+        .collectFile( { it -> ["coverage.${it[0]}", it[1]]} )
     
     chrom_flag = chrom_names
         .collect()
