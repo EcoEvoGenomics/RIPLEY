@@ -34,6 +34,12 @@ lqual <- read.table(
   header = TRUE
 )
 
+# Missingness is reported as a fraction, so it is rescaled for percentage axes
+imiss$PCT_MISS <- 100 * imiss$F_MISS
+lmiss$PCT_MISS <- 100 * lmiss$F_MISS
+
+hwe$NEG_LOG10_P <- -log10(hwe$P_HWE)
+
 draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
   library(ggplot2)
@@ -42,7 +48,7 @@ draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
   ggplot(data, aes(x = .data[[x]])) +
     facet_grid(
-      rows = vars(.data[["KEY"]])
+      rows = vars(.data[["POP"]])
     ) +
     geom_histogram(
       bins = bins,
@@ -98,67 +104,45 @@ draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
 }
 
-# p1 would be for .frq
-
-p2 <- draw_histogram(
-  het, "F",
-  "Sample Inbreeding Coefficient",
-  "F"
+# To-Do: Add .frq-plot later
+panels <- list(
+  list(slug = "het", data = het, column = "F",
+       title = "Sample Inbreeding Coefficient", xlab = "F"),
+  list(slug = "hwe", data = hwe, column = "NEG_LOG10_P",
+       title = "Site Deviation from Hardy-Weinberg Equilibrium",
+       xlab = expression(bolditalic(-log) * bold(""[10] ~ (P)))),
+  list(slug = "idepth", data = idepth, column = "MEAN_DEPTH",
+       title = "Sample Mean Sequencing Depth", xlab = ""),
+  list(slug = "imiss", data = imiss, column = "PCT_MISS",
+       title = "Sites Missing per Sample", xlab = "%"),
+  list(slug = "ldepth", data = ldepth, column = "MEAN_DEPTH",
+       title = "Site Mean Sequencing Depth (0th - 99th Percentile)", xlab = "",
+       subset = ldepth$MEAN_DEPTH <= quantile(ldepth$MEAN_DEPTH, 0.99)),
+  list(slug = "lmiss", data = lmiss, column = "PCT_MISS",
+       title = "Samples Missing per Site", xlab = "%"),
+  list(slug = "lqual", data = lqual, column = "QUAL",
+       title = "Site Quality (0th - 99th Percentile)",
+       xlab = expression(bolditalic("PHRED") ~ bold("Score")),
+       subset = lqual$QUAL <= quantile(lqual$QUAL, 0.99))
 )
 
-hwe$NEG_LOG10_P <- -log10(hwe$P_HWE)
-p3 <- draw_histogram(
-  hwe, "NEG_LOG10_P",
-  "Site Deviation from Hardy-Weinberg Equilibrium",
-  expression(bolditalic(-log) * bold(""[10] ~ (P)))
-)
+file_key <- str_split(statfiles[1], "_")[[1]][1]
 
-p4 <- draw_histogram(
-  idepth, "MEAN_DEPTH",
-  "Sample Mean Sequencing Depth",
-  ""
-)
-
-p5 <- draw_histogram(
-  imiss,
-  "F_MISS",
-  "Fraction of Sites Missing per Sample",
-  ""
-)
-
-p6 <- draw_histogram(
-  ldepth, "MEAN_DEPTH",
-  "Site Mean Sequencing Depth (0th - 99th Percentile)",
-  "",
-  subset = ldepth$MEAN_DEPTH <= quantile(ldepth$MEAN_DEPTH, 0.99)
-)
-
-p7 <- draw_histogram(
-  lmiss, "F_MISS",
-  "Fraction of Samples Missing per Site",
-  ""
-)
-
-p8 <- draw_histogram(
-  lqual, "QUAL",
-  "Site Quality (0th - 99th Percentile)",
-  expression(bolditalic("PHRED") ~ bold("Score")),
-  subset = lqual$QUAL <= quantile(lqual$QUAL, 0.99)
-)
-
-for (idx in seq_along(statfiles)) {
-
-  file_key <- str_split(statfiles[idx], "_")[[1]][1]
-  file_ext <- file_ext(statfiles[idx])
-
-  if (file_ext == "frq") next # To-Do: Add .frq-plot later
+for (panel in panels) {
 
   ggsave(
-    plot = get(paste0("p", idx)),
-    filename = paste0(file_key, "_popwise.", file_ext, ".png"),
+    plot = draw_histogram(
+      panel$data,
+      panel$column,
+      panel$title,
+      panel$xlab,
+      subset = panel$subset
+    ),
+    filename = paste0(file_key, "_popwise.", panel$slug, ".png"),
     dpi = 600,
     width = (6.75 / 2),
-    height = (6.75 / 12) * length(unique(idepth$KEY)),
+    height = (6.75 / 12) * length(unique(idepth$POP)),
     bg = "white"
   )
+
 }

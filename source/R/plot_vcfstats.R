@@ -37,6 +37,10 @@ frq <- read.table(
 
 frq$MAF <- frq[grep("^A", names(frq), value = TRUE)] |> apply(1, \(x) min(x))
 
+# Missingness is reported as a fraction, so it is rescaled for percentage axes
+imiss$PCT_MISS <- 100 * imiss$F_MISS
+lmiss$PCT_MISS <- 100 * lmiss$F_MISS
+
 draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
   if (!is.null(subset)) data <- data[subset, ]
@@ -91,9 +95,9 @@ p2 <- draw_histogram(
 
 p3 <- draw_histogram(
   imiss,
-  "F_MISS",
-  "Fraction of Sites Missing per Sample",
-  ""
+  "PCT_MISS",
+  "Sites Missing per Sample",
+  "%"
 )
 
 p4 <- draw_histogram(
@@ -111,9 +115,9 @@ p5 <- draw_histogram(
 )
 
 p6 <- draw_histogram(
-  lmiss, "F_MISS",
-  "Fraction of Samples Missing per Site",
-  ""
+  lmiss, "PCT_MISS",
+  "Samples Missing per Site",
+  "%"
 )
 
 p7 <- draw_histogram(

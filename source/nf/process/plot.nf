@@ -201,7 +201,7 @@ process PLOT_VCFTOOLS_VCF_STATS {
     """
 }
 
-process PLOT_COLLATED_VCF_STATS {
+process PLOT_VCFTOOLS_VCF_STATS_POPWISE {
 
     label "RPLOT"
 
@@ -213,7 +213,7 @@ process PLOT_COLLATED_VCF_STATS {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_vcfstats_collated.R stats/
+    Rscript ${projectDir}/../../R/plot_vcfstats_popwise.R stats/
     """
 }
 

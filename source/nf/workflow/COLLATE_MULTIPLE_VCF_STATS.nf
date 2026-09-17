@@ -1,5 +1,5 @@
-include { METADATA_PREPEND_KEY_COLUMN_WITH_HEADER } from "../process/metadata.nf"
-include { PLOT_COLLATED_VCF_STATS } from "../process/plot.nf"
+include { METADATA_PREPEND_KEY_COLUMN_WITH_HEADER as PREPEND_POP_COLUMN } from "../process/metadata.nf"
+include { PLOT_VCFTOOLS_VCF_STATS_POPWISE } from "../process/plot.nf"
 
 workflow COLLATE_MULTIPLE_VCF_STATS {
 
@@ -11,9 +11,9 @@ workflow COLLATE_MULTIPLE_VCF_STATS {
         .flatten()
         .map { it ->
             def key = it.simpleName.tokenize("_")[1]
-            tuple("KEY", key, it)
+            tuple("POP", key, it)
         } \
-        | METADATA_PREPEND_KEY_COLUMN_WITH_HEADER
+        | PREPEND_POP_COLUMN
     
     across_keys = with_key
         .flatten()
@@ -28,7 +28,7 @@ workflow COLLATE_MULTIPLE_VCF_STATS {
         )
         .collect()
 
-    plot = PLOT_COLLATED_VCF_STATS(across_keys)
+    plot = PLOT_VCFTOOLS_VCF_STATS_POPWISE(across_keys)
 
     emit:
     data = across_keys
