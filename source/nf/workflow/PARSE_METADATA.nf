@@ -98,12 +98,23 @@ workflow PARSE_METADATA {
         .collectFile( name: "samples.list", sort: { id -> id } )
 
     focal_populations_censuses = METADATA_LIST_POPULATION_MEMBERS(focal_populations, sample_metadata)
-    
+
+    sample_population_map = sample_metadata
+        .splitCsv()
+        .map { entry -> tuple(entry[0], entry[2]) }
+
+    focal_population_map = sample_population_map
+        .combine(focal_populations.toList().toList())
+        .filter { _sample, population, focal -> population in focal }
+        .map { sample, population, _focal -> tuple(sample, population) }
+
     emit:
     sample_metadata = sample_metadata
     sample_census = sample_census
+    sample_population_map = sample_population_map
     focal_populations = focal_populations
     focal_populations_censuses = focal_populations_censuses
+    focal_population_map = focal_population_map
     focal_populations_set_by_user = focal_populations_set_by_user
 
 }
