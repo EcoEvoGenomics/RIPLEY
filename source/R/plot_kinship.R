@@ -28,6 +28,9 @@ group_palette <- function(group_metadata) {
   setNames(group_metadata$COLOUR, group_metadata$GROUP)
 }
 
+# Metadata annotation is only informative if the data has > 1 levels
+is_informative <- function(x) n_distinct(x, na.rm = TRUE) > 1
+
 population_palette <- group_palette(read_group_metadata(args[3]))
 species_palette <- group_palette(read_group_metadata(args[4]))
 
@@ -171,25 +174,24 @@ spp_meta <- data |>
     panel.border = element_rect(colour = "black", linewidth = 0.15)
   )
 
+meta_rows <- c(
+  if (is_informative(data$Population)) list(pop_meta),
+  if (is_informative(data$Species)) list(spp_meta)
+)
+
+matrix_column <- wrap_plots(
+  c(list(kinship_matrix), meta_rows, list(dendrogram)),
+  ncol = 1,
+  guides = "collect",
+  heights = c(37, rep(0.5, length(meta_rows)), 3 - (length(meta_rows) / 2))
+)
+
 combined_plot <- (
-  (kinship_matrix / pop_meta / dendrogram) +
-    plot_layout(guides = "collect", heights = c(37, 0.5, 2.5)
-    ) |
+  matrix_column |
     (plot_spacer() / kinship_key / plot_spacer()) +
       plot_layout(heights = c(0.01, 36.5, 3.5)
       )
 ) + plot_layout(widths = c(39, 1))
-
-if (length(unique(data$Population)) > 1 && length(unique(data$Species)) > 1) {
-  combined_plot <- (
-    (kinship_matrix / pop_meta / spp_meta / dendrogram) +
-      plot_layout(guides = "collect", heights = c(37, 0.5, 0.5, 2)
-      ) |
-      (plot_spacer() / kinship_key / plot_spacer()) +
-        plot_layout(heights = c(0.01, 36.5, 3.5)
-        )
-  ) + plot_layout(widths = c(39, 1))
-}
 
 combined_plot <- combined_plot &
   theme(

@@ -29,6 +29,9 @@ group_palette <- function(group_metadata) {
   setNames(group_metadata$COLOUR, group_metadata$GROUP)
 }
 
+# Metadata annotation is only informative if the data has > 1 levels
+is_informative <- function(x) n_distinct(x, na.rm = TRUE) > 1
+
 population_palette <- group_palette(read_group_metadata(args[4]))
 species_palette <- group_palette(read_group_metadata(args[5]))
 
@@ -87,7 +90,7 @@ admixture_plot <- admixture_long |>
     switch = "y",
     labeller = label_bquote(K == .(K))
   ) +
-  scale_alpha_manual(values = c(0.33, 1)) +
+  scale_alpha_manual(values = c("FALSE" = 0.33, "TRUE" = 1)) +
   scale_fill_brewer(palette = "Set1") +
   theme_void() +
   theme(
@@ -145,28 +148,22 @@ spp_meta <- sample_metadata_sorted |>
     panel.border = element_rect(colour = "black", linewidth = 0.15)
   )
 
-combined_plot <- (admixture_plot / pop_meta / dendrogram) +
-  plot_layout(
-    guides = "collect",
-    heights = c(
-      43.5 - (length(unique(admixture$K))) / 2,
-      0 + (length(unique(admixture$K))) / 2,
-      6.5
-    )
-  )
+n_k <- length(unique(admixture$K))
+meta_rows <- c(
+  if (is_informative(sample_metadata_sorted$Population)) list(pop_meta),
+  if (is_informative(sample_metadata_sorted$Species)) list(spp_meta)
+)
 
-if (length(unique(sample_metadata$Population)) > 1 && length(unique(sample_metadata$Species)) > 1) {
-  combined_plot <- (admixture_plot / pop_meta / spp_meta / dendrogram) +
-    plot_layout(
-      guides = "collect",
-      heights = c(
-        44 - (length(unique(admixture$K))) / 2,
-        0 + (length(unique(admixture$K))) / 2,
-        0 + (length(unique(admixture$K))) / 2,
-        6
-      )
-    )
-}
+combined_plot <- wrap_plots(
+  c(list(admixture_plot), meta_rows, list(dendrogram)),
+  ncol = 1,
+  guides = "collect",
+  heights = c(
+    43 + (length(meta_rows) / 2) - (n_k / 2),
+    rep(n_k / 2, length(meta_rows)),
+    7 - (length(meta_rows) / 2)
+  )
+)
 
 combined_plot <- combined_plot &
   theme(

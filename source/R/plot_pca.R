@@ -54,8 +54,10 @@ sample_metadata$Species <- factor(
   levels = species_metadata$GROUP
 )
 
-n_species <- nrow(species_metadata)
-n_populations <- nrow(population_metadata)
+# Levels are counted in the data, not the metadata, as the data may be a subset
+plot_data <- eigenvectors |> left_join(sample_metadata, by = "ID")
+n_species <- n_distinct(plot_data$Species, na.rm = TRUE)
+n_populations <- n_distinct(plot_data$Population, na.rm = TRUE)
 
 draw_scree <- function(variance) {
 
@@ -73,7 +75,7 @@ draw_scree <- function(variance) {
 
 }
 
-draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, sample_metadata, grouping, palette) {
+draw_pca <- function(plot_data, pcx_num, pcy_num, variance, grouping, palette) {
 
   pcx <- paste("PC", pcx_num, sep = "")
   pcy <- paste("PC", pcy_num, sep = "")
@@ -81,17 +83,16 @@ draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, sample_metadata, 
   pcy_variance <- variance[pcy_num]
 
   expand <- 0.1
-  xmax <- (round(max(eigenvectors[pcx_num + 1]) * 10) / 10) + expand
-  xmin <- (round(min(eigenvectors[pcx_num + 1]) * 10) / 10) - expand
-  ymax <- (round(max(eigenvectors[pcy_num + 1]) * 10) / 10) + expand
-  ymin <- (round(min(eigenvectors[pcy_num + 1]) * 10) / 10) - expand
+  xmax <- (round(max(plot_data[[pcx]]) * 10) / 10) + expand
+  xmin <- (round(min(plot_data[[pcx]]) * 10) / 10) - expand
+  ymax <- (round(max(plot_data[[pcy]]) * 10) / 10) + expand
+  ymin <- (round(min(plot_data[[pcy]]) * 10) / 10) - expand
 
   text_size <- 2
   line_colour <- "black"
   point_size <- 2.5
 
-  pca_plot <- eigenvectors |>
-    left_join(sample_metadata, by = "ID") |>
+  pca_plot <- plot_data |>
     ggplot(
       aes(
         x = .data[[pcx]],
@@ -189,21 +190,19 @@ draw_pca <- function(eigenvectors, pcx_num, pcy_num, variance, sample_metadata, 
 
 }
 
-plot_pcs <- seq(from = 1, to =  n_populations - 1)
-for (pc in plot_pcs) {
+# PC1 is plotted against as many PCs as there are populations to separate
+pcx <- 1
+plot_pcs <- seq(from = 2, to = min(max(n_populations - 1, 2), n_pc))
+for (pcy in plot_pcs) {
 
-  pcx <- 1
-  pcy <- pc + 1
-
-  if (pcy > max(plot_pcs)) break
   draw_pca(
-    eigenvectors, pcx, pcy, variance_percent, sample_metadata,
+    plot_data, pcx, pcy, variance_percent,
     "Population", population_palette
   )
 
   if (n_species <= 1) next
   draw_pca(
-    eigenvectors, pcx, pcy, variance_percent, sample_metadata,
+    plot_data, pcx, pcy, variance_percent,
     "Species", species_palette
   )
 
