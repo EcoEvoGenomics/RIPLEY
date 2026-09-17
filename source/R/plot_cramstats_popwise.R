@@ -34,7 +34,6 @@ stats$KEY <- factor(stats$KEY, levels = population_metadata$GROUP)
 # SN reports counts, not proportions, so rates are taken against the sample total
 stats$PCT_MAPPED <- 100 * stats$`reads mapped` / stats$`sequences`
 stats$PCT_PROPERLY_PAIRED <- 100 * stats$`reads properly paired` / stats$`sequences`
-stats$PCT_DUPLICATED <- 100 * stats$`reads duplicated` / stats$`sequences`
 stats$PCT_MQ0 <- 100 * stats$`reads MQ0` / stats$`sequences`
 
 draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
@@ -107,8 +106,6 @@ panels <- list(
        title = "Reads Mapped per Sample", xlab = "%"),
   list(slug = "pct_properly_paired", column = "PCT_PROPERLY_PAIRED",
        title = "Reads Properly Paired per Sample", xlab = "%"),
-  list(slug = "pct_duplicated", column = "PCT_DUPLICATED",
-       title = "Reads Duplicated per Sample", xlab = "%"),
   list(slug = "pct_mq0", column = "PCT_MQ0",
        title = "Reads Mapped with Zero Quality per Sample", xlab = "%"),
   list(slug = "error_rate", column = "error rate",
@@ -116,6 +113,8 @@ panels <- list(
   list(slug = "average_quality", column = "average quality",
        title = "Sample Mean Base Quality",
        xlab = expression(bolditalic("PHRED") ~ bold("Score"))),
+  list(slug = "average_length", column = "average length",
+       title = "Sample Mean Read Length", xlab = "bp"),
   list(slug = "insert_size_average", column = "insert size average",
        title = "Sample Mean Insert Size", xlab = "bp"),
   list(slug = "insert_size_sd", column = "insert size standard deviation",

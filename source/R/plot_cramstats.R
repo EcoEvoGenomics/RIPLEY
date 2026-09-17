@@ -19,7 +19,6 @@ stats <- read.table(
 # SN reports counts, not proportions, so rates are taken against the sample total
 stats$PCT_MAPPED <- 100 * stats$`reads mapped` / stats$`sequences`
 stats$PCT_PROPERLY_PAIRED <- 100 * stats$`reads properly paired` / stats$`sequences`
-stats$PCT_DUPLICATED <- 100 * stats$`reads duplicated` / stats$`sequences`
 stats$PCT_MQ0 <- 100 * stats$`reads MQ0` / stats$`sequences`
 
 draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
@@ -62,55 +61,30 @@ draw_histogram <- function(data, x, title, xlab, bins = 30, subset = NULL) {
 
 }
 
-p1 <- draw_histogram(
-  stats, "PCT_MAPPED",
-  "Reads Mapped per Sample",
-  "%"
+# Panels fill the combined grid row-wise, two per row
+panels <- list(
+  list(column = "PCT_MAPPED",
+       title = "Reads Mapped per Sample", xlab = "%"),
+  list(column = "PCT_PROPERLY_PAIRED",
+       title = "Reads Properly Paired per Sample", xlab = "%"),
+  list(column = "PCT_MQ0",
+       title = "Reads Mapped with Zero Quality per Sample", xlab = "%"),
+  list(column = "error rate",
+       title = "Mismatches per Mapped Base", xlab = ""),
+  list(column = "average quality",
+       title = "Sample Mean Base Quality",
+       xlab = expression(bolditalic("PHRED") ~ bold("Score"))),
+  list(column = "average length",
+       title = "Sample Mean Read Length", xlab = "bp"),
+  list(column = "insert size average",
+       title = "Sample Mean Insert Size", xlab = "bp"),
+  list(column = "insert size standard deviation",
+       title = "Sample Insert Size Standard Deviation", xlab = "bp")
 )
 
-p2 <- draw_histogram(
-  stats, "PCT_PROPERLY_PAIRED",
-  "Reads Properly Paired per Sample",
-  "%"
-)
-
-p3 <- draw_histogram(
-  stats, "PCT_DUPLICATED",
-  "Reads Duplicated per Sample",
-  "%"
-)
-
-p4 <- draw_histogram(
-  stats, "PCT_MQ0",
-  "Reads Mapped with Zero Quality per Sample",
-  "%"
-)
-
-p5 <- draw_histogram(
-  stats, "error rate",
-  "Mismatches per Mapped Base",
-  ""
-)
-
-p6 <- draw_histogram(
-  stats, "average quality",
-  "Sample Mean Base Quality",
-  expression(bolditalic("PHRED") ~ bold("Score"))
-)
-
-p7 <- draw_histogram(
-  stats, "insert size average",
-  "Sample Mean Insert Size",
-  "bp"
-)
-
-p8 <- draw_histogram(
-  stats, "insert size standard deviation",
-  "Sample Insert Size Standard Deviation",
-  "bp"
-)
-
-combined_plot <- (p1 | p2) / (p3 | p4) / (p5 | p6) / (p7 | p8)
+combined_plot <- panels |>
+  lapply(\(panel) draw_histogram(stats, panel$column, panel$title, panel$xlab)) |>
+  wrap_plots(ncol = 2)
 
 ggsave(
   plot = combined_plot,
