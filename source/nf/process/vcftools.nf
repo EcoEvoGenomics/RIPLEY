@@ -7,11 +7,13 @@ process VCFTOOLS_EXCLUDE_BED {
     path(bed)
 
     output:
-    path("${vcf.simpleName}_bed_excluded.vcf.gz")
+    path("${vcf.simpleName}.vcf.gz")
 
     script:
     """
-    vcftools --gzvcf ${vcf} --exclude-bed ${bed} --recode --stdout | gzip -c > ${vcf.simpleName}_bed_excluded.vcf.gz
+    vcftools --gzvcf ${vcf} --exclude-bed ${bed} --recode --stdout \
+        | gzip -c > ${vcf.simpleName}_tmp.vcf.gz
+    mv ${vcf.simpleName}_tmp.vcf.gz ${vcf.simpleName}.vcf.gz
     """
 }
 
