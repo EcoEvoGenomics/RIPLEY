@@ -16,23 +16,29 @@ workflow COLLATE_POPWISE_VCF_STATS {
         } \
         | PREPEND_POP_COLUMN
     
-    across_keys = with_key
+    // Stem here is original VCF, either single input or one of directory
+    across_stems = with_key
         .flatten()
         .map { it ->
             def ext = it.extension
-            def statistic = it.simpleName.tokenize("_")[0]
-            tuple(statistic, ext, it)
+            def stem = it.simpleName.tokenize("_")[0]
+            tuple(stem, ext, it)
         }
         .collectFile( { it -> ["${it[0]}_popwise.${it[1]}", it[2]] },
             skip: 1,
             keepHeader: true
         )
-        .collect()
 
-    plot = PLOT_VCFTOOLS_VCF_STATS_POPWISE(across_keys, population_metadata)
+    // The plot script reads one file per statistic, so each stem must be plotted separately rather than all stems at once
+    per_stem = across_stems
+        .map { it -> tuple(it.simpleName.tokenize("_")[0], it) }
+        .groupTuple()
+        .map { it -> it[1] }
+
+    plot = PLOT_VCFTOOLS_VCF_STATS_POPWISE(per_stem, population_metadata.first())
 
     emit:
-    data = across_keys
+    data = across_stems.collect()
     plot = plot
 
 }
