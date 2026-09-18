@@ -26,11 +26,19 @@ workflow RUN_ADMIXTURE {
             def cv_error = cv[1]
             "${k}\t${cv_error}\n"
         }
-        .collectFile( name: "admixture.errors", sort: { cv -> cv[0]} )
+        .collectFile( name: "admixture.errors", sort: { line -> line.tokenize("\t")[0] as Integer } )
 
-    k_min_error = admixture.error
-        .reduce { i, j -> j[1] < i[1] ? j : i }
+    // CV errors must be compared numerically to avoid lexicographic sort
+    numeric_errors = admixture.error
+        .filter { cv ->
+            def valid_result = (cv[1] as String) ==~ /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/
+            valid_result
+        }
+
+    k_min_error = numeric_errors
+        .reduce { i, j -> (j[1] as Double) < (i[1] as Double) ? j : i }
         .map { cv -> def k = cv[0]; k }
+
     admixture_plot = PLOT_ADMIXTURE(admixture_clusts, k_min_error, sample_metadata, population_metadata, species_metadata)
 
     aim_snps = ADMIXTURE_AIMS(admixture.alleles, aim_variance_threshold)
@@ -60,7 +68,7 @@ workflow RUN_ADMIXTURE {
             tuple(k, it)
         }
         .collectFile(
-            name: { k -> k },
+            { it -> ["k${it[0]}.hihet", it[1]] },
             keepHeader: true,
             skip: 1,
             sort: true
