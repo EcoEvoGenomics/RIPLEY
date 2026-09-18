@@ -98,27 +98,30 @@ workflow PARSE_METADATA {
             }
         }
 
-    unique_samples_in_sample_metadata.count()
-        .combine(samples_in_metadata.count())
-        .subscribe { counts ->
-            if (counts[0] != counts[1]) {
-                error("Metadata file ${sample_metadata_path} has duplicate sample entry or entries.")
+    samples_in_metadata
+        .collect(sort: true)
+        .map { keys -> keys.countBy { key -> key }.findAll { _key, n -> n > 1 }.keySet() as List }
+        .subscribe { duplicates ->
+            if (duplicates) {
+                error("Metadata file ${sample_metadata_path} has duplicate sample entry or entries: ${duplicates.join(', ')}.")
             } 
         }
 
-    unique_populations_in_sample_metadata.count()
-        .combine(populations_in_metadata.count())
-        .subscribe { counts ->
-            if (counts[0] != counts[1]) {
-                error("Metadata file ${population_metadata_path} has duplicate population entry or entries.")
+    populations_in_metadata
+        .collect(sort: true)
+        .map { keys -> keys.countBy { key -> key }.findAll { _key, n -> n > 1 }.keySet() as List }
+        .subscribe { duplicates ->
+            if (duplicates) {
+                error("Metadata file ${population_metadata_path} has duplicate population entry or entries: ${duplicates.join(', ')}.")
             }
         }
 
-    unique_species_in_sample_metadata.count()
-        .combine(species_in_metadata.count())
-        .subscribe { counts ->
-            if (counts[0] != counts[1]) {
-                error("Metadata file ${species_metadata_path} has duplicate species entry or entries.")
+    species_in_metadata
+        .collect(sort: true)
+        .map { keys -> keys.countBy { key -> key }.findAll { _key, n -> n > 1 }.keySet() as List }
+        .subscribe { duplicates ->
+            if (duplicates) {
+                error("Metadata file ${species_metadata_path} has duplicate species entry or entries: ${duplicates.join(', ')}.")
             }
         }
 
@@ -152,7 +155,9 @@ workflow PARSE_METADATA {
         .map { i -> i[0] }
         .collect(sort: true)
         .subscribe { absent ->
-            error("Metadata file ${sample_metadata_path} gives sex value(s) absent from the provided ploidy file: ${absent.unique().join(', ')}.")
+            if (absent) {
+                error("Metadata file ${sample_metadata_path} gives sex value(s) absent from the provided ploidy file: ${absent.unique().join(', ')}.")
+            }
         }
     
     // Samples in VCFs must be specified by sample_metadata
