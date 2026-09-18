@@ -15,7 +15,8 @@ workflow PARSE_VCF {
     permit_dir
 
     main:
-    def input_is_solo = (file(vcf_path).isFile() && file(vcf_path).name.contains(".vcf"))
+    def vcf_name = file(vcf_path).name
+    def input_is_solo = (file(vcf_path).isFile() && (vcf_name.endsWith(".vcf.gz") || vcf_name.endsWith(".vcf")))
     def input_is_dir = file(vcf_path).isDirectory()
     if (input_is_solo && input_is_dir) { exit(1, "The input path may be interpreted both as file and directory.") }
     if (!(input_is_solo || input_is_dir)) { exit(1, "The input path does not exist or is not a directory or VCF.") }

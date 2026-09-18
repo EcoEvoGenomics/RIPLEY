@@ -14,7 +14,7 @@ workflow PARSE_CRAM {
     permit_dir
 
     main:
-    def input_is_solo = (file(cram_path).isFile() && file(cram_path).name.contains(".cram"))
+    def input_is_solo = (file(cram_path).isFile() && file(cram_path).name.endsWith(".cram"))
     def input_is_dir = file(cram_path).isDirectory()
     if (input_is_solo && input_is_dir) { exit(1, "The input path may be interpreted both as file and directory.") }
     if (!(input_is_solo || input_is_dir)) { exit(1, "The input path does not exist or is not a directory or CRAM.") }
