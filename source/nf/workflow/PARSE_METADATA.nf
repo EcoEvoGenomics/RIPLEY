@@ -1,9 +1,8 @@
 include { BCFTOOLS_LIST_SAMPLES } from "../process/bcftools.nf"
 include { METADATA_LIST_POPULATION_MEMBERS } from "../process/metadata.nf"
+include { alphanumericIssue } from "../library/filekeys.nf"
 
 workflow PARSE_METADATA {
-
-    // To-do: Add test to ensure all metadata is strictly alphanumeric
 
     take:
     sample_metadata_path
@@ -55,6 +54,14 @@ workflow PARSE_METADATA {
             if (entry.size() != 4) {
                 error("Metadata file ${sample_metadata_path} must have exactly four columns: id, species, population, and sex.")
             }
+            def sample_issue = alphanumericIssue(entry[0], "sample", "Metadata file ${sample_metadata_path}")
+            if (sample_issue) { error(sample_issue) }
+            def species_issue = alphanumericIssue(entry[1], "species", "Metadata file ${sample_metadata_path}")
+            if (species_issue) { error(species_issue) }
+            def population_issue = alphanumericIssue(entry[2], "population", "Metadata file ${sample_metadata_path}")
+            if (population_issue) { error(population_issue) }
+            def sex_issue = alphanumericIssue(entry[3], "sex", "Metadata file ${sample_metadata_path}")
+            if (sex_issue) { error(sex_issue) }
         }
 
     population_metadata
@@ -63,6 +70,8 @@ workflow PARSE_METADATA {
             if (entry.size() != 2) {
                 error("Metadata file ${population_metadata_path} must have exactly two columns: population and colour.")
             }
+            def issue = alphanumericIssue(entry[0], "population", "Metadata file ${population_metadata_path}")
+            if (issue) { error(issue) }
             if (!(entry[1] ==~ /^#[0-9A-Fa-f]{6}$/)) {
                 error("Metadata file ${population_metadata_path} gives non-hexadecimal colour '${entry[1]}' for population '${entry[0]}'.")
             }
@@ -74,6 +83,8 @@ workflow PARSE_METADATA {
             if (entry.size() != 2) {
                 error("Metadata file ${species_metadata_path} must have exactly two columns: species and colour.")
             }
+            def issue = alphanumericIssue(entry[0], "species", "Metadata file ${species_metadata_path}")
+            if (issue) { error(issue) }
             if (!(entry[1] ==~ /^#[0-9A-Fa-f]{6}$/)) {
                 error("Metadata file ${species_metadata_path} gives non-hexadecimal colour '${entry[1]}' for species '${entry[0]}'.")
             }

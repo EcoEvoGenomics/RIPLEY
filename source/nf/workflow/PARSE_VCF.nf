@@ -1,10 +1,9 @@
 include { BCFTOOLS_SELECT_CHROMS } from "../process/bcftools.nf"
 include { VCFTOOLS_EXCLUDE_BED } from "../process/vcftools.nf"
 include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../process/plink.nf"
+include { alphanumericIssue } from "../library/filekeys.nf"
 
 workflow PARSE_VCF {
-
-    // To-do: Add test for strictly alphanumeric input VCF names (e.g. genotypes.vcf.gz, chr1.vcf.gz, chr2.vcf.gz, etc.)
 
     take:
     vcf_path
@@ -26,7 +25,18 @@ workflow PARSE_VCF {
 
     // Directory input assumes one vcf corresponds to exactly one chromosome
     if (input_is_dir) {
-        vcf_annotated = Channel.fromPath("${vcf_path}/**.vcf.gz")
+        vcf_found = Channel.fromPath("${vcf_path}/**.vcf.gz")
+            .ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
+
+        // Filenames are tokenised downstream so every simpleName must be strictly alphanumeric
+        vcf_found.subscribe { vcf ->
+            vcf.simpleName.tokenize("_").each { token ->
+                def issue = alphanumericIssue(token, "filename component", "Input VCF ${vcf.name}")
+                if (issue) { error(issue) }
+            }
+        }
+
+        vcf_annotated = vcf_found
             .combine(keep_chroms.toList())
             .filter { i ->
                 def vcf = i[0]
@@ -34,7 +44,6 @@ workflow PARSE_VCF {
                 chroms.any { chrom -> vcf.simpleName.contains(chrom) }
             }
             .map { i -> i[0] }
-            .ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
     }
 
     if (input_is_solo) {

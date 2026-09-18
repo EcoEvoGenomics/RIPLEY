@@ -1,6 +1,7 @@
 include { SAMTOOLS_INDEX as INDEX_CRAM_IN; SAMTOOLS_INDEX as INDEX_CRAM_TMP; SAMTOOLS_INDEX as INDEX_CRAM_OUT } from "../process/samtools.nf"
 include { SAMTOOLS_VIEW_TARGETS as SAMTOOLS_PICK_COORDS;  } from "../process/samtools.nf"
 include { SAMTOOLS_VIEW_TARGETS as SAMTOOLS_PICK_CHROMS } from "../process/samtools.nf"
+include { alphanumericIssue } from "../library/filekeys.nf"
 
 workflow PARSE_CRAM {
 
@@ -29,6 +30,14 @@ workflow PARSE_CRAM {
 
     if (input_is_solo) {
         cram = Channel.fromPath("${cram_path}", checkIfExists: true)
+    }
+
+    // Filenames are tokenised downstream so every simpleName must be strictly alphanumeric
+    cram.subscribe { it ->
+        it.simpleName.tokenize("_").each { token ->
+            def issue = alphanumericIssue(token, "filename component", "Input CRAM ${it.name}")
+            if (issue) { error(issue) }
+        }
     }
 
     cram_idx = cram.combine(cram_ref)

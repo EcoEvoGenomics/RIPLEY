@@ -1,8 +1,7 @@
 include { asList } from "../library/coerce.nf"
+include { alphanumericIssue } from "../library/filekeys.nf"
 
 workflow PARSE_REFERENCE_GENOME {
-
-    // To-do: Add test for strictly alphanumeric chromosome names
 
     take:
     genome_path
@@ -28,6 +27,13 @@ workflow PARSE_REFERENCE_GENOME {
         .splitCsv( sep:"\t" )
         .filter { row -> !prefixes.any { prefix -> row[0].toString().startsWith(prefix) } && !(exclude.contains(row[0])) }
         .ifEmpty { error("There are no contigs in the reference index after filtering.") }
+
+    // Chromosome names survive into filenames downstream, which are tokenised and must be strictly alphanumeric
+    index_entries
+        .subscribe { row ->
+            def issue = alphanumericIssue(row[0], "chromosome", "Reference index ${genome_path}.fai")
+            if (issue) { error(issue) }
+        }
 
     chrom_names = index_entries
         .map { row -> row[0] }
