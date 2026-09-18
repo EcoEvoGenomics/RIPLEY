@@ -18,10 +18,10 @@ workflow PARSE_VCF {
     def vcf_name = file(vcf_path).name
     def input_is_solo = (file(vcf_path).isFile() && (vcf_name.endsWith(".vcf.gz") || vcf_name.endsWith(".vcf")))
     def input_is_dir = file(vcf_path).isDirectory()
-    if (input_is_solo && input_is_dir) { exit(1, "The input path may be interpreted both as file and directory.") }
-    if (!(input_is_solo || input_is_dir)) { exit(1, "The input path does not exist or is not a directory or VCF.") }
-    if (input_is_solo && !permit_solo) { exit(1, "This pipeline cannot process a single VCF file, only a directory.") }
-    if (input_is_dir && !permit_dir) { exit(1, "This pipeline cannot process a directory, only a single VCF file.") }
+    if (input_is_solo && input_is_dir) { error("The input path may be interpreted both as file and directory.") }
+    if (!(input_is_solo || input_is_dir)) { error("The input path does not exist or is not a directory or VCF.") }
+    if (input_is_solo && !permit_solo) { error("This pipeline cannot process a single VCF file, only a directory.") }
+    if (input_is_dir && !permit_dir) { error("This pipeline cannot process a directory, only a single VCF file.") }
     keep_chroms = chrom_names.collect()
 
     // Directory input assumes one vcf corresponds to exactly one chromosome
