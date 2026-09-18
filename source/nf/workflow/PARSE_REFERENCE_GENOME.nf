@@ -52,7 +52,9 @@ workflow PARSE_REFERENCE_GENOME {
         .map { i -> i[0] }
         .collect(sort: true)
         .subscribe { absent ->
-            error("Ploidy file ${ploidy_path} names contig(s) absent from ${genome_path}.fai: ${absent.unique().join(', ')}.")
+            if (absent) {
+                error("Ploidy file ${ploidy_path} names contig(s) absent from ${genome_path}.fai: ${absent.unique().join(', ')}.")
+            }
         }
 
     ploidy_sexes = ploidy_entries
