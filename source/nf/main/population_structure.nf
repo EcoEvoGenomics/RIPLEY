@@ -34,10 +34,11 @@ workflow {
     kinship_data = RUN_KINSHIP_ANALYSIS.out.data
     kinship_plot = RUN_KINSHIP_ANALYSIS.out.plot
     fst_data = RUN_PAIRWISE_FST.out.data
-    fst_logs = RUN_PAIRWISE_FST.out.logfile
+    fst_logs = RUN_PAIRWISE_FST.out.logs
     fst_mean = RUN_PAIRWISE_FST.out.mean
     fst_plot = RUN_PAIRWISE_FST.out.plot
     pca_data = RUN_PCA.out.data
+    pca_logs = RUN_PCA.out.logs
     pca_plot = RUN_PCA.out.plot
     admixture_plot = RUN_ADMIXTURE.out.plot
     admixture_data = RUN_ADMIXTURE.out.data
@@ -56,7 +57,8 @@ output {
     fst_logs { path "population_structure/fst/data" }
     fst_mean { path "population_structure/fst" }
     fst_plot { path "population_structure/fst" }
-    pca_data { path "population_structure/pca" }
+    pca_data { path "population_structure/pca/data" }
+    pca_logs { path "population_structure/pca" }
     pca_plot { path "population_structure/pca" }
     admixture_plot { path "population_structure/admixture" }
     admixture_data { path "population_structure/admixture/data" }
