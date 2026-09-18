@@ -10,14 +10,16 @@ workflow DROP_MISMATCHED_FILEKEY_PAIRS {
 
     main:
     matched_tuples = file_tuples
-        .map { pair ->
+        .filter { pair ->
             def key_a = file(pair[0]).simpleName.toString().tokenize("_")[0]
             def key_b = file(pair[1]).simpleName.toString().tokenize("_")[0]
+            key_a == key_b
+        }
+        .map { pair ->
+            def key_a = file(pair[0]).simpleName.toString().tokenize("_")[0]
             def name_a = file(pair[0]).simpleName.toString().tokenize("_")[1]
             def name_b = file(pair[1]).simpleName.toString().tokenize("_")[1]
-            key_a == key_b
-                ? tuple(key_a, name_a, name_b, file(pair[0]), file(pair[1]))
-                : null
+            tuple(key_a, name_a, name_b, file(pair[0]), file(pair[1]))
         }
     
     emit:

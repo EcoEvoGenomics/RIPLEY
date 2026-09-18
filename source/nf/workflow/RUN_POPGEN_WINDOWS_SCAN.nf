@@ -22,13 +22,8 @@ workflow RUN_POPGEN_WINDOWS_SCAN {
 
     inputs = merged_geno
         .combine(target_samples)
-        .map { files ->
-            def key_geno = files[0].simpleName
-            def key_samples = files[1].simpleName
-            key_geno == key_samples
-                ? tuple(files[0], files[1])
-                : null
-        }
+        .filter { files -> files[0].simpleName == files[1].simpleName }
+        .map { files -> tuple(files[0], files[1]) }
         .combine(sample_metadata)
 
     GENOMICS_GENERAL_POPGEN_WINDOWS(repo, inputs, window_size, step_size, min_sites)
