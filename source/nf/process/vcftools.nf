@@ -76,7 +76,7 @@ process VCFTOOLS_CALCULATE_PAIRWISE_FST {
 
     output:
     path("${pop_a_list.simpleName}_${pop_b_list.simpleName}.weir.fst"), emit: full
-    path("${pop_a_list.simpleName}_${pop_b_list.simpleName}.out"), emit: logfile
+    path("${pop_a_list.simpleName}_${pop_b_list.simpleName}.out"), emit: logs
     tuple \
         val("${pop_a_list.simpleName}"), \
         val("${pop_b_list.simpleName}"),
