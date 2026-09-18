@@ -20,24 +20,25 @@ workflow PARSE_REFERENCE_GENOME {
     chrom_labels = Channel.fromPath("${label_table}", checkIfExists: true)
     ploidy = (ploidy_path != null) ? Channel.fromPath("${ploidy_path}", checkIfExists: true) : Channel.empty()
     
-    postfilter_index_entries = genome_index
+    // Assumption: unprefixed contigs = chromosomes; prefixed contigs = unattached scaffolds
+    unprefixed_index_entries = genome_index
         .splitCsv( sep:"\t" )
-        .filter { row -> !prefixes.any { prefix -> row[0].toString().startsWith(prefix) } && !(exclude.contains(row[0])) }
-        .ifEmpty { error("There are no contigs in the reference index after filtering.") }
+        .filter { row -> !prefixes.any { prefix -> row[0].toString().startsWith(prefix) } }
 
     // Chromosome names survive into filenames downstream, which are tokenised and must be strictly alphanumeric
-    postfilter_index_entries
+    unprefixed_index_entries
         .subscribe { row ->
             def issue = alphanumericIssue(row[0], "chromosome", "Reference index ${genome_path}.fai")
             if (issue) { error(issue) }
         }
 
-    // Assumption: unprefixed contigs = chromosomes; prefixed contigs = unattached scaffolds
-    unprefixed_contigs = genome_index
-        .splitCsv( sep:"\t" )
-        .filter { row -> !prefixes.any { prefix -> row[0].toString().startsWith(prefix) } }
+    unprefixed_contigs = unprefixed_index_entries
         .map { row -> row[0] }
         .collect(sort: true)
+
+    postfilter_index_entries = unprefixed_index_entries
+        .filter { row -> !(exclude.contains(row[0])) }
+        .ifEmpty { error("There are no contigs in the reference index after filtering.") }
 
     ploidy_entries = ploidy
         .splitCsv( sep:"\t" )
