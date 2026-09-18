@@ -8,6 +8,7 @@ workflow PARSE_METADATA {
     sample_metadata_path
     population_metadata_path
     species_metadata_path
+    ploidy_sexes
     focal_population_input
     check_vcf
     check_cram
@@ -44,6 +45,13 @@ workflow PARSE_METADATA {
     unique_species_in_sample_metadata = sample_metadata
         .splitCsv()
         .map { i -> i[1] }
+        .collect(sort: true)
+        .flatten()
+        .distinct()
+
+    unique_sexes_in_sample_metadata = sample_metadata
+        .splitCsv()
+        .map { i -> i[3] }
         .collect(sort: true)
         .flatten()
         .distinct()
@@ -135,6 +143,16 @@ workflow PARSE_METADATA {
             if (n_uncoloured > 0) {
                 error("Metadata file ${species_metadata_path} lacks entry for ${n_uncoloured} species.")
             }
+        }
+
+    // Silently skipped without a ploidy file because ploidy_sexes then never emits from PARSE_REFERENCE_GENOME
+    unique_sexes_in_sample_metadata
+        .combine(ploidy_sexes)
+        .filter { i -> i[0] !in i[1] }
+        .map { i -> i[0] }
+        .collect(sort: true)
+        .subscribe { absent ->
+            error("Metadata file ${sample_metadata_path} gives sex value(s) absent from the provided ploidy file: ${absent.unique().join(', ')}.")
         }
     
     // Samples in VCFs must be specified by sample_metadata
