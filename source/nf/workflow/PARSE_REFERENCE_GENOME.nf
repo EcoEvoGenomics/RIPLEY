@@ -18,33 +18,32 @@ workflow PARSE_REFERENCE_GENOME {
     genome_annotations = Channel.fromPath("${file(genome_path).parent}/${file(genome_path).baseName}.gff", checkIfExists: true)
     chrom_labels = Channel.fromPath("${label_table}", checkIfExists: true)
 
-    total_chroms = genome_index
-        .splitCsv( sep:"\t" )
-        .filter { row -> !prefixes.any { prefix -> row[0].toString().startsWith(prefix) } }
-        .count()
-
-    index_entries = genome_index
+    postfilter_index_entries = genome_index
         .splitCsv( sep:"\t" )
         .filter { row -> !prefixes.any { prefix -> row[0].toString().startsWith(prefix) } && !(exclude.contains(row[0])) }
         .ifEmpty { error("There are no contigs in the reference index after filtering.") }
 
     // Chromosome names survive into filenames downstream, which are tokenised and must be strictly alphanumeric
-    index_entries
+    postfilter_index_entries
         .subscribe { row ->
             def issue = alphanumericIssue(row[0], "chromosome", "Reference index ${genome_path}.fai")
             if (issue) { error(issue) }
         }
 
-    chrom_names = index_entries
+    // Assumption: unprefixed contigs = chromosomes; prefixed contigs = unattached scaffolds
+    unprefixed_contigs = genome_index
+        .splitCsv( sep:"\t" )
+        .filter { row -> !prefixes.any { prefix -> row[0].toString().startsWith(prefix) } }
         .map { row -> row[0] }
+        .collect(sort: true)
 
     emit:
     fasta = genome
     fai = genome_index
     gff = genome_annotations
-    total_chroms = total_chroms
-    chrom_indices = index_entries
-    chrom_names = chrom_names
+    total_chroms = unprefixed_contigs.map { names -> names.size() }
+    chrom_indices = postfilter_index_entries
+    chrom_names = postfilter_index_entries.map { row -> row[0] }
     chrom_labels = chrom_labels
 
 }
