@@ -59,7 +59,7 @@ process BCFTOOLS_SELECT_CHROMS {
         --targets ${chrom_string} \
         --output-type z --output ${vcf.simpleName}_tmp.vcf.gz \
         ${vcf}
-    mv ${vcf.simpleName}_tmp.vcf.gz ${vcf.SimpleName}.vcf.gz
+    mv ${vcf.simpleName}_tmp.vcf.gz ${vcf.simpleName}.vcf.gz
     """
 }
 
