@@ -3,7 +3,7 @@ library(patchwork)
 
 args <- commandArgs(trailing = TRUE)
 hihet <- read.table(args[1], header = TRUE)
-k <- basename(args[1])
+k <- sub("^k", "", tools::file_path_sans_ext(basename(args[1])))
 sample_metadata <- read.table(
   args[2],
   sep = ",",
