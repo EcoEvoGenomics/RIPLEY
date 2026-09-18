@@ -1,7 +1,7 @@
 include { METADATA_PREPEND_KEY_COLUMN_WITH_HEADER as PREPEND_POP_COLUMN } from "../process/metadata.nf"
 include { PLOT_VCFTOOLS_VCF_STATS_POPWISE } from "../process/plot.nf"
 
-workflow COLLATE_MULTIPLE_VCF_STATS {
+workflow COLLATE_POPWISE_VCF_STATS {
 
     take:
     vcf_stats
@@ -11,8 +11,8 @@ workflow COLLATE_MULTIPLE_VCF_STATS {
     with_key = vcf_stats
         .flatten()
         .map { it ->
-            def key = it.simpleName.tokenize("_")[1]
-            tuple("POP", key, it)
+            def population = it.simpleName.tokenize("_")[1]
+            tuple("POP", population, it)
         } \
         | PREPEND_POP_COLUMN
     
@@ -20,8 +20,8 @@ workflow COLLATE_MULTIPLE_VCF_STATS {
         .flatten()
         .map { it ->
             def ext = it.extension
-            def key = it.simpleName.tokenize("_")[0]
-            tuple(key, ext, it)
+            def statistic = it.simpleName.tokenize("_")[0]
+            tuple(statistic, ext, it)
         }
         .collectFile( { it -> ["${it[0]}_popwise.${it[1]}", it[2]] },
             skip: 1,
