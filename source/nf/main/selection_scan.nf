@@ -17,7 +17,8 @@ workflow {
     metadata_selection = PARSE_METADATA_SELECTION(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_selection.vcf_condensed, null)
     metadata_structure = PARSE_METADATA_STRUCTURE(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_structure.vcf_condensed, null)
 
-    popwise_vcf_selection = SPLIT_VCF_SELECTION(input_selection.vcf_condensed, metadata_selection.focal_populations_censuses)
+    // Selection scans need phase, population structure (WinPCA) does not
+    popwise_vcf_selection = SPLIT_VCF_SELECTION(input_selection.vcf_annotated, metadata_selection.focal_populations_censuses)
     popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf_condensed, metadata_structure.focal_populations_censuses)
 
     RUN_POPGEN_WINDOWS_SCAN(
