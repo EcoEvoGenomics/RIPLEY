@@ -1,7 +1,7 @@
 include { SAMTOOLS_INDEX as INDEX_CRAM_IN; SAMTOOLS_INDEX as INDEX_CRAM_TMP; SAMTOOLS_INDEX as INDEX_CRAM_OUT } from "../process/samtools.nf"
 include { SAMTOOLS_VIEW_TARGETS as SAMTOOLS_PICK_COORDS;  } from "../process/samtools.nf"
 include { SAMTOOLS_VIEW_TARGETS as SAMTOOLS_PICK_CHROMS } from "../process/samtools.nf"
-include { alphanumericIssue } from "../library/filekeys.nf"
+include { alphanumericIssue; keyFor } from "../library/filekeys.nf"
 
 workflow PARSE_CRAM {
 
@@ -15,7 +15,8 @@ workflow PARSE_CRAM {
     permit_dir
 
     main:
-    def input_is_solo = (file(cram_path).isFile() && file(cram_path).name.endsWith(".cram"))
+    def permitted_extensions = ["cram"]
+    def input_is_solo = (file(cram_path).isFile() && keyFor(file(cram_path).name, permitted_extensions) != null)
     def input_is_dir = file(cram_path).isDirectory()
     if (input_is_solo && input_is_dir) { error("The input path may be interpreted both as file and directory.") }
     if (!(input_is_solo || input_is_dir)) { error("The input path does not exist or is not a directory or CRAM.") }
@@ -32,12 +33,10 @@ workflow PARSE_CRAM {
         cram = Channel.fromPath("${cram_path}", checkIfExists: true)
     }
 
-    // Filenames are tokenised downstream so every simpleName must be strictly alphanumeric
+    // The whole name minus its extension is the sample key, and downstream tokenising splits on both underscores and dots
     cram.subscribe { it ->
-        it.simpleName.tokenize("_").each { token ->
-            def issue = alphanumericIssue(token, "filename component", "Input CRAM ${it.name}")
-            if (issue) { error(issue) }
-        }
+        def issue = alphanumericIssue(keyFor(it.name, permitted_extensions), "sample key", "Input CRAM ${it.name}")
+        if (issue) { error(issue) }
     }
 
     cram_idx = cram.combine(cram_ref)

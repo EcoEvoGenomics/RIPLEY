@@ -9,3 +9,13 @@ def alphanumericIssue(value, kind, source) {
     if (text ==~ /^[A-Za-z0-9]+$/) { return null }
     return "${source} gives ${kind} '${text}', which must be strictly alphanumeric (A-Z, a-z, 0-9)."
 }
+
+// Returns the name minus its permitted extension, or null if no extension matches.
+// Unlike simpleName, which truncates at the first dot, this keeps any interior dot
+// in the key so e.g. SAMPLE.A.cram fails validation instead of silently becoming SAMPLE.
+def keyFor(name, extensions) {
+    def text = name?.toString()
+    def matched = extensions.find { ext -> text?.endsWith(".${ext}") }
+    if (matched == null) { return null }
+    return text[0..<(text.length() - matched.length() - 1)]
+}

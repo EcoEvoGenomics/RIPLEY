@@ -1,7 +1,7 @@
 include { BCFTOOLS_SELECT_CHROMS } from "../process/bcftools.nf"
 include { VCFTOOLS_EXCLUDE_BED } from "../process/vcftools.nf"
 include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../process/plink.nf"
-include { alphanumericIssue } from "../library/filekeys.nf"
+include { alphanumericIssue; keyFor } from "../library/filekeys.nf"
 
 workflow PARSE_VCF {
 
@@ -14,8 +14,9 @@ workflow PARSE_VCF {
     permit_dir
 
     main:
+    def permitted_extensions = ["vcf.gz", "vcf"]
     def vcf_name = file(vcf_path).name
-    def input_is_solo = (file(vcf_path).isFile() && (vcf_name.endsWith(".vcf.gz") || vcf_name.endsWith(".vcf")))
+    def input_is_solo = (file(vcf_path).isFile() && keyFor(vcf_name, permitted_extensions) != null)
     def input_is_dir = file(vcf_path).isDirectory()
     if (input_is_solo && input_is_dir) { error("The input path may be interpreted both as file and directory.") }
     if (!(input_is_solo || input_is_dir)) { error("The input path does not exist or is not a directory or VCF.") }
@@ -28,12 +29,10 @@ workflow PARSE_VCF {
         vcf_found = Channel.fromPath("${vcf_path}/**.vcf.gz")
             .ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
 
-        // Filenames are tokenised downstream so every simpleName must be strictly alphanumeric
+        // The whole name minus its extension is the chromosome key, and downstream tokenising splits on both underscores and dots
         vcf_found.subscribe { vcf ->
-            vcf.simpleName.tokenize("_").each { token ->
-                def issue = alphanumericIssue(token, "filename component", "Input VCF ${vcf.name}")
-                if (issue) { error(issue) }
-            }
+            def issue = alphanumericIssue(keyFor(vcf.name, permitted_extensions), "chromosome key", "Input VCF ${vcf.name}")
+            if (issue) { error(issue) }
         }
 
         vcf_annotated = vcf_found
@@ -41,13 +40,13 @@ workflow PARSE_VCF {
             .filter { i ->
                 def vcf = i[0]
                 def chroms = i[1]
-                chroms.contains(vcf.simpleName.tokenize("_")[0])
+                chroms.contains(keyFor(vcf.name, permitted_extensions))
             }
             .map { i -> i[0] }
 
         // Every retained chromosome must be represented by exactly one VCF (trust filename, no filecontent check)
         vcf_annotated
-            .map { vcf -> vcf.simpleName.tokenize("_")[0] }
+            .map { vcf -> keyFor(vcf.name, permitted_extensions) }
             .collect()
             .map { found -> [found] }
             .combine(keep_chroms.toList())
@@ -62,6 +61,8 @@ workflow PARSE_VCF {
     }
 
     if (input_is_solo) {
+        def issue = alphanumericIssue(keyFor(vcf_name, permitted_extensions), "file key", "Input VCF ${vcf_name}")
+        if (issue) { error(issue) }
         chrom_flag = keep_chroms.map { i -> i.join(",") }
         vcf_annotated = BCFTOOLS_SELECT_CHROMS(vcf_path, chrom_flag)
     }
