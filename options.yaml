@@ -8,8 +8,8 @@ focal_populations:
 ref_genome: 
 ref_ploidy: 
 ref_exclude_chroms: [ ]
+ref_exclude_prefix: [ ]
 ref_exclude_coords: 
-ref_exclude_prefix: 
 ref_chrom_labels: 
 
 ########### Control Alignments #############

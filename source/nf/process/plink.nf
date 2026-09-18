@@ -1,3 +1,5 @@
+include { asList } from "../library/coerce.nf"
+
 process PLINK_INIT_PLINKFILES {
 
     label "PLINK"
@@ -217,13 +219,15 @@ process PARSE_PLINK_LD_DECAY {
 
     input:
     path(ld_stats)
-    val(scaffold_name)
+    val(exclude_prefixes)
     val(bin_size)
 
     output:
     path("${ld_stats.simpleName}.ld*"), emit: ld_decay_bins
 
     script:
+    // Coincidentally valid Python - toJson avoids accidental injection of 'True', etc.
+    def prefix_literal = groovy.json.JsonOutput.toJson(asList(exclude_prefixes))
     """
     #!/usr/bin/env python
     import gzip, sys
@@ -233,15 +237,16 @@ process PARSE_PLINK_LD_DECAY {
     file.readline()
 
     chroms = dict()
+    exclude_prefixes = ${prefix_literal}
 
     lines_read = 0
     flush_every = 1000000
     for line in file:
 
         line = line.strip().split()
-        chrom = line[0]
+        chrom = line[0].decode()
 
-        if "${scaffold_name}" in str(chrom):
+        if any(chrom.startswith(prefix) for prefix in exclude_prefixes):
             continue
 
         pos1 = int(line[1])
@@ -283,7 +288,7 @@ process PARSE_PLINK_LD_DECAY {
             mean = np.mean(dist_bins[bin])
             std = np.std(dist_bins[bin])
             nsnp = np.shape(dist_bins[bin])[0]
-            outfile.write("%s\\t%d\\t%g\\t%g\\t%s\\n" % (chrom.decode(), bin, mean, std, nsnp))
+            outfile.write("%s\\t%d\\t%g\\t%g\\t%s\\n" % (chrom, bin, mean, std, nsnp))
 
     outfile.close()
     """
