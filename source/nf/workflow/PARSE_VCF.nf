@@ -23,7 +23,7 @@ workflow PARSE_VCF {
     if (input_is_dir && !permit_dir) { error("This pipeline cannot process a directory, only a single VCF file.") }
     keep_chroms = chrom_names.collect()
 
-    // Directory input assumes one vcf corresponds to exactly one chromosome
+    // Directory input assumes one vcf corresponds to exactly one chromosome (chr1.vcf.gz, chr2.vcf.gz, ... chrN.vcf.gz)
     if (input_is_dir) {
         vcf_found = Channel.fromPath("${vcf_path}/**.vcf.gz")
             .ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
@@ -41,9 +41,24 @@ workflow PARSE_VCF {
             .filter { i ->
                 def vcf = i[0]
                 def chroms = i[1]
-                chroms.any { chrom -> vcf.simpleName.contains(chrom) }
+                chroms.contains(vcf.simpleName.tokenize("_")[0])
             }
             .map { i -> i[0] }
+
+        // Every retained chromosome must be represented by exactly one VCF (trust filename, no filecontent check)
+        vcf_annotated
+            .map { vcf -> vcf.simpleName.tokenize("_")[0] }
+            .collect()
+            .map { found -> [found] }
+            .combine(keep_chroms.toList())
+            .subscribe { i ->
+                def found = i[0]
+                def chroms = i[1]
+                def missing = chroms - found
+                if (missing) {
+                    error("Path ${vcf_path} contains no vcf.gz file for retained chromosome(s): ${missing.join(', ')}.")
+                }
+            }
     }
 
     if (input_is_solo) {
