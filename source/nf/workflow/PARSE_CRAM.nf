@@ -47,11 +47,12 @@ workflow PARSE_CRAM {
             tuple(file, fasta, fai)
         } | INDEX_CRAM_IN
 
-    exclude_coords ?: null
-    if (exclude_coords == null) {
+    // combine() rejects a bare path, so the BED must be wrapped to broadcast across every CRAM
+    def exclude_bed = exclude_coords ? Channel.value(file(exclude_coords, checkIfExists: true)) : null
+    if (exclude_bed == null) {
         cram_tmp = cram_idx
     } else {
-        cram_tmp = SAMTOOLS_PICK_COORDS(cram_idx.combine(exclude_coords)).drop | INDEX_CRAM_TMP
+        cram_tmp = SAMTOOLS_PICK_COORDS(cram_idx.combine(exclude_bed)).drop | INDEX_CRAM_TMP
     }
 
     chroms_bed = chrom_indices
@@ -63,7 +64,7 @@ workflow PARSE_CRAM {
         }
         .collectFile(
             name: "chroms.bed",
-            sort: { idx -> def chrom = idx[0]; chrom }
+            sort: { line -> line.tokenize("\t")[0] } // Entries are BED lines
         )
 
     cram_out = SAMTOOLS_PICK_CHROMS(cram_tmp.combine(chroms_bed)).keep | INDEX_CRAM_OUT
