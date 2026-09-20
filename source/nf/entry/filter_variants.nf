@@ -12,9 +12,10 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
     input = PARSE_VCF(params.fv_vcf, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, true, true)
-    metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf_condensed, null)
+    // metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf_condensed, null)
 
-    if (file(params.fv_vcf).isDirectory()) {
+    def input_is_split_by_chrom = file(params.fv_vcf).isDirectory()
+    if (input_is_split_by_chrom) {
         chroms = input.vcf_annotated
     } else {
         chroms = SPLIT_VCF_BY_CHROM(input.vcf_annotated_indexed, genome.chrom_names)
