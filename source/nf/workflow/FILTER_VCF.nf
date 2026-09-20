@@ -22,6 +22,5 @@ workflow FILTER_VCF {
     emit:
     vcf = filtered
     flags = filter_flags
-    label = Channel.value(flags_key)
 
 }

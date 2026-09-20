@@ -7,7 +7,7 @@ include { CONCATENATE_VCFS } from "../workflow/CONCATENATE_VCFS.nf"
 include { keyFor } from "../library/filekeys.nf"
 
 nextflow.preview.output = true
-def outputSubdir() { keyFor(file(params.fv_filter_flags).name, ["txt"]) }
+def filtersLabel() { keyFor(file(params.fv_filter_flags).name, ["txt"]) }
 
 workflow {
 
@@ -24,7 +24,7 @@ workflow {
     }
 
     filtered = FILTER_VCF(chroms, params.fv_filter_flags)
-    concatenated = CONCATENATE_VCFS(filtered.vcf, genome.chrom_names, filtered.label)
+    concatenated = CONCATENATE_VCFS(filtered.vcf, genome.chrom_names, Channel.value(filtersLabel()))
 
     publish:
     filters = filtered.flags
@@ -35,8 +35,8 @@ workflow {
 
 output {
 
-    filters { path "filter_variants/${outputSubdir()}" }
-    concat_vcf { path "filter_variants/${outputSubdir()}" }
-    chrom_vcfs { path "filter_variants/${outputSubdir()}/chroms" }
+    filters { path "filter_variants/${filtersLabel()}" }
+    concat_vcf { path "filter_variants/${filtersLabel()}" }
+    chrom_vcfs { path "filter_variants/${filtersLabel()}/chroms" }
 
 }
