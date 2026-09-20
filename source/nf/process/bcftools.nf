@@ -71,7 +71,7 @@ process BCFTOOLS_INDEX {
     path(vcf)
 
     output:
-    tuple path(vcf, includeInputs: true), path("${vcf.name}.csi"), emit: indexed_vcf
+    tuple path(vcf, includeInputs: true), path("${vcf.name}.csi")
 
     script:
     """
