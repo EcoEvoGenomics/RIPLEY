@@ -30,7 +30,7 @@ cl_bin_size: 1000
 
 ############ Filter Variants ###############
 fv_vcf: 
-fv_filter_flags: 
+fv_flags: 
 
 ######## Mitochondrial Haplotypes ##########
 mt_cramdir: 

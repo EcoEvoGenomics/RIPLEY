@@ -7,7 +7,7 @@ include { JOIN_VCF_BY_CHROM } from "../workflow/utils/JOIN_VCF_BY_CHROM.nf"
 include { keyFor } from "../library/filekeys.nf"
 
 nextflow.preview.output = true
-def filtersLabel() { keyFor(file(params.fv_filter_flags).name, ["txt"]) }
+def filtersLabel() { keyFor(file(params.fv_flags).name, ["txt"]) }
 
 workflow {
 
@@ -23,7 +23,7 @@ workflow {
         chroms = SPLIT_VCF_BY_CHROM(input.vcf_annotated_indexed, genome.chrom_names)
     }
 
-    filtered = RUN_VCF_FILTERING(chroms, params.fv_filter_flags)
+    filtered = RUN_VCF_FILTERING(chroms, params.fv_flags)
     concatenated = JOIN_VCF_BY_CHROM(filtered.vcf_filtered, genome.chrom_names, Channel.value(filtersLabel()))
 
     publish:
