@@ -3,7 +3,7 @@ include { PARSE_METADATA } from "../workflow/parse/PARSE_METADATA.nf"
 include { PARSE_VCF } from "../workflow/parse/PARSE_VCF.nf"
 include { SPLIT_VCF_BY_CHROM } from "../workflow/utils/SPLIT_VCF_BY_CHROM.nf"
 include { RUN_VCF_FILTERING } from "../workflow/run/RUN_VCF_FILTERING.nf"
-include { CONCATENATE_VCFS } from "../workflow/utils/CONCATENATE_VCFS.nf"
+include { JOIN_VCF_BY_CHROM } from "../workflow/utils/JOIN_VCF_BY_CHROM.nf"
 include { keyFor } from "../library/filekeys.nf"
 
 nextflow.preview.output = true
@@ -24,7 +24,7 @@ workflow {
     }
 
     filtered = RUN_VCF_FILTERING(chroms, params.fv_filter_flags)
-    concatenated = CONCATENATE_VCFS(filtered.vcf_filtered, genome.chrom_names, Channel.value(filtersLabel()))
+    concatenated = JOIN_VCF_BY_CHROM(filtered.vcf_filtered, genome.chrom_names, Channel.value(filtersLabel()))
 
     publish:
     filters = filtered.flags

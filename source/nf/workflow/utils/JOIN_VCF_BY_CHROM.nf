@@ -1,6 +1,6 @@
 include { BCFTOOLS_CONCAT_VCFS } from "../../process/bcftools.nf"
 
-workflow CONCATENATE_VCFS {
+workflow JOIN_VCF_BY_CHROM {
 
     take:
     vcfs
