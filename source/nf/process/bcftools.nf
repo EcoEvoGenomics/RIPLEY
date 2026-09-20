@@ -235,6 +235,29 @@ process BCFTOOLS_MERGE_VCFS {
     """
 }
 
+process BCFTOOLS_CONCAT_VCFS {
+
+    // Inputs must be ordered prior to concatenation
+
+    label "BCFTOOLS"
+
+    input:
+    path(vcfs, stageAs: "vcfs/*")
+    val(outname)
+
+    output:
+    tuple path("${outname}.vcf.gz"), path("${outname}.vcf.gz.csi")
+
+    script:
+    """
+    bcftools concat \
+        --threads ${task.cpus} \
+        --output-type z --output ${outname}.vcf.gz \
+        ${vcfs}
+    bcftools index --threads ${task.cpus} ${outname}.vcf.gz
+    """
+}
+
 process BCFTOOLS_SAMPLE_VCF {
 
     label "BCFTOOLS"
