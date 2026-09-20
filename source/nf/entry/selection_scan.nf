@@ -1,10 +1,10 @@
-include { PARSE_REFERENCE_GENOME } from "../workflow/PARSE_REFERENCE_GENOME.nf"
-include { PARSE_VCF as PARSE_VCF_SELECTION; PARSE_VCF as PARSE_VCF_STRUCTURE } from "../workflow/PARSE_VCF.nf"
-include { PARSE_METADATA as PARSE_METADATA_SELECTION; PARSE_METADATA as PARSE_METADATA_STRUCTURE } from "../workflow/PARSE_METADATA.nf"
-include { SPLIT_VCF_BY_POPULATION as SPLIT_VCF_SELECTION; SPLIT_VCF_BY_POPULATION as SPLIT_VCF_STRUCTURE } from "../workflow/SPLIT_VCF_BY_POPULATION.nf"
-include { RUN_POPGEN_WINDOWS_SCAN } from "../workflow/RUN_POPGEN_WINDOWS_SCAN.nf"
-include { RUN_EHH_SCAN } from "../workflow/RUN_EHH_SCAN.nf"
-include { RUN_WINDOWED_PCA_SCAN } from "../workflow/RUN_WINDOWED_PCA_SCAN.nf"
+include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOME.nf"
+include { PARSE_VCF as PARSE_VCF_SELECTION; PARSE_VCF as PARSE_VCF_STRUCTURE } from "../workflow/parse/PARSE_VCF.nf"
+include { PARSE_METADATA as PARSE_METADATA_SELECTION; PARSE_METADATA as PARSE_METADATA_STRUCTURE } from "../workflow/parse/PARSE_METADATA.nf"
+include { SPLIT_VCF_BY_POPULATION as SPLIT_VCF_SELECTION; SPLIT_VCF_BY_POPULATION as SPLIT_VCF_STRUCTURE } from "../workflow/utils/SPLIT_VCF_BY_POPULATION.nf"
+include { RUN_POPGEN_WINDOWS_SCAN } from "../workflow/run/RUN_POPGEN_WINDOWS_SCAN.nf"
+include { RUN_EHH_SCAN } from "../workflow/run/RUN_EHH_SCAN.nf"
+include { RUN_WINDOWED_PCA_SCAN } from "../workflow/run/RUN_WINDOWED_PCA_SCAN.nf"
 
 nextflow.preview.output = true
 

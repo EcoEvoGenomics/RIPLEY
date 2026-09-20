@@ -1,5 +1,5 @@
-include { VCFTOOLS_SNP_DENSITY } from "../process/vcftools.nf"
-include { PLOT_VCFTOOLS_SNP_DENSITY } from "../process/plot.nf"
+include { VCFTOOLS_SNP_DENSITY } from "../../process/vcftools.nf"
+include { PLOT_VCFTOOLS_SNP_DENSITY } from "../../process/plot.nf"
 
 workflow RUN_SNP_DENSITY {
 

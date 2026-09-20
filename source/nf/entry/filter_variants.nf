@@ -1,9 +1,9 @@
-include { PARSE_REFERENCE_GENOME } from "../workflow/PARSE_REFERENCE_GENOME.nf"
-include { PARSE_METADATA } from "../workflow/PARSE_METADATA.nf"
-include { PARSE_VCF } from "../workflow/PARSE_VCF.nf"
-include { SPLIT_VCF_BY_CHROM } from "../workflow/SPLIT_VCF_BY_CHROM.nf"
-include { FILTER_VCF } from "../workflow/FILTER_VCF.nf"
-include { CONCATENATE_VCFS } from "../workflow/CONCATENATE_VCFS.nf"
+include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOME.nf"
+include { PARSE_METADATA } from "../workflow/parse/PARSE_METADATA.nf"
+include { PARSE_VCF } from "../workflow/parse/PARSE_VCF.nf"
+include { SPLIT_VCF_BY_CHROM } from "../workflow/utils/SPLIT_VCF_BY_CHROM.nf"
+include { FILTER_VCF } from "../workflow/run/FILTER_VCF.nf"
+include { CONCATENATE_VCFS } from "../workflow/utils/CONCATENATE_VCFS.nf"
 include { keyFor } from "../library/filekeys.nf"
 
 nextflow.preview.output = true

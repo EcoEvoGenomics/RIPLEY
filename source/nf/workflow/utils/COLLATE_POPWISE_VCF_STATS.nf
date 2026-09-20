@@ -1,5 +1,5 @@
-include { METADATA_PREPEND_KEY_COLUMN_WITH_HEADER as PREPEND_POP_COLUMN } from "../process/metadata.nf"
-include { PLOT_VCFTOOLS_VCF_STATS_POPWISE } from "../process/plot.nf"
+include { METADATA_PREPEND_KEY_COLUMN_WITH_HEADER as PREPEND_POP_COLUMN } from "../../process/metadata.nf"
+include { PLOT_VCFTOOLS_VCF_STATS_POPWISE } from "../../process/plot.nf"
 
 workflow COLLATE_POPWISE_VCF_STATS {
 

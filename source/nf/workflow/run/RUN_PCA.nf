@@ -1,5 +1,5 @@
-include { PLINK_PCA } from "../process/plink.nf"
-include { PLOT_PLINK_PCA } from "../process/plot.nf"
+include { PLINK_PCA } from "../../process/plink.nf"
+include { PLOT_PLINK_PCA } from "../../process/plot.nf"
 
 workflow RUN_PCA {
 

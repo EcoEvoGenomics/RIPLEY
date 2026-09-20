@@ -1,7 +1,7 @@
-include { PAIR_CHANNEL_TO_SELF } from "./PAIR_CHANNEL_TO_SELF.nf"
-include { DROP_MISMATCHED_FILEKEY_PAIRS } from "./DROP_MISMATCHED_FILEKEY_PAIRS.nf"
-include { REHH_LOAD_VCF; REHH_SCAN_HAPLOTYPE_HOMOZYGOSITY } from "../process/rehh.nf"
-include { REHH_CALCULATE_IHS; REHH_CALCULATE_XPEHH } from "../process/rehh.nf"
+include { PAIR_CHANNEL_TO_SELF } from "../utils/PAIR_CHANNEL_TO_SELF.nf"
+include { DROP_MISMATCHED_FILEKEY_PAIRS } from "../utils/DROP_MISMATCHED_FILEKEY_PAIRS.nf"
+include { REHH_LOAD_VCF; REHH_SCAN_HAPLOTYPE_HOMOZYGOSITY } from "../../process/rehh.nf"
+include { REHH_CALCULATE_IHS; REHH_CALCULATE_XPEHH } from "../../process/rehh.nf"
 
 workflow RUN_EHH_SCAN {
 

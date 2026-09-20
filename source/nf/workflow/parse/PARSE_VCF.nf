@@ -1,7 +1,7 @@
-include { BCFTOOLS_FILTER_CHROMS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS } from "../process/bcftools.nf"
-include { VCFTOOLS_EXCLUDE_BED } from "../process/vcftools.nf"
-include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../process/plink.nf"
-include { alphanumericIssue; keyFor } from "../library/filekeys.nf"
+include { BCFTOOLS_FILTER_CHROMS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS } from "../../process/bcftools.nf"
+include { VCFTOOLS_EXCLUDE_BED } from "../../process/vcftools.nf"
+include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../../process/plink.nf"
+include { alphanumericIssue; keyFor } from "../../library/filekeys.nf"
 
 workflow PARSE_VCF {
 

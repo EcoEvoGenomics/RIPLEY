@@ -1,5 +1,5 @@
-include { VCFTOOLS_FILTER_VCF } from "../process/vcftools.nf"
-include { alphanumericIssue; keyFor } from "../library/filekeys.nf"
+include { VCFTOOLS_FILTER_VCF } from "../../process/vcftools.nf"
+include { alphanumericIssue; keyFor } from "../../library/filekeys.nf"
 
 workflow FILTER_VCF {
 

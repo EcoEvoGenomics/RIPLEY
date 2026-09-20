@@ -1,7 +1,7 @@
-include { PLINK_TO_VCF; PLINK_WRITE_SNPLIST; PLINK_EXTRACT_SITES } from "../process/plink.nf"
-include { ADMIXTURE; ADMIXTURE_AIMS; CALCULATE_AIM_HIHET } from "../process/admixture.nf"
-include { BCFTOOLS_VCF_TO_GENOTABLE } from "../process/bcftools.nf"
-include { PLOT_ADMIXTURE; PLOT_HIHET } from "../process/plot.nf"
+include { PLINK_TO_VCF; PLINK_WRITE_SNPLIST; PLINK_EXTRACT_SITES } from "../../process/plink.nf"
+include { ADMIXTURE; ADMIXTURE_AIMS; CALCULATE_AIM_HIHET } from "../../process/admixture.nf"
+include { BCFTOOLS_VCF_TO_GENOTABLE } from "../../process/bcftools.nf"
+include { PLOT_ADMIXTURE; PLOT_HIHET } from "../../process/plot.nf"
 
 workflow RUN_ADMIXTURE {
 

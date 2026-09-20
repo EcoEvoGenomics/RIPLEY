@@ -1,5 +1,5 @@
-include { asList } from "../library/coerce.nf"
-include { alphanumericIssue } from "../library/filekeys.nf"
+include { asList } from "../../library/coerce.nf"
+include { alphanumericIssue } from "../../library/filekeys.nf"
 
 workflow PARSE_REFERENCE_GENOME {
 

@@ -1,4 +1,4 @@
-include { BCFTOOLS_CONCAT_VCFS } from "../process/bcftools.nf"
+include { BCFTOOLS_CONCAT_VCFS } from "../../process/bcftools.nf"
 
 workflow CONCATENATE_VCFS {
 
