@@ -28,6 +28,6 @@ workflow JOIN_VCF_BY_CHROM {
     vcf_concat = BCFTOOLS_CONCAT_VCFS(ordered, concat_outname)
 
     emit:
-    vcf = vcf_concat
+    vcf_concat = vcf_concat
 
 }

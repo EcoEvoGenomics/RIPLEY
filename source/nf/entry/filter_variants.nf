@@ -28,7 +28,7 @@ workflow {
     publish:
     filters = filtered.flags
     chrom_vcfs = filtered.vcf_filtered
-    concat_vcf = concatenated.vcf
+    concat_vcf = concatenated.vcf_concat
 
 }
 
