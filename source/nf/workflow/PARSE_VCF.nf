@@ -1,4 +1,4 @@
-include { BCFTOOLS_FILTER_CHROMS } from "../process/bcftools.nf"
+include { BCFTOOLS_FILTER_CHROMS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS } from "../process/bcftools.nf"
 include { VCFTOOLS_EXCLUDE_BED } from "../process/vcftools.nf"
 include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../process/plink.nf"
 include { alphanumericIssue; keyFor } from "../library/filekeys.nf"
@@ -24,12 +24,12 @@ workflow PARSE_VCF {
     if (input_is_dir && !permit_dir) { error("This pipeline cannot process a directory, only a single VCF file.") }
     keep_chroms = chrom_names.collect()
 
-    // Directory input assumes one vcf corresponds to exactly one chromosome (chr1.vcf.gz, chr2.vcf.gz, ... chrN.vcf.gz)
+    // Directory input expects one vcf per chromosome (chr1.vcf.gz, chr2.vcf.gz, ... chrN.vcf.gz), verified against contents below
     if (input_is_dir) {
         vcf_found = Channel.fromPath("${vcf_path}/**.vcf.gz")
             .ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
 
-        // The whole name minus its extension is the chromosome key, and downstream tokenising splits on both underscores and dots
+        // The whole name minus its extension is the chromosome key: downstream tokenising requires strict alphanumeric names
         vcf_found.subscribe { vcf ->
             def issue = alphanumericIssue(keyFor(vcf.name, permitted_extensions), "chromosome key", "Input VCF ${vcf.name}")
             if (issue) { error(issue) }
@@ -43,21 +43,6 @@ workflow PARSE_VCF {
                 chroms.contains(keyFor(vcf.name, permitted_extensions))
             }
             .map { i -> i[0] }
-
-        // Every retained chromosome must be represented by exactly one VCF (trust filename, no filecontent check)
-        vcf_annotated
-            .map { vcf -> keyFor(vcf.name, permitted_extensions) }
-            .collect()
-            .map { found -> [found] }
-            .combine(keep_chroms.toList())
-            .subscribe { i ->
-                def found = i[0]
-                def chroms = i[1]
-                def missing = chroms - found
-                if (missing) {
-                    error("Path ${vcf_path} contains no vcf.gz file for retained chromosome(s): ${missing.join(', ')}.")
-                }
-            }
     }
 
     if (input_is_solo) {
@@ -73,6 +58,25 @@ workflow PARSE_VCF {
     } else {
         vcf_filtered = vcf_annotated
     }
+
+    vcf_annotated_indexed = BCFTOOLS_INDEX(vcf_filtered)
+    vcf_nrecords = BCFTOOLS_COUNT_RECORDS(vcf_annotated_indexed).per_chrom
+        .splitCsv(sep: "\t")
+        .filter { row -> row[2].toInteger() > 0 }
+        .map { row -> row[0] }
+
+    // Empty or misnamed VCFs fail here
+    vcf_nrecords
+        .collect()
+        .ifEmpty([])
+        .map { found -> [found] }
+        .combine(keep_chroms.toList())
+        .subscribe { i ->
+            def missing = i[1] - i[0]
+            if (missing) {
+                error("Input ${vcf_path} has no variants on retained chromosome(s): ${missing.join(', ')}.")
+            }
+        }
 
     plinkfiles = PLINK_INIT_PLINKFILES(vcf_filtered, total_chroms)
     vcf_condensed = PLINK_TO_VCF(plinkfiles)
