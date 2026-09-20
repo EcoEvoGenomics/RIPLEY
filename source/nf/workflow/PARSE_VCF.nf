@@ -85,5 +85,6 @@ workflow PARSE_VCF {
     as_plinkfiles = plinkfiles
     vcf_condensed = vcf_condensed   // PLINK condenses VCFs by removing annotations
     vcf_annotated = vcf_filtered    // ... but the annotations are sometimes useful
+    vcf_annotated_indexed = vcf_annotated_indexed
 
 }
