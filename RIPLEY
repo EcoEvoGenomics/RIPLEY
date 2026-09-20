@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 
 case "$1" in
-    mitochondrial_haplotypes | selection_scan | control_linkage | population_structure | control_variants | control_alignments)
+    mitochondrial_haplotypes | selection_scan | control_linkage | population_structure | filter_variants | control_variants | control_alignments)
         echo "Launching pipeline: $1"
         ;;
     *)
@@ -13,6 +13,7 @@ case "$1" in
         echo "> control_alignments" >&2
         echo "> control_variants" >&2
         echo "> control_linkage" >&2
+        echo "> filter_variants" >&2
         echo "> mitochondrial_haplotypes" >&2
         echo "> population_structure" >&2
         echo "> selection_scan" >&2

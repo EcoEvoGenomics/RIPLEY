@@ -28,6 +28,10 @@ cl_window: 100
 cl_window_kb: 1000
 cl_bin_size: 1000
 
+############ Filter Variants ###############
+fv_vcf: 
+fv_filter_flags: 
+
 ######## Mitochondrial Haplotypes ##########
 mt_cramdir: 
 mt_genome_region: 
