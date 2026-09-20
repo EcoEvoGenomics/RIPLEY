@@ -4,8 +4,10 @@ include { PARSE_VCF } from "../workflow/PARSE_VCF.nf"
 include { SPLIT_VCF_BY_CHROM } from "../workflow/SPLIT_VCF_BY_CHROM.nf"
 include { FILTER_VCF } from "../workflow/FILTER_VCF.nf"
 include { CONCATENATE_VCFS } from "../workflow/CONCATENATE_VCFS.nf"
+include { keyFor } from "../library/filekeys.nf"
 
 nextflow.preview.output = true
+def outputSubdir() { keyFor(file(params.fv_filter_flags).name, ["txt"]) }
 
 workflow {
 
@@ -33,8 +35,8 @@ workflow {
 
 output {
 
-    filters { path "filter_variants" }
-    concat_vcf { path "filter_variants" }
-    chrom_vcfs { path "filter_variants/chroms" }
+    filters { path "filter_variants/${outputSubdir()}" }
+    concat_vcf { path "filter_variants/${outputSubdir()}" }
+    chrom_vcfs { path "filter_variants/${outputSubdir()}/chroms" }
 
 }
