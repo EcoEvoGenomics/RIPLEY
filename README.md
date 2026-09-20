@@ -49,7 +49,7 @@ Original3,3,"Chromosome 3"
 ```
 
 ### `fv_flags` (.txt)
-Any `vcftools` filtering flags, one per line. The filename (minus its extension) names the concatenated VCF and so must be strictly alphanumeric, e.g. `default.txt`.
+Any `vcftools` filtering flags, one per line. The filename (minus its extension) names the concatenated VCF and so must be strictly alphanumeric, e.g. `default.txt`. Set `fv_popwise: true` to apply these flags within each focal population rather than across all samples. Frequency-dependent flags such as `--maf`, `--hwe` and `--max-missing` then become per-population thresholds, the retained sites are the union across populations when merged, and samples outside the focal populations are dropped.
 ```
 --min-alleles 2
 --max-alleles 2
