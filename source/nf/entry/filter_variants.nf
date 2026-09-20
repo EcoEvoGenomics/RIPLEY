@@ -2,7 +2,7 @@ include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOM
 include { PARSE_METADATA } from "../workflow/parse/PARSE_METADATA.nf"
 include { PARSE_VCF } from "../workflow/parse/PARSE_VCF.nf"
 include { SPLIT_VCF_BY_CHROM } from "../workflow/utils/SPLIT_VCF_BY_CHROM.nf"
-include { FILTER_VCF } from "../workflow/run/FILTER_VCF.nf"
+include { RUN_VCF_FILTERING } from "../workflow/run/RUN_VCF_FILTERING.nf"
 include { CONCATENATE_VCFS } from "../workflow/utils/CONCATENATE_VCFS.nf"
 include { keyFor } from "../library/filekeys.nf"
 
@@ -23,12 +23,12 @@ workflow {
         chroms = SPLIT_VCF_BY_CHROM(input.vcf_annotated_indexed, genome.chrom_names)
     }
 
-    filtered = FILTER_VCF(chroms, params.fv_filter_flags)
-    concatenated = CONCATENATE_VCFS(filtered.vcf, genome.chrom_names, Channel.value(filtersLabel()))
+    filtered = RUN_VCF_FILTERING(chroms, params.fv_filter_flags)
+    concatenated = CONCATENATE_VCFS(filtered.vcf_filtered, genome.chrom_names, Channel.value(filtersLabel()))
 
     publish:
     filters = filtered.flags
-    chrom_vcfs = filtered.vcf
+    chrom_vcfs = filtered.vcf_filtered
     concat_vcf = concatenated.vcf
 
 }

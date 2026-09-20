@@ -1,7 +1,7 @@
 include { VCFTOOLS_FILTER_VCF } from "../../process/vcftools.nf"
 include { alphanumericIssue; keyFor } from "../../library/filekeys.nf"
 
-workflow FILTER_VCF {
+workflow RUN_VCF_FILTERING {
 
     take:
     vcfs
@@ -20,7 +20,7 @@ workflow FILTER_VCF {
     filtered = VCFTOOLS_FILTER_VCF(vcfs, filter_flags)
 
     emit:
-    vcf = filtered
+    vcf_filtered = filtered
     flags = filter_flags
 
 }
