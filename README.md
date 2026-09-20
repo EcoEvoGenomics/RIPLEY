@@ -47,3 +47,19 @@ Original1,1,"Chromosome 1"
 Original2,2,"Chromosome 2"
 Original3,3,"Chromosome 3"
 ```
+
+### `fv_filter_flags` (.txt)
+Any `vcftools` filtering flags, one per line. The filename (minus its extension) names the concatenated VCF and so must be strictly alphanumeric, e.g. `default.txt`.
+```
+--min-alleles 2
+--max-alleles 2
+--max-missing 0.8
+--min-meanDP 5
+--max-meanDP 30
+--minDP 5
+--maxDP 30
+--minQ 30
+--mac 1
+--hwe 0
+--remove-filtered-all
+```
