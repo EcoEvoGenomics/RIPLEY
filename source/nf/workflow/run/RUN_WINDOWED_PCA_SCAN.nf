@@ -15,7 +15,9 @@ workflow RUN_WINDOWED_PCA_SCAN {
     repo = GET_WINPCA()
 
     pairwise_vcf = PAIR_CHANNEL_TO_SELF(vcfs) | DROP_MISMATCHED_FILEKEY_PAIRS
-    merged_vcf = BCFTOOLS_MERGE_VCFS(pairwise_vcf)
+    merged_vcf = pairwise_vcf
+        .map { key, name_a, name_b, vcf_a, vcf_b -> tuple("${key}_${name_a}_${name_b}", [vcf_a, vcf_b]) }
+        | BCFTOOLS_MERGE_VCFS
 
     wpca_inputs = merged_vcf.combine(chrom_indices)
         .filter { it -> it[0].simpleName.tokenize("_")[0] == it[1] }

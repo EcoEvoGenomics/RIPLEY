@@ -16,7 +16,9 @@ workflow RUN_POPGEN_WINDOWS_SCAN {
     repo = GET_GENOMICS_GENERAL()
 
     pairwise_vcf = PAIR_CHANNEL_TO_SELF(vcfs) | DROP_MISMATCHED_FILEKEY_PAIRS
-    merged_vcf = BCFTOOLS_MERGE_VCFS(pairwise_vcf)
+    merged_vcf = pairwise_vcf
+        .map { key, name_a, name_b, vcf_a, vcf_b -> tuple("${key}_${name_a}_${name_b}", [vcf_a, vcf_b]) }
+        | BCFTOOLS_MERGE_VCFS
     merged_geno = GENOMICS_GENERAL_VCF_TO_GENO(repo, merged_vcf)
     target_samples = BCFTOOLS_LIST_SAMPLES(merged_vcf)
 

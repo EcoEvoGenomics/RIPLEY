@@ -217,21 +217,34 @@ process BCFTOOLS_FILTER_CHROMS {
 
 process BCFTOOLS_MERGE_VCFS {
 
+    // Inputs must be ordered prior to merging
+
     label "BCFTOOLS"
 
     input:
-    tuple val(shared_key), val(name_a), val(name_b), path(vcf_a), path(vcf_b)
+    tuple val(outname), path(vcfs, stageAs: "vcfs/*")
 
     output:
-    path("${shared_key}_${name_a}_${name_b}.vcf.gz")
+    path("${outname}.vcf.gz")
 
     script:
     """
-    bcftools index ${vcf_a}
-    bcftools index ${vcf_b}
-    bcftools merge \
-        --output-type z --output ${shared_key}_${name_a}_${name_b}.vcf.gz \
-        ${vcf_a} ${vcf_b}
+    for vcf in ${vcfs}
+    do
+        bcftools index --threads ${task.cpus} \${vcf}
+        echo "\${vcf}" >> merge.list
+    done
+
+    # bcftools merge requires at least two files; single VCF passes through
+    if [ \$(wc -l < merge.list) -eq 1 ]
+    then
+        cp -L \$(cat merge.list) ${outname}.vcf.gz
+    else
+        bcftools merge \
+            --threads ${task.cpus} \
+            --file-list merge.list \
+            --output-type z --output ${outname}.vcf.gz
+    fi
     """
 }
 
