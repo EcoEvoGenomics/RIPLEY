@@ -57,6 +57,24 @@ process BCFTOOLS_INDEX {
     """
 }
 
+process BCFTOOLS_COUNT_RECORDS {
+
+    label "BCFTOOLS"
+
+    input:
+    tuple path(vcf), path(csi)
+
+    output:
+    path("${vcf.simpleName}.nrecords_chrom.tsv"), emit: per_chrom
+    path("${vcf.simpleName}.nrecords.txt"), emit: nrecords // Currently unused
+
+    script:
+    """
+    bcftools index --stats ${vcf} > ${vcf.simpleName}.nrecords_chrom.tsv
+    bcftools index --nrecords ${vcf} > ${vcf.simpleName}.nrecords.txt
+    """
+}
+
 process BCFTOOLS_PICK_CHROM {
 
     label "BCFTOOLS"
