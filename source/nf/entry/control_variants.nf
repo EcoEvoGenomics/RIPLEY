@@ -2,7 +2,7 @@ include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOM
 include { PARSE_METADATA } from "../workflow/parse/PARSE_METADATA.nf"
 include { PARSE_VCF } from "../workflow/parse/PARSE_VCF.nf"
 include { SPLIT_VCF_BY_POPULATION } from "../workflow/utils/SPLIT_VCF_BY_POPULATION.nf"
-include { THIN_VCF; THIN_VCF as THIN_VCF_POPWISE } from "../workflow/run/THIN_VCF.nf"
+include { RUN_VCF_THINNING; RUN_VCF_THINNING as RUN_VCF_THINNING_POPWISE } from "../workflow/run/RUN_VCF_THINNING.nf"
 include { RUN_SNP_DENSITY } from "../workflow/run/RUN_SNP_DENSITY.nf"
 include { RUN_VCF_STATS; RUN_VCF_STATS as RUN_VCF_STATS_POPWISE } from "../workflow/run/RUN_VCF_STATS.nf"
 include { COLLATE_POPWISE_VCF_STATS } from "../workflow/utils/COLLATE_POPWISE_VCF_STATS.nf"
@@ -17,10 +17,10 @@ workflow {
     metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf_condensed, null)
 
     RUN_SNP_DENSITY(input.vcf_condensed, params.cv_snpden_binsize, genome.chrom_names, genome.chrom_labels)
-    THIN_VCF(input.vcf_annotated, params.cv_thin_to) | RUN_VCF_STATS
+    RUN_VCF_THINNING(input.vcf_annotated, params.cv_thin_to) | RUN_VCF_STATS
     
     popwise_vcf = SPLIT_VCF_BY_POPULATION(input.vcf_annotated, metadata.focal_populations_censuses)
-    popwise_stats = THIN_VCF_POPWISE(popwise_vcf, params.cv_thin_to) | RUN_VCF_STATS_POPWISE
+    popwise_stats = RUN_VCF_THINNING_POPWISE(popwise_vcf, params.cv_thin_to) | RUN_VCF_STATS_POPWISE
     COLLATE_POPWISE_VCF_STATS(popwise_stats.data, metadata.population_metadata)
 
     publish:

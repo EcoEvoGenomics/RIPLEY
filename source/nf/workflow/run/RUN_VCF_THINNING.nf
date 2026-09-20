@@ -1,6 +1,6 @@
 include { BCFTOOLS_INDEX; BCFTOOLS_SAMPLE_VCF } from "../../process/bcftools.nf"
 
-workflow THIN_VCF {
+workflow RUN_VCF_THINNING {
     
     take:
     vcf
