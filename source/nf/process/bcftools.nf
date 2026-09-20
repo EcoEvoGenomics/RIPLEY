@@ -79,6 +79,28 @@ process BCFTOOLS_INDEX {
     """
 }
 
+process BCFTOOLS_PICK_CHROM {
+
+    label "BCFTOOLS"
+
+    input:
+    tuple path(vcf), path(csi)
+    each(chrom)
+
+    output:
+    path("${chrom}.vcf.gz")
+
+    script:
+    """
+    bcftools view \
+        --threads ${task.cpus} \
+        --regions ${chrom} \
+        --output-type z --output ${chrom}_tmp.vcf.gz \
+        ${vcf}
+    mv ${chrom}_tmp.vcf.gz ${chrom}.vcf.gz
+    """
+}
+
 process BCFTOOLS_NORMALISE {
 
     label "BCFTOOLS"
