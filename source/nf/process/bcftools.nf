@@ -41,28 +41,6 @@ process BCFTOOLS_CALL_REGION_VARIANTS {
     """
 }
 
-process BCFTOOLS_SELECT_CHROMS {
-
-    label "BCFTOOLS"
-
-    input:
-    path(vcf)
-    val(chrom_string)
-
-    output:
-    path("${vcf.simpleName}.vcf.gz")
-
-    script:
-    """
-    bcftools view \
-        --threads ${task.cpus} \
-        --targets ${chrom_string} \
-        --output-type z --output ${vcf.simpleName}_tmp.vcf.gz \
-        ${vcf}
-    mv ${vcf.simpleName}_tmp.vcf.gz ${vcf.simpleName}.vcf.gz
-    """
-}
-
 process BCFTOOLS_INDEX {
 
     label "BCFTOOLS"
@@ -194,6 +172,28 @@ process BCFTOOLS_PICK_SAMPLES {
         --force-samples \
         --output-type z --output ${vcf.simpleName}_${sample_list.simpleName}.vcf.gz \
         ${vcf}
+    """
+}
+
+process BCFTOOLS_FILTER_CHROMS {
+
+    label "BCFTOOLS"
+
+    input:
+    path(vcf)
+    val(keep_chrom_string)
+
+    output:
+    path("${vcf.simpleName}.vcf.gz")
+
+    script:
+    """
+    bcftools view \
+        --threads ${task.cpus} \
+        --targets ${keep_chrom_string} \
+        --output-type z --output ${vcf.simpleName}_tmp.vcf.gz \
+        ${vcf}
+    mv ${vcf.simpleName}_tmp.vcf.gz ${vcf.simpleName}.vcf.gz
     """
 }
 

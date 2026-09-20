@@ -1,4 +1,4 @@
-include { BCFTOOLS_SELECT_CHROMS } from "../process/bcftools.nf"
+include { BCFTOOLS_FILTER_CHROMS } from "../process/bcftools.nf"
 include { VCFTOOLS_EXCLUDE_BED } from "../process/vcftools.nf"
 include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../process/plink.nf"
 include { alphanumericIssue; keyFor } from "../library/filekeys.nf"
@@ -64,7 +64,7 @@ workflow PARSE_VCF {
         def issue = alphanumericIssue(keyFor(vcf_name, permitted_extensions), "file key", "Input VCF ${vcf_name}")
         if (issue) { error(issue) }
         chrom_flag = keep_chroms.map { i -> i.join(",") }
-        vcf_annotated = BCFTOOLS_SELECT_CHROMS(vcf_path, chrom_flag)
+        vcf_annotated = BCFTOOLS_FILTER_CHROMS(vcf_path, chrom_flag)
     }
 
     def exclude_path = exclude_coords ?: null
