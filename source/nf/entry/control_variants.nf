@@ -1,11 +1,7 @@
 include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOME.nf"
 include { PARSE_METADATA } from "../workflow/parse/PARSE_METADATA.nf"
 include { PARSE_VCF } from "../workflow/parse/PARSE_VCF.nf"
-include { SPLIT_VCF_BY_POPULATION } from "../workflow/utils/SPLIT_VCF_BY_POPULATION.nf"
-include { RUN_VCF_THINNING; RUN_VCF_THINNING as RUN_VCF_THINNING_POPWISE } from "../workflow/run/RUN_VCF_THINNING.nf"
-include { RUN_SNP_DENSITY } from "../workflow/run/RUN_SNP_DENSITY.nf"
-include { RUN_VCF_STATS; RUN_VCF_STATS as RUN_VCF_STATS_POPWISE } from "../workflow/run/RUN_VCF_STATS.nf"
-include { COLLATE_POPWISE_VCF_STATS } from "../workflow/utils/COLLATE_POPWISE_VCF_STATS.nf"
+include { RUN_VCF_QC } from "../workflow/run/RUN_VCF_QC.nf"
 
 nextflow.preview.output = true
 
@@ -16,30 +12,29 @@ workflow {
     input = PARSE_VCF(params.cv_vcf, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, true, true)
     metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf_condensed, null)
 
-    RUN_SNP_DENSITY(input.vcf_condensed, params.cv_snpden_binsize, genome.chrom_names, genome.chrom_labels)
-    RUN_VCF_THINNING(input.vcf_annotated, params.cv_thin_to) | RUN_VCF_STATS
-    
-    popwise_vcf = SPLIT_VCF_BY_POPULATION(input.vcf_annotated, metadata.focal_populations_censuses)
-    popwise_stats = RUN_VCF_THINNING_POPWISE(popwise_vcf, params.cv_thin_to) | RUN_VCF_STATS_POPWISE
-    COLLATE_POPWISE_VCF_STATS(popwise_stats.data, metadata.population_metadata)
+    RUN_VCF_QC(
+        input.vcf_annotated,
+        metadata.focal_populations_censuses,
+        metadata.population_metadata,
+        params.cv_qc_thinning_target,
+        params.cv_qc_snpden_binsize,
+        genome.chrom_names,
+        genome.chrom_labels
+    )
 
     publish:
-    snpden_data = RUN_SNP_DENSITY.out.data
-    snpden_plot = RUN_SNP_DENSITY.out.plot
-    stats_data = RUN_VCF_STATS.out.data
-    stats_plot = RUN_VCF_STATS.out.plot
-    popwise_stats_data = COLLATE_POPWISE_VCF_STATS.out.data
-    popwise_stats_plot = COLLATE_POPWISE_VCF_STATS.out.plot
+    data = RUN_VCF_QC.out.data
+    plot = RUN_VCF_QC.out.plot
+    popwise_data = RUN_VCF_QC.out.popwise_data
+    popwise_plot = RUN_VCF_QC.out.popwise_plot
 
 }
 
 output {
 
-    snpden_data { path "control_variants/data" }
-    stats_data { path "control_variants/data" }
-    popwise_stats_data { path "control_variants/data" }
-    snpden_plot { path "control_variants" }
-    stats_plot { path "control_variants" }
-    popwise_stats_plot { path "control_variants" }
+    data { path "control_variants/across_pops/data" }
+    plot { path "control_variants/across_pops" }
+    popwise_data { path "control_variants/within_pops/data" }
+    popwise_plot { path "control_variants/within_pops" }
 
 }
