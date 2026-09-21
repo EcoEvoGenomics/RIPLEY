@@ -9,6 +9,8 @@ RIPLEY is a repository of self-contained, reproducible Nextflow pipelines to run
 
 > TODO: document that WinPCA task failures are now fatal to the `selection_scan` run.
 
+> TODO: document that `selection_scan` assumes its selection input (`sl_vcfdir_selection`) is unphased and phases it with SHAPEIT5 before any scan runs, in chunks of `sl_phase_window_size` base pairs ligated back into one VCF per chromosome. No recombination map is used, so phasing is statistical only.
+
 ## Examples
 ### `sample_metadata` (.csv)
 ```
