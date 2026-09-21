@@ -5,6 +5,10 @@ RIPLEY is a repository of self-contained, reproducible Nextflow pipelines to run
 ## Instructions
 > Instructions for use will follow at a later time ...
 
+> TODO: document that the windowed PCA scan (`selection_scan`) silently skips any chromosome/population-pair VCF with fewer than 10 000 records, as WinPCA cannot process them.
+
+> TODO: document that WinPCA task failures are now fatal to the `selection_scan` run.
+
 ## Examples
 ### `sample_metadata` (.csv)
 ```

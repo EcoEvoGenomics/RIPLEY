@@ -66,7 +66,7 @@ process BCFTOOLS_COUNT_RECORDS {
 
     output:
     path("${vcf.simpleName}.nrecords_chrom.tsv"), emit: per_chrom
-    path("${vcf.simpleName}.nrecords.txt"), emit: nrecords // Currently unused
+    path("${vcf.simpleName}.nrecords.txt"), emit: nrecords
 
     script:
     """

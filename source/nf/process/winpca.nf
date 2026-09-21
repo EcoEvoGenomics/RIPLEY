@@ -19,9 +19,6 @@ process WINPCA_PCA_CHROMWISE {
 
     label "WINPCA"
 
-    // Exits with an unhelpful WinPCA error for VCFs with fewer than 10 000 sites.
-    errorStrategy "ignore"
-
     input:
     path(repo)
     tuple path(vcf), val(chrom), val(chrom_length), val(window_size), val(step_size)
