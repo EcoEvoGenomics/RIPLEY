@@ -2,6 +2,7 @@ include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOM
 include { PARSE_VCF as PARSE_VCF_SELECTION; PARSE_VCF as PARSE_VCF_STRUCTURE } from "../workflow/parse/PARSE_VCF.nf"
 include { PARSE_METADATA as PARSE_METADATA_SELECTION; PARSE_METADATA as PARSE_METADATA_STRUCTURE } from "../workflow/parse/PARSE_METADATA.nf"
 include { SPLIT_VCF_BY_POPULATION as SPLIT_VCF_SELECTION; SPLIT_VCF_BY_POPULATION as SPLIT_VCF_STRUCTURE } from "../workflow/utils/SPLIT_VCF_BY_POPULATION.nf"
+include { RUN_VCF_PHASING } from "../workflow/run/RUN_VCF_PHASING.nf"
 include { RUN_POPGEN_WINDOWS_SCAN } from "../workflow/run/RUN_POPGEN_WINDOWS_SCAN.nf"
 include { RUN_EHH_SCAN } from "../workflow/run/RUN_EHH_SCAN.nf"
 include { RUN_WINDOWED_PCA_SCAN } from "../workflow/run/RUN_WINDOWED_PCA_SCAN.nf"
@@ -13,9 +14,11 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
 
+    // Selection scans require phase, which the input is assumed not to carry
     input_selection = PARSE_VCF_SELECTION(params.sl_vcfdir_selection, params.ref_exclude_coords, genome.chrom_names, false, true)
     metadata_selection = PARSE_METADATA_SELECTION(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_selection.vcf, null)
-    popwise_vcf_selection = SPLIT_VCF_SELECTION(input_selection.vcf, metadata_selection.focal_populations_censuses)
+    phased_vcf_selection = RUN_VCF_PHASING(input_selection.vcf_indexed, genome.fai, params.sl_phase_window_size, params.sl_phase_window_overlap)
+    popwise_vcf_selection = SPLIT_VCF_SELECTION(phased_vcf_selection.vcf, metadata_selection.focal_populations_censuses)
 
     RUN_POPGEN_WINDOWS_SCAN(
         popwise_vcf_selection,
