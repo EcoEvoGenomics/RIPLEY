@@ -55,6 +55,6 @@ ps_aim_variance_threshold: 0.05
 ############ Selection Scan ################
 sl_vcfdir_selection: 
 sl_vcfdir_structure: 
-sl_window_size: 100000
-sl_step_size: 10000
-sl_min_sites: 1000
+sl_scan_window_size: 100000
+sl_scan_step_size: 10000
+sl_scan_min_sites: 1000

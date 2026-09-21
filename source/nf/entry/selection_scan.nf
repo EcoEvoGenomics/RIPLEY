@@ -24,23 +24,23 @@ workflow {
     RUN_POPGEN_WINDOWS_SCAN(
         popwise_vcf_selection,
         metadata_selection.sample_metadata,
-        params.sl_window_size,
-        params.sl_step_size,
-        params.sl_min_sites
+        params.sl_scan_window_size,
+        params.sl_scan_step_size,
+        params.sl_scan_min_sites
     )
 
     RUN_EHH_SCAN(
         popwise_vcf_selection,
-        params.sl_window_size,
-        params.sl_step_size,
-        params.sl_min_sites
+        params.sl_scan_window_size,
+        params.sl_scan_step_size,
+        params.sl_scan_min_sites
     )
 
     RUN_WINDOWED_PCA_SCAN(
         popwise_vcf_structure,
         genome.chrom_indices,
-        params.sl_window_size,
-        params.sl_step_size
+        params.sl_scan_window_size,
+        params.sl_scan_step_size
     )
 
     publish:
