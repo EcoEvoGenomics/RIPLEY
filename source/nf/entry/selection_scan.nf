@@ -17,10 +17,6 @@ workflow {
     metadata_selection = PARSE_METADATA_SELECTION(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_selection.vcf, null)
     popwise_vcf_selection = SPLIT_VCF_SELECTION(input_selection.vcf, metadata_selection.focal_populations_censuses)
 
-    input_structure = PARSE_VCF_STRUCTURE(params.sl_vcfdir_structure, params.ref_exclude_coords, genome.chrom_names, false, true)
-    metadata_structure = PARSE_METADATA_STRUCTURE(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_structure.vcf, null)
-    popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf, metadata_structure.focal_populations_censuses)
-
     RUN_POPGEN_WINDOWS_SCAN(
         popwise_vcf_selection,
         metadata_selection.sample_metadata,
@@ -35,6 +31,10 @@ workflow {
         params.sl_scan_step_size,
         params.sl_scan_min_sites
     )
+
+    input_structure = PARSE_VCF_STRUCTURE(params.sl_vcfdir_structure, params.ref_exclude_coords, genome.chrom_names, false, true)
+    metadata_structure = PARSE_METADATA_STRUCTURE(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_structure.vcf, null)
+    popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf, metadata_structure.focal_populations_censuses)
 
     RUN_WINDOWED_PCA_SCAN(
         popwise_vcf_structure,
