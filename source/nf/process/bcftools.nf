@@ -259,7 +259,7 @@ process BCFTOOLS_CONCAT_VCFS {
     val(outname)
 
     output:
-    tuple path("${outname}.vcf.gz"), path("${outname}.vcf.gz.csi")
+    path("${outname}.vcf.gz")
 
     script:
     """
@@ -267,7 +267,6 @@ process BCFTOOLS_CONCAT_VCFS {
         --threads ${task.cpus} \
         --output-type z --output ${outname}.vcf.gz \
         ${vcfs}
-    bcftools index --threads ${task.cpus} ${outname}.vcf.gz
     """
 }
 
