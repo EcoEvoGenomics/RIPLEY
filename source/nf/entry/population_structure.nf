@@ -1,5 +1,6 @@
 include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOME.nf"
 include { PARSE_VCF } from "../workflow/parse/PARSE_VCF.nf"
+include { PARSE_VCF_TO_PLINK } from "../workflow/parse/PARSE_VCF_TO_PLINK.nf"
 include { PARSE_METADATA } from "../workflow/parse/PARSE_METADATA.nf"
 include { RUN_KINSHIP_ANALYSIS } from "../workflow/run/RUN_KINSHIP_ANALYSIS.nf"
 include { RUN_PAIRWISE_FST } from "../workflow/run/RUN_PAIRWISE_FST.nf"
@@ -13,12 +14,14 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input = PARSE_VCF(params.ps_vcf, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, true, false)
-    metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf_condensed, null)
-    pruned = RUN_LD_PRUNING(input.as_plinkfiles, params.ps_prune_window_kb, params.ps_prune_step_snps, params.ps_prune_threshold)
+    input = PARSE_VCF(params.ps_vcf, params.ref_exclude_coords, genome.chrom_names, true, false)
+    metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf_annotated, null)
 
-    RUN_KINSHIP_ANALYSIS(input.vcf_condensed, metadata.sample_metadata, metadata.population_metadata, metadata.species_metadata)
-    RUN_PAIRWISE_FST(input.vcf_condensed, metadata.focal_populations_censuses)
+    plink = PARSE_VCF_TO_PLINK(input.vcf_annotated, genome.total_chroms)
+    pruned = RUN_LD_PRUNING(plink.as_plinkfiles, params.ps_prune_window_kb, params.ps_prune_step_snps, params.ps_prune_threshold)
+
+    RUN_KINSHIP_ANALYSIS(plink.vcf_condensed, metadata.sample_metadata, metadata.population_metadata, metadata.species_metadata)
+    RUN_PAIRWISE_FST(plink.vcf_condensed, metadata.focal_populations_censuses)
     RUN_PCA(pruned.plinkfiles, metadata.sample_metadata, metadata.population_metadata, metadata.species_metadata)
     RUN_ADMIXTURE(
         pruned.plinkfiles, 

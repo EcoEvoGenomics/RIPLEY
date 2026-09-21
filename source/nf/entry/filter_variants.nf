@@ -19,8 +19,8 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input = PARSE_VCF(params.fv_vcf, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, true, true)
-    metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf_condensed, null)
+    input = PARSE_VCF(params.fv_vcf, params.ref_exclude_coords, genome.chrom_names, true, true)
+    metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf_annotated, null)
 
     chroms = inputChromwise()
         ? input.vcf_annotated

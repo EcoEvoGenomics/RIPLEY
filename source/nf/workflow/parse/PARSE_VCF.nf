@@ -1,6 +1,5 @@
 include { BCFTOOLS_FILTER_CHROMS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS } from "../../process/bcftools.nf"
 include { VCFTOOLS_EXCLUDE_BED } from "../../process/vcftools.nf"
-include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../../process/plink.nf"
 include { alphanumericIssue; keyFor } from "../../library/filekeys.nf"
 
 workflow PARSE_VCF {
@@ -8,7 +7,6 @@ workflow PARSE_VCF {
     take:
     vcf_path
     exclude_coords
-    total_chroms
     chrom_names
     permit_solo
     permit_dir
@@ -78,13 +76,8 @@ workflow PARSE_VCF {
             }
         }
 
-    plinkfiles = PLINK_INIT_PLINKFILES(vcf_filtered, total_chroms)
-    vcf_condensed = PLINK_TO_VCF(plinkfiles)
-
     emit:
-    as_plinkfiles = plinkfiles
-    vcf_condensed = vcf_condensed   // PLINK condenses VCFs by removing annotations
-    vcf_annotated = vcf_filtered    // ... but the annotations are sometimes useful
+    vcf_annotated = vcf_filtered
     vcf_annotated_indexed = vcf_annotated_indexed
 
 }

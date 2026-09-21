@@ -12,14 +12,13 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input_selection = PARSE_VCF_SELECTION(params.sl_vcfdir_selection, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, false, true)
-    input_structure = PARSE_VCF_STRUCTURE(params.sl_vcfdir_structure, params.ref_exclude_coords, genome.total_chroms, genome.chrom_names, false, true)
-    metadata_selection = PARSE_METADATA_SELECTION(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_selection.vcf_condensed, null)
-    metadata_structure = PARSE_METADATA_STRUCTURE(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_structure.vcf_condensed, null)
+    input_selection = PARSE_VCF_SELECTION(params.sl_vcfdir_selection, params.ref_exclude_coords, genome.chrom_names, false, true)
+    input_structure = PARSE_VCF_STRUCTURE(params.sl_vcfdir_structure, params.ref_exclude_coords, genome.chrom_names, false, true)
+    metadata_selection = PARSE_METADATA_SELECTION(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_selection.vcf_annotated, null)
+    metadata_structure = PARSE_METADATA_STRUCTURE(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_structure.vcf_annotated, null)
 
-    // Selection scans need phase, population structure (WinPCA) does not
     popwise_vcf_selection = SPLIT_VCF_SELECTION(input_selection.vcf_annotated, metadata_selection.focal_populations_censuses)
-    popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf_condensed, metadata_structure.focal_populations_censuses)
+    popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf_annotated, metadata_structure.focal_populations_censuses)
 
     RUN_POPGEN_WINDOWS_SCAN(
         popwise_vcf_selection,
