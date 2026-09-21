@@ -32,6 +32,8 @@ cl_bin_size: 1000
 fv_vcf: 
 fv_flags: 
 fv_popwise: false
+fv_qc_snpden_binsize: 100000
+fv_qc_thinning_target: 100000
 
 ######## Mitochondrial Haplotypes ##########
 mt_cramdir: 
