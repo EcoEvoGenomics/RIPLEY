@@ -15,7 +15,7 @@ workflow RUN_CRAM_COVERAGE {
     binsize
 
     main:
-    genome_windows = BEDTOOLS_MAKEWINDOWS(genome_index, binsize).bed_base_zero
+    genome_windows = BEDTOOLS_MAKEWINDOWS(genome_index, binsize, binsize).bed_base_zero
     bedcov = SAMTOOLS_BEDCOV(cram_indexed.combine(genome_windows))
 
     bedcov_with_key = bedcov
