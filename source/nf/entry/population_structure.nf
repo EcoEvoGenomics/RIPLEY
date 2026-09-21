@@ -15,9 +15,9 @@ workflow {
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
     input = PARSE_VCF(params.ps_vcf, params.ref_exclude_coords, genome.chrom_names, true, false)
-    metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf_annotated, null)
+    metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf, null)
 
-    plink = PARSE_VCF_TO_PLINK(input.vcf_annotated, genome.total_chroms)
+    plink = PARSE_VCF_TO_PLINK(input.vcf, genome.total_chroms)
     pruned = RUN_LD_PRUNING(plink.as_plinkfiles, params.ps_prune_window_kb, params.ps_prune_step_snps, params.ps_prune_threshold)
 
     RUN_KINSHIP_ANALYSIS(plink.vcf_condensed, metadata.sample_metadata, metadata.population_metadata, metadata.species_metadata)

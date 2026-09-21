@@ -33,7 +33,7 @@ workflow PARSE_VCF {
             if (issue) { error(issue) }
         }
 
-        vcf_annotated = vcf_found
+        vcf_retained = vcf_found
             .combine(keep_chroms.toList())
             .filter { i ->
                 def vcf = i[0]
@@ -47,18 +47,18 @@ workflow PARSE_VCF {
         def issue = alphanumericIssue(keyFor(vcf_name, permitted_extensions), "file key", "Input VCF ${vcf_name}")
         if (issue) { error(issue) }
         chrom_flag = keep_chroms.map { i -> i.join(",") }
-        vcf_annotated = BCFTOOLS_FILTER_CHROMS(vcf_path, chrom_flag)
+        vcf_retained = BCFTOOLS_FILTER_CHROMS(vcf_path, chrom_flag)
     }
 
     def exclude_path = exclude_coords ?: null
     if (exclude_path != null) {
-        vcf_filtered = VCFTOOLS_EXCLUDE_BED(vcf_annotated, file(exclude_path, checkIfExists: true))
+        vcf_filtered = VCFTOOLS_EXCLUDE_BED(vcf_retained, file(exclude_path, checkIfExists: true))
     } else {
-        vcf_filtered = vcf_annotated
+        vcf_filtered = vcf_retained
     }
 
-    vcf_annotated_indexed = BCFTOOLS_INDEX(vcf_filtered)
-    vcf_nrecords = BCFTOOLS_COUNT_RECORDS(vcf_annotated_indexed).per_chrom
+    vcf_indexed = BCFTOOLS_INDEX(vcf_filtered)
+    vcf_nrecords = BCFTOOLS_COUNT_RECORDS(vcf_indexed).per_chrom
         .splitCsv(sep: "\t")
         .filter { row -> row[2].toInteger() > 0 }
         .map { row -> row[0] }
@@ -77,7 +77,7 @@ workflow PARSE_VCF {
         }
 
     emit:
-    vcf_annotated = vcf_filtered
-    vcf_annotated_indexed = vcf_annotated_indexed
+    vcf = vcf_filtered
+    vcf_indexed = vcf_indexed
 
 }
