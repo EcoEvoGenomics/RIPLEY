@@ -28,7 +28,7 @@ density_plot <- data |>
   geom_tile(height = 0.75) +
   scale_fill_viridis_c(
     limits = c(0, max(log10(data$SNP_COUNT))),
-    name = expression(log[10] ~ (SNPs)),
+    name = expression(log[10] ~ (Records)),
     option = "magma"
   ) +
   scale_x_continuous(
@@ -74,7 +74,7 @@ density_key <- data |>
       )
     )
   ) +
-  ggtitle(expression(bold("Single Nucleotide Polymorphisms" ~ italic("log"[10]) ~ italic("Binned Counts")))) +
+  ggtitle(expression(bold("VCF Records" ~ italic("log"[10]) ~ italic("Binned Counts")))) +
   coord_cartesian(expand = FALSE) +
   geom_tile(show.legend = FALSE, height = 1.075, colour = "black") +
   geom_raster(show.legend = FALSE) +
