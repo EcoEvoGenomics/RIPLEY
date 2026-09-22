@@ -1,0 +1,17 @@
+################ Metadata ##################
+sample_metadata: 
+population_metadata: 
+species_metadata: 
+focal_populations: 
+
+################ Reference #################
+ref_genome: 
+ref_ploidy: 
+ref_exclude_chroms: [ ]
+ref_exclude_prefix: [ ]
+ref_exclude_coords: 
+ref_chrom_labels: 
+
+############# QC Alignments ################
+cram: 
+coverage_binsize: 100000
