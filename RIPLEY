@@ -3,27 +3,48 @@
 set -o errexit
 set -o nounset
 
-case "$1" in
-    selection_scan | population_structure | filter_variants | control_variants | control_alignments)
-        echo "Launching pipeline: $1"
-        ;;
-    *)
-        echo "Error: '$1' is not a pipeline." >&2
-        echo "Valid options are ..." >&2
-        echo "> control_alignments" >&2
-        echo "> control_variants" >&2
-        echo "> filter_variants" >&2
-        echo "> population_structure" >&2
-        echo "> selection_scan" >&2
-        exit 1
-        ;;
-esac
-
 this=$(readlink -f "$0")
 repo=$(dirname "$this")
-cd $repo
+modules="${repo}/source/modules"
 
-nextflow -log ".nextflow/nextflow.log" run "./source/nf/entry/${1}.nf" \
-    -with-report "output/${1}/run.html" \
-    -params-file "options.yaml" \
+usage() {
+    echo "Usage: [bash] RIPLEY <module> <options.yaml> <site.config>" >&2
+    echo "Valid modules are ..." >&2
+    for module in "${modules}"/*/; do
+        echo ":: $(basename "${module}")" >&2
+    done
+}
+
+if [ "$#" -ne 3 ]; then
+    echo "Error: expected 3 arguments, got $#." >&2
+    usage
+    exit 1
+fi
+
+module=$1
+
+if [ ! -f "${modules}/${module}/main.nf" ]; then
+    echo "Error: '${module}' is not a module." >&2
+    usage
+    exit 1
+fi
+
+for file in "$2" "$3"; do
+    if [ ! -f "${file}" ]; then
+        echo "Error: '${file}' does not exist." >&2
+        exit 1
+    fi
+done
+
+# resolved before the cd so relative paths are read from the user's directory
+options=$(readlink -f "$2")
+config=$(readlink -f "$3")
+
+cd "${repo}"
+echo "Launching module: ${module}"
+
+nextflow -log ".nextflow/nextflow.log" run "${modules}/${module}/main.nf" \
+    -config "${config}" \
+    -params-file "${options}" \
+    -with-report "output/${module}/run.html" \
     -resume
