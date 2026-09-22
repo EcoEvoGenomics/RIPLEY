@@ -21,13 +21,6 @@ cv_vcf:
 cv_qc_snpden_binsize: 100000
 cv_qc_thinning_target: 100000
 
-############ Control Linkage ###############
-cl_vcf: 
-cl_thin: 0.5
-cl_window: 100
-cl_window_kb: 1000
-cl_bin_size: 1000
-
 ############ Filter Variants ###############
 fv_vcf: 
 fv_flags: 

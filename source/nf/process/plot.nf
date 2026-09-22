@@ -36,23 +36,6 @@ process PLOT_HIHET {
     """
 }
 
-process PLOT_PLINK_LD_DECAY {
-
-    label "RPLOT"
-
-    input:
-    path(rscript)
-    path(ld_decay)
-
-    output:
-    path("*.png")
-
-    script:
-    """
-    Rscript ${rscript} ${ld_decay}
-    """
-}
-
 process PLOT_PLINK_PCA {
 
     label "RPLOT"
