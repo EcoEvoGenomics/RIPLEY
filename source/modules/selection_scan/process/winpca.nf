@@ -3,8 +3,6 @@ process GET_WINPCA {
     // Downloads Moritz Blumer's WinPCA software
     // See https://github.com/MoritzBlumer/winpca
 
-    label "BASE"
-
     output:
     path("winpca-1.2.1/*")
 

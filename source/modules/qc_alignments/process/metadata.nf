@@ -1,7 +1,5 @@
 process METADATA_PREPEND_KEY_COLUMN {
 
-    label "BASE"
-
     input:
     tuple val(key), path(table)
 

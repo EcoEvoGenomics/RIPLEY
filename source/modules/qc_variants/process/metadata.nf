@@ -1,7 +1,5 @@
 process METADATA_PREPEND_KEY_COLUMN_WITH_HEADER {
 
-    label "BASE"
-
     input:
     tuple val(header), val(key), path(table)
 

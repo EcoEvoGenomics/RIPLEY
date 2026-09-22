@@ -1,7 +1,5 @@
 process METADATA_LIST_POPULATION_MEMBERS {
 
-    label "BASE"
-
     input:
     each(population)
     path(metadata)
