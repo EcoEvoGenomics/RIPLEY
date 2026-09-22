@@ -29,13 +29,13 @@ workflow {
 
 output {
 
-    stats_data { path "control_alignments/data" }
-    stats_plot { path "control_alignments" }
-    stats_popwise_data { path "control_alignments/data" }
-    stats_popwise_plot { path "control_alignments" }
-    coverage_data { path "control_alignments/data" }
-    coverage_plot { path "control_alignments" }
-    coverage_popwise_data { path "control_alignments/data" }
-    coverage_popwise_plot { path "control_alignments" }
+    stats_data { path "qc_alignments/data" }
+    stats_plot { path "qc_alignments" }
+    stats_popwise_data { path "qc_alignments/data" }
+    stats_popwise_plot { path "qc_alignments" }
+    coverage_data { path "qc_alignments/data" }
+    coverage_plot { path "qc_alignments" }
+    coverage_popwise_data { path "qc_alignments/data" }
+    coverage_popwise_plot { path "qc_alignments" }
 
 }

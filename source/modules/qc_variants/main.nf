@@ -32,9 +32,9 @@ workflow {
 
 output {
 
-    data { path "control_variants/across_pops/data" }
-    plot { path "control_variants/across_pops" }
-    popwise_data { path "control_variants/within_pops/data" }
-    popwise_plot { path "control_variants/within_pops" }
+    data { path "qc_variants/across_pops/data" }
+    plot { path "qc_variants/across_pops" }
+    popwise_data { path "qc_variants/within_pops/data" }
+    popwise_plot { path "qc_variants/within_pops" }
 
 }
