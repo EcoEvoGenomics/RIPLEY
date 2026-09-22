@@ -1,4 +1,5 @@
-include { BCFTOOLS_INDEX; BCFTOOLS_SAMPLE_VCF } from "../../process/bcftools.nf"
+include { BCFTOOLS_INDEX } from "../../../common/process/bcftools.nf"
+include { BCFTOOLS_SAMPLE_VCF } from "../../process/bcftools.nf"
 
 workflow RUN_VCF_THINNING {
     

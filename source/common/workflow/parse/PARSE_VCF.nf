@@ -1,5 +1,5 @@
-include { BCFTOOLS_FILTER_CHROMS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS } from "../../../nf/process/bcftools.nf"
-include { VCFTOOLS_EXCLUDE_BED } from "../../../nf/process/vcftools.nf"
+include { BCFTOOLS_FILTER_CHROMS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS } from "../../process/bcftools.nf"
+include { VCFTOOLS_EXCLUDE_BED } from "../../process/vcftools.nf"
 include { alphanumericIssue; keyFor } from "../../library/filekeys.nf"
 
 workflow PARSE_VCF {

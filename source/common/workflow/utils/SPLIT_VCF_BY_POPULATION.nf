@@ -1,4 +1,4 @@
-include { BCFTOOLS_PICK_SAMPLES } from "../../../nf/process/bcftools.nf"
+include { BCFTOOLS_PICK_SAMPLES } from "../../process/bcftools.nf"
 
 workflow SPLIT_VCF_BY_POPULATION {
 

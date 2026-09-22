@@ -1,4 +1,4 @@
-include { BCFTOOLS_MERGE_VCFS } from "../../../nf/process/bcftools.nf"
+include { BCFTOOLS_MERGE_VCFS } from "../../process/bcftools.nf"
 
 workflow JOIN_VCF_BY_POPULATION {
 

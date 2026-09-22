@@ -1,4 +1,4 @@
-include { BEDTOOLS_MAKEWINDOWS } from "../../process/bedtools.nf"
+include { BEDTOOLS_MAKEWINDOWS } from "../../../common/process/bedtools.nf"
 include { SAMTOOLS_BEDCOV } from "../../process/samtools.nf"
 include { METADATA_PREPEND_KEY_COLUMN as PREPEND_SAMPLE_COLUMN } from "../../process/metadata.nf"
 include { PLOT_SAMTOOLS_BEDCOV } from "../../process/plot.nf"
