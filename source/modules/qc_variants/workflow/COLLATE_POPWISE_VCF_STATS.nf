@@ -1,5 +1,5 @@
-include { METADATA_PREPEND_KEY_COLUMN_WITH_HEADER as PREPEND_POP_COLUMN } from "../../process/metadata.nf"
-include { PLOT_VCFTOOLS_VCF_STATS_POPWISE } from "../../process/plot.nf"
+include { METADATA_PREPEND_KEY_COLUMN_WITH_HEADER as PREPEND_POP_COLUMN } from "../process/metadata.nf"
+include { PLOT_VCFTOOLS_VCF_STATS_POPWISE } from "../process/plot.nf"
 
 workflow COLLATE_POPWISE_VCF_STATS {
 
@@ -36,7 +36,7 @@ workflow COLLATE_POPWISE_VCF_STATS {
         .map { it -> it[1] }
 
     plot = PLOT_VCFTOOLS_VCF_STATS_POPWISE(
-        file("${moduleDir}/../../../R/plot_vcfstats_popwise.R", checkIfExists: true),
+        file("${moduleDir}/../library/plot_vcfstats_popwise.R", checkIfExists: true),
         per_stem, population_metadata.first()
     )
 
