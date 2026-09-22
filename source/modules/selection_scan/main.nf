@@ -15,35 +15,35 @@ workflow {
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
 
     // Selection scans require phase, which the input is assumed not to carry
-    input_selection = PARSE_VCF_SELECTION(params.sl_vcfdir_selection, params.ref_exclude_coords, genome.chrom_names, false, true)
+    input_selection = PARSE_VCF_SELECTION(params.vcfdir_selection, params.ref_exclude_coords, genome.chrom_names, false, true)
     metadata_selection = PARSE_METADATA_SELECTION(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_selection.vcf, null)
-    phased_vcf_selection = RUN_VCF_PHASING(input_selection.vcf_indexed, genome.fai, params.sl_phase_window_size, params.sl_phase_window_overlap)
+    phased_vcf_selection = RUN_VCF_PHASING(input_selection.vcf_indexed, genome.fai, params.phase_window_size, params.phase_window_overlap)
     popwise_vcf_selection = SPLIT_VCF_SELECTION(phased_vcf_selection.vcf, metadata_selection.focal_populations_censuses)
 
     RUN_POPGEN_WINDOWS_SCAN(
         popwise_vcf_selection,
         metadata_selection.sample_metadata,
-        params.sl_scan_window_size,
-        params.sl_scan_step_size,
-        params.sl_scan_min_sites
+        params.scan_window_size,
+        params.scan_step_size,
+        params.scan_min_sites
     )
 
     RUN_EHH_SCAN(
         popwise_vcf_selection,
-        params.sl_scan_window_size,
-        params.sl_scan_step_size,
-        params.sl_scan_min_sites
+        params.scan_window_size,
+        params.scan_step_size,
+        params.scan_min_sites
     )
 
-    input_structure = PARSE_VCF_STRUCTURE(params.sl_vcfdir_structure, params.ref_exclude_coords, genome.chrom_names, false, true)
+    input_structure = PARSE_VCF_STRUCTURE(params.vcfdir_structure, params.ref_exclude_coords, genome.chrom_names, false, true)
     metadata_structure = PARSE_METADATA_STRUCTURE(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_structure.vcf, null)
     popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf, metadata_structure.focal_populations_censuses)
 
     RUN_WINDOWED_PCA_SCAN(
         popwise_vcf_structure,
         genome.chrom_indices,
-        params.sl_scan_window_size,
-        params.sl_scan_step_size
+        params.scan_window_size,
+        params.scan_step_size
     )
 
     publish:

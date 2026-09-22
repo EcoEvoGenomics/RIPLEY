@@ -1,0 +1,22 @@
+################ Metadata ##################
+sample_metadata: 
+population_metadata: 
+species_metadata: 
+focal_populations: 
+
+################ Reference #################
+ref_genome: 
+ref_ploidy: 
+ref_exclude_chroms: [ ]
+ref_exclude_prefix: [ ]
+ref_exclude_coords: 
+ref_chrom_labels: 
+
+############ Selection Scan ################
+vcfdir_selection: 
+vcfdir_structure: 
+phase_window_size: 10000000
+phase_window_overlap: 1000000
+scan_window_size: 100000
+scan_step_size: 10000
+scan_min_sites: 1000
