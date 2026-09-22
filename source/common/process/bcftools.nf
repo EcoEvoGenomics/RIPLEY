@@ -152,8 +152,7 @@ process BCFTOOLS_CONCAT_VCFS {
     label "BCFTOOLS"
 
     input:
-    path(vcfs, stageAs: "vcfs/*")
-    val(outname)
+    tuple val(outname), path(vcfs, stageAs: "vcfs/*")
 
     output:
     path("${outname}.vcf.gz")

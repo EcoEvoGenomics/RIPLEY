@@ -1,7 +1,5 @@
 // Shared helpers for validating the semantic keys RIPLEY encodes into filenames.
 
-// Keys are recovered from filenames by splitting on underscores and dots, so a
-// key containing either (or whitespace, or a shell metacharacter) is corrupted.
 // Returns a message rather than raising, because error() from inside a module
 // function surfaces only as "Unexpected error [InvocationTargetException]".
 def alphanumericIssue(value, kind, source) {
@@ -18,4 +16,11 @@ def keyFor(name, extensions) {
     def matched = extensions.find { ext -> text?.endsWith(".${ext}") }
     if (matched == null) { return null }
     return text[0..<(text.length() - matched.length() - 1)]
+}
+
+// Returns the number of tokens in a name when split by a given separator.
+def tokenCount(name, separator) {
+    def text = name?.toString()
+    def tokens = text.tokenize(separator)
+    return(tokens.size())
 }
