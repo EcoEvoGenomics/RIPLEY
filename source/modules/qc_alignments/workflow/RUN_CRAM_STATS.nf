@@ -1,8 +1,8 @@
-include { SAMTOOLS_STATS } from "../../process/samtools.nf"
-include { METADATA_PREPEND_KEY_COLUMN as PREPEND_SAMPLE_COLUMN } from "../../process/metadata.nf"
-include { METADATA_PREPEND_KEY_COLUMN as PREPEND_POPULATION_COLUMN } from "../../process/metadata.nf"
-include { PLOT_SAMTOOLS_CRAM_STATS } from "../../process/plot.nf"
-include { PLOT_SAMTOOLS_CRAM_STATS_POPWISE } from "../../process/plot.nf"
+include { SAMTOOLS_STATS } from "../process/samtools.nf"
+include { METADATA_PREPEND_KEY_COLUMN as PREPEND_SAMPLE_COLUMN } from "../process/metadata.nf"
+include { METADATA_PREPEND_KEY_COLUMN as PREPEND_POPULATION_COLUMN } from "../process/metadata.nf"
+include { PLOT_SAMTOOLS_CRAM_STATS } from "../process/plot.nf"
+include { PLOT_SAMTOOLS_CRAM_STATS_POPWISE } from "../process/plot.nf"
 
 workflow RUN_CRAM_STATS {
 
@@ -43,11 +43,11 @@ workflow RUN_CRAM_STATS {
         .collectFile( { it -> ["stats_popwise.${it[0]}", it[1]]} )
 
     stats_plot = PLOT_SAMTOOLS_CRAM_STATS(
-        file("${moduleDir}/../../../R/plot_cramstats.R", checkIfExists: true),
+        file("${moduleDir}/../library/plot_cramstats.R", checkIfExists: true),
         stats_combined
     )
     stats_popwise_plot = PLOT_SAMTOOLS_CRAM_STATS_POPWISE(
-        file("${moduleDir}/../../../R/plot_cramstats_popwise.R", checkIfExists: true),
+        file("${moduleDir}/../library/plot_cramstats_popwise.R", checkIfExists: true),
         stats_popwise, population_metadata
     )
 

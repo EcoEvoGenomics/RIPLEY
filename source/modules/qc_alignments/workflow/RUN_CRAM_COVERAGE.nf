@@ -1,8 +1,8 @@
 include { BEDTOOLS_MAKEWINDOWS } from "../../../common/process/bedtools.nf"
-include { SAMTOOLS_BEDCOV } from "../../process/samtools.nf"
-include { METADATA_PREPEND_KEY_COLUMN as PREPEND_SAMPLE_COLUMN } from "../../process/metadata.nf"
-include { PLOT_SAMTOOLS_BEDCOV } from "../../process/plot.nf"
-include { PLOT_SAMTOOLS_BEDCOV as PLOT_SAMTOOLS_BEDCOV_POPWISE } from "../../process/plot.nf"
+include { SAMTOOLS_BEDCOV } from "../process/samtools.nf"
+include { METADATA_PREPEND_KEY_COLUMN as PREPEND_SAMPLE_COLUMN } from "../process/metadata.nf"
+include { PLOT_SAMTOOLS_BEDCOV } from "../process/plot.nf"
+include { PLOT_SAMTOOLS_BEDCOV as PLOT_SAMTOOLS_BEDCOV_POPWISE } from "../process/plot.nf"
 
 workflow RUN_CRAM_COVERAGE {
 
@@ -43,7 +43,7 @@ workflow RUN_CRAM_COVERAGE {
         .collect()
         .map { chroms -> chroms.join(",") }
 
-    def plot_bedcov_R = file("${moduleDir}/../../../R/plot_bedcov.R", checkIfExists: true)
+    def plot_bedcov_R = file("${moduleDir}/../library/plot_bedcov.R", checkIfExists: true)
     bedcov_plot = PLOT_SAMTOOLS_BEDCOV(plot_bedcov_R, bedcov_combined, chrom_flag, chrom_labels, bedcov_combined)
     bedcov_popwise_plot = PLOT_SAMTOOLS_BEDCOV_POPWISE(plot_bedcov_R, bedcov_popwise, chrom_flag, chrom_labels, bedcov_combined)
 
