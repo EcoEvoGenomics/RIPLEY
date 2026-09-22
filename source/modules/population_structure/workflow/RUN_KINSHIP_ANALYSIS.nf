@@ -1,5 +1,5 @@
-include { VCFTOOLS_CALCULATE_RELATEDNESS } from "../../process/vcftools.nf"
-include { PLOT_VCFTOOLS_RELATEDNESS } from "../../process/plot.nf"
+include { VCFTOOLS_CALCULATE_RELATEDNESS } from "../process/vcftools.nf"
+include { PLOT_VCFTOOLS_RELATEDNESS } from "../process/plot.nf"
 
 workflow RUN_KINSHIP_ANALYSIS {
 
@@ -12,7 +12,7 @@ workflow RUN_KINSHIP_ANALYSIS {
     main:
     kinship = VCFTOOLS_CALCULATE_RELATEDNESS(vcf)
     matrix = PLOT_VCFTOOLS_RELATEDNESS(
-        file("${moduleDir}/../../../R/plot_kinship.R", checkIfExists: true),
+        file("${moduleDir}/../library/plot_kinship.R", checkIfExists: true),
         kinship, sample_metadata, population_metadata, species_metadata
     )
 

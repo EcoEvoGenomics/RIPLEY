@@ -1,6 +1,6 @@
 include { PAIR_CHANNEL_TO_SELF } from "../../../common/workflow/utils/PAIR_CHANNEL_TO_SELF.nf"
-include { VCFTOOLS_CALCULATE_PAIRWISE_FST } from "../../process/vcftools.nf"
-include { PLOT_VCFTOOLS_PAIRWISE_MEAN_FST } from "../../process/plot.nf"
+include { VCFTOOLS_CALCULATE_PAIRWISE_FST } from "../process/vcftools.nf"
+include { PLOT_VCFTOOLS_PAIRWISE_MEAN_FST } from "../process/plot.nf"
 
 workflow RUN_PAIRWISE_FST {
 
@@ -28,7 +28,7 @@ workflow RUN_PAIRWISE_FST {
         .collectFile( name: "weighted.fst", sort: { line -> line.tokenize("\t")[0] } )
     
     plot = PLOT_VCFTOOLS_PAIRWISE_MEAN_FST(
-        file("${moduleDir}/../../../R/plot_fst.R", checkIfExists: true),
+        file("${moduleDir}/../library/plot_fst.R", checkIfExists: true),
         mean
     )
 

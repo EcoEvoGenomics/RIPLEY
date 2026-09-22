@@ -1,7 +1,7 @@
-include { PLINK_TO_VCF; PLINK_WRITE_SNPLIST; PLINK_EXTRACT_SITES } from "../../process/plink.nf"
-include { ADMIXTURE; ADMIXTURE_AIMS; CALCULATE_AIM_HIHET } from "../../process/admixture.nf"
-include { BCFTOOLS_VCF_TO_GENOTABLE } from "../../process/bcftools.nf"
-include { PLOT_ADMIXTURE; PLOT_HIHET } from "../../process/plot.nf"
+include { PLINK_TO_VCF; PLINK_WRITE_SNPLIST; PLINK_EXTRACT_SITES } from "../process/plink.nf"
+include { ADMIXTURE; ADMIXTURE_AIMS; CALCULATE_AIM_HIHET } from "../process/admixture.nf"
+include { BCFTOOLS_VCF_TO_GENOTABLE } from "../process/bcftools.nf"
+include { PLOT_ADMIXTURE; PLOT_HIHET } from "../process/plot.nf"
 
 workflow RUN_ADMIXTURE {
 
@@ -40,7 +40,7 @@ workflow RUN_ADMIXTURE {
         .map { cv -> def k = cv[0]; k }
 
     admixture_plot = PLOT_ADMIXTURE(
-        file("${moduleDir}/../../../R/plot_admixture.R", checkIfExists: true),
+        file("${moduleDir}/../library/plot_admixture.R", checkIfExists: true),
         admixture_clusts, k_min_error, sample_metadata, population_metadata, species_metadata
     )
 
@@ -79,7 +79,7 @@ workflow RUN_ADMIXTURE {
         .combine(sample_metadata)
         .combine(population_metadata)
 
-    hihet_plots = PLOT_HIHET(file("${moduleDir}/../../../R/plot_hihet.R", checkIfExists: true), hihet_tables)
+    hihet_plots = PLOT_HIHET(file("${moduleDir}/../library/plot_hihet.R", checkIfExists: true), hihet_tables)
 
     emit:
     data = admixture.data

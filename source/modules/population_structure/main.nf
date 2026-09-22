@@ -1,12 +1,12 @@
 include { PARSE_REFERENCE_GENOME } from "../../common/workflow/parse/PARSE_REFERENCE_GENOME.nf"
 include { PARSE_VCF } from "../../common/workflow/parse/PARSE_VCF.nf"
-include { PARSE_VCF_TO_PLINK } from "../workflow/parse/PARSE_VCF_TO_PLINK.nf"
+include { PARSE_VCF_TO_PLINK } from "./workflow/PARSE_VCF_TO_PLINK.nf"
 include { PARSE_METADATA } from "../../common/workflow/parse/PARSE_METADATA.nf"
-include { RUN_KINSHIP_ANALYSIS } from "../workflow/run/RUN_KINSHIP_ANALYSIS.nf"
-include { RUN_PAIRWISE_FST } from "../workflow/run/RUN_PAIRWISE_FST.nf"
-include { RUN_LD_PRUNING } from "../workflow/run/RUN_LD_PRUNING.nf"
-include { RUN_ADMIXTURE } from "../workflow/run/RUN_ADMIXTURE.nf"
-include { RUN_PCA } from "../workflow/run/RUN_PCA.nf"
+include { RUN_KINSHIP_ANALYSIS } from "./workflow/RUN_KINSHIP_ANALYSIS.nf"
+include { RUN_PAIRWISE_FST } from "./workflow/RUN_PAIRWISE_FST.nf"
+include { RUN_LD_PRUNING } from "./workflow/RUN_LD_PRUNING.nf"
+include { RUN_ADMIXTURE } from "./workflow/RUN_ADMIXTURE.nf"
+include { RUN_PCA } from "./workflow/RUN_PCA.nf"
 
 nextflow.preview.output = true
 

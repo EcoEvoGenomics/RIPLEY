@@ -1,4 +1,4 @@
-include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../../process/plink.nf"
+include { PLINK_INIT_PLINKFILES; PLINK_TO_VCF } from "../process/plink.nf"
 
 workflow PARSE_VCF_TO_PLINK {
 

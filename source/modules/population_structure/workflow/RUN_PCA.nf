@@ -1,5 +1,5 @@
-include { PLINK_PCA } from "../../process/plink.nf"
-include { PLOT_PLINK_PCA } from "../../process/plot.nf"
+include { PLINK_PCA } from "../process/plink.nf"
+include { PLOT_PLINK_PCA } from "../process/plot.nf"
 
 workflow RUN_PCA {
 
@@ -12,7 +12,7 @@ workflow RUN_PCA {
     main:
     pca = PLINK_PCA(plinkfiles)
     plot = PLOT_PLINK_PCA(
-        file("${moduleDir}/../../../R/plot_pca.R", checkIfExists: true),
+        file("${moduleDir}/../library/plot_pca.R", checkIfExists: true),
         pca.eigenval, pca.eigenvec, sample_metadata, population_metadata, species_metadata
     )
 
