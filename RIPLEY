@@ -8,7 +8,7 @@ repo=$(dirname "$this")
 modules="${repo}/source/modules"
 
 usage() {
-    echo "Usage: [bash] RIPLEY <module> <options.yaml> <site.config>" >&2
+    echo "Usage: ./RIPLEY <module> <options.yaml> <site.config>" >&2
     echo "Valid modules are ..." >&2
     for module in "${modules}"/*/; do
         echo ":: $(basename "${module}")" >&2
@@ -42,6 +42,9 @@ config=$(readlink -f "$3")
 
 cd "${repo}"
 echo "Launching module: ${module}"
+echo "Options: ${options}"
+echo "Config:  ${config}"
+echo ""
 
 nextflow -log ".nextflow/nextflow.log" run "${modules}/${module}/main.nf" \
     -config "${config}" \
