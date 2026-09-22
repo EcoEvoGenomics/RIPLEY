@@ -1,8 +1,8 @@
 include { BEDTOOLS_MAKEWINDOWS } from "../../../common/process/bedtools.nf"
-include { BEDTOOLS_INTERSECT_WINDOWS } from "../../process/bedtools.nf"
-include { SHAPEIT5_PHASE_COMMON; SHAPEIT5_LIGATE } from "../../process/shapeit5.nf"
+include { BEDTOOLS_INTERSECT_WINDOWS } from "../process/bedtools.nf"
+include { SHAPEIT5_PHASE_COMMON; SHAPEIT5_LIGATE } from "../process/shapeit5.nf"
 include { BCFTOOLS_INDEX } from "../../../common/process/bcftools.nf"
-include { BCFTOOLS_BCF_TO_VCF } from "../../process/bcftools.nf"
+include { BCFTOOLS_BCF_TO_VCF } from "../process/bcftools.nf"
 
 workflow RUN_VCF_PHASING {
 

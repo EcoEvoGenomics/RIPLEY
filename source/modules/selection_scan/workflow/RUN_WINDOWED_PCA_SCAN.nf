@@ -1,7 +1,7 @@
 include { PAIR_CHANNEL_TO_SELF } from "../../../common/workflow/utils/PAIR_CHANNEL_TO_SELF.nf"
-include { DROP_MISMATCHED_FILEKEY_PAIRS } from "../utils/DROP_MISMATCHED_FILEKEY_PAIRS.nf"
+include { DROP_MISMATCHED_FILEKEY_PAIRS } from "./DROP_MISMATCHED_FILEKEY_PAIRS.nf"
 include { BCFTOOLS_MERGE_VCFS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS } from "../../../common/process/bcftools.nf"
-include { GET_WINPCA; WINPCA_PCA_CHROMWISE } from "../../process/winpca.nf"
+include { GET_WINPCA; WINPCA_PCA_CHROMWISE } from "../process/winpca.nf"
 
 workflow RUN_WINDOWED_PCA_SCAN {
 
