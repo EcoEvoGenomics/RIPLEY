@@ -2,8 +2,8 @@ include { PARSE_REFERENCE_GENOME } from "../../common/workflow/parse/PARSE_REFER
 include { PARSE_METADATA } from "../../common/workflow/parse/PARSE_METADATA.nf"
 include { PARSE_VCF } from "../../common/workflow/parse/PARSE_VCF.nf"
 include { SPLIT_VCF_BY_CHROM } from "../../common/workflow/utils/SPLIT_VCF_BY_CHROM.nf"
-include { RUN_VCF_FILTERING } from "../workflow/run/RUN_VCF_FILTERING.nf"
-include { RUN_VCF_FILTERING_POPWISE } from "../workflow/run/RUN_VCF_FILTERING_POPWISE.nf"
+include { RUN_VCF_FILTERING } from "./workflow/RUN_VCF_FILTERING.nf"
+include { RUN_VCF_FILTERING_POPWISE } from "./workflow/RUN_VCF_FILTERING_POPWISE.nf"
 include { JOIN_VCF_BY_CHROM } from "../../common/workflow/utils/JOIN_VCF_BY_CHROM.nf"
 include { keyFor } from "../../common/library/filekeys.nf"
 
