@@ -10,7 +10,10 @@ workflow {
     PLINK_INIT_PLINKFILES(vcf, params.ref_n_chroms)
     PLINK_PAIRWISE_LD(PLINK_INIT_PLINKFILES.out, params.cl_thin, params.cl_window, params.cl_window_kb)
     PARSE_PLINK_LD_DECAY(PLINK_PAIRWISE_LD.out, params.ref_exclude_prefix, params.cl_bin_size)
-    PLOT_PLINK_LD_DECAY(PARSE_PLINK_LD_DECAY.out)
+    PLOT_PLINK_LD_DECAY(
+        file("${moduleDir}/../../R/plot_linkage.R", checkIfExists: true),
+        PARSE_PLINK_LD_DECAY.out
+    )
 
     publish:
     stats = PLINK_PAIRWISE_LD.out

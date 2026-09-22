@@ -27,7 +27,10 @@ workflow RUN_PAIRWISE_FST {
         }
         .collectFile( name: "weighted.fst", sort: { line -> line.tokenize("\t")[0] } )
     
-    plot = PLOT_VCFTOOLS_PAIRWISE_MEAN_FST(mean)
+    plot = PLOT_VCFTOOLS_PAIRWISE_MEAN_FST(
+        file("${moduleDir}/../../../R/plot_fst.R", checkIfExists: true),
+        mean
+    )
 
     emit:
     logs = results.logs

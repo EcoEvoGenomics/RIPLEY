@@ -3,6 +3,7 @@ process PLOT_ADMIXTURE {
     label "RPLOT"
 
     input:
+    path(rscript)
     path(admixture_clusts)
     val(k_min_error)
     path(sample_metadata)
@@ -14,7 +15,7 @@ process PLOT_ADMIXTURE {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_admixture.R ${admixture_clusts} ${k_min_error} ${sample_metadata} ${population_metadata} ${species_metadata}
+    Rscript ${rscript} ${admixture_clusts} ${k_min_error} ${sample_metadata} ${population_metadata} ${species_metadata}
     """
 }
 
@@ -23,6 +24,7 @@ process PLOT_HIHET {
     label "RPLOT"
 
     input:
+    path(rscript)
     tuple path(hihet), path(sample_metadata), path(population_metadata)
 
     output:
@@ -30,7 +32,7 @@ process PLOT_HIHET {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_hihet.R ${hihet} ${sample_metadata} ${population_metadata}
+    Rscript ${rscript} ${hihet} ${sample_metadata} ${population_metadata}
     """
 }
 
@@ -39,6 +41,7 @@ process PLOT_PLINK_LD_DECAY {
     label "RPLOT"
 
     input:
+    path(rscript)
     path(ld_decay)
 
     output:
@@ -46,7 +49,7 @@ process PLOT_PLINK_LD_DECAY {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_linkage_decay.R ${ld_decay}
+    Rscript ${rscript} ${ld_decay}
     """
 }
 
@@ -55,6 +58,7 @@ process PLOT_PLINK_PCA {
     label "RPLOT"
 
     input:
+    path(rscript)
     path(eigenval)
     path(eigenvec)
     path(sample_metadata)
@@ -66,7 +70,7 @@ process PLOT_PLINK_PCA {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_pca.R ${eigenval} ${eigenvec} ${sample_metadata} ${population_metadata} ${species_metadata}
+    Rscript ${rscript} ${eigenval} ${eigenvec} ${sample_metadata} ${population_metadata} ${species_metadata}
     """
 }
 
@@ -75,6 +79,7 @@ process PLOT_REHH_XPEHH {
     label "RPLOT"
 
     input:
+    path(rscript)
     path(scans)
     path(cands)
     path(gff)
@@ -89,7 +94,7 @@ process PLOT_REHH_XPEHH {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_xpehh.R ${scans} ${cands} ${gff} ${chrom_labels} ${cand_pval} 170 170 20
+    Rscript ${rscript} ${scans} ${cands} ${gff} ${chrom_labels} ${cand_pval} 170 170 20
     """
 }
 
@@ -98,6 +103,7 @@ process PLOT_SAMTOOLS_CRAM_STATS {
     label "RPLOT"
 
     input:
+    path(rscript)
     path(stats)
 
     output:
@@ -105,7 +111,7 @@ process PLOT_SAMTOOLS_CRAM_STATS {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_cramstats.R ${stats}
+    Rscript ${rscript} ${stats}
     """
 }
 
@@ -114,6 +120,7 @@ process PLOT_SAMTOOLS_CRAM_STATS_POPWISE {
     label "RPLOT"
 
     input:
+    path(rscript)
     path(stats)
     path(population_metadata)
 
@@ -122,7 +129,7 @@ process PLOT_SAMTOOLS_CRAM_STATS_POPWISE {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_cramstats_popwise.R ${stats} ${population_metadata}
+    Rscript ${rscript} ${stats} ${population_metadata}
     """
 }
 
@@ -133,6 +140,7 @@ process PLOT_SAMTOOLS_BEDCOV {
     label "RPLOT"
 
     input:
+    path(rscript)
     each(bedcov)
     val(chrom_string)
     path(chrom_labels)
@@ -143,7 +151,7 @@ process PLOT_SAMTOOLS_BEDCOV {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_bedcov.R ${bedcov} ${chrom_string} ${chrom_labels} ${bedcov_reference}
+    Rscript ${rscript} ${bedcov} ${chrom_string} ${chrom_labels} ${bedcov_reference}
     """
 }
 
@@ -152,6 +160,7 @@ process PLOT_VCFTOOLS_RELATEDNESS {
     label "RPLOT"
 
     input:
+    path(rscript)
     path(relatedness)
     path(sample_metadata)
     path(population_metadata)
@@ -162,7 +171,7 @@ process PLOT_VCFTOOLS_RELATEDNESS {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_kinship.R ${relatedness} ${sample_metadata} ${population_metadata} ${species_metadata}
+    Rscript ${rscript} ${relatedness} ${sample_metadata} ${population_metadata} ${species_metadata}
     """
 }
 
@@ -171,6 +180,7 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
     label "RPLOT"
 
     input:
+    path(rscript)
     each(snpden)
     val(chrom_string)
     path(chrom_labels)
@@ -180,7 +190,7 @@ process PLOT_VCFTOOLS_SNP_DENSITY {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_snpden.R ${snpden} ${chrom_string} ${chrom_labels}
+    Rscript ${rscript} ${snpden} ${chrom_string} ${chrom_labels}
     """
 }
 
@@ -189,6 +199,7 @@ process PLOT_VCFTOOLS_VCF_STATS {
     label "RPLOT"
 
     input:
+    path(rscript)
     tuple \
         path(frq),
         path(idepth),
@@ -204,7 +215,7 @@ process PLOT_VCFTOOLS_VCF_STATS {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_vcfstats.R ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
+    Rscript ${rscript} ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
     """
 }
 
@@ -213,6 +224,7 @@ process PLOT_VCFTOOLS_VCF_STATS_POPWISE {
     label "RPLOT"
 
     input:
+    path(rscript)
     path(stats, stageAs: "stats/*")
     path(population_metadata)
     
@@ -221,7 +233,7 @@ process PLOT_VCFTOOLS_VCF_STATS_POPWISE {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_vcfstats_popwise.R stats/ ${population_metadata}
+    Rscript ${rscript} stats/ ${population_metadata}
     """
 }
 
@@ -230,6 +242,7 @@ process PLOT_VCFTOOLS_PAIRWISE_MEAN_FST {
     label "RPLOT"
 
     input:
+    path(rscript)
     path(means)
 
     output:
@@ -237,6 +250,6 @@ process PLOT_VCFTOOLS_PAIRWISE_MEAN_FST {
 
     script:
     """
-    Rscript ${projectDir}/../../R/plot_fst.R ${means}
+    Rscript ${rscript} ${means}
     """
 }

@@ -39,7 +39,10 @@ workflow RUN_ADMIXTURE {
         .reduce { i, j -> (j[1] as Double) < (i[1] as Double) ? j : i }
         .map { cv -> def k = cv[0]; k }
 
-    admixture_plot = PLOT_ADMIXTURE(admixture_clusts, k_min_error, sample_metadata, population_metadata, species_metadata)
+    admixture_plot = PLOT_ADMIXTURE(
+        file("${moduleDir}/../../../R/plot_admixture.R", checkIfExists: true),
+        admixture_clusts, k_min_error, sample_metadata, population_metadata, species_metadata
+    )
 
     aim_snps = ADMIXTURE_AIMS(admixture.alleles, aim_variance_threshold)
     aim_vcfs = PLINK_EXTRACT_SITES(
@@ -62,7 +65,7 @@ workflow RUN_ADMIXTURE {
         .map { it -> it[1] }
         .filter { it -> it.size() == 2 } | CALCULATE_AIM_HIHET
 
-    hihet_plots = aim_hihet.hihet
+    hihet_tables = aim_hihet.hihet
         .map { it ->
             def k = it.simpleName.tokenize("_")[-2][1..-1]
             tuple(k, it)
@@ -74,7 +77,9 @@ workflow RUN_ADMIXTURE {
             sort: true
         )
         .combine(sample_metadata)
-        .combine(population_metadata) | PLOT_HIHET
+        .combine(population_metadata)
+
+    hihet_plots = PLOT_HIHET(file("${moduleDir}/../../../R/plot_hihet.R", checkIfExists: true), hihet_tables)
 
     emit:
     data = admixture.data

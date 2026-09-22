@@ -43,8 +43,9 @@ workflow RUN_CRAM_COVERAGE {
         .collect()
         .map { chroms -> chroms.join(",") }
 
-    bedcov_plot = PLOT_SAMTOOLS_BEDCOV(bedcov_combined, chrom_flag, chrom_labels, bedcov_combined)
-    bedcov_popwise_plot = PLOT_SAMTOOLS_BEDCOV_POPWISE(bedcov_popwise, chrom_flag, chrom_labels, bedcov_combined)
+    def plot_bedcov_R = file("${moduleDir}/../../../R/plot_bedcov.R", checkIfExists: true)
+    bedcov_plot = PLOT_SAMTOOLS_BEDCOV(plot_bedcov_R, bedcov_combined, chrom_flag, chrom_labels, bedcov_combined)
+    bedcov_popwise_plot = PLOT_SAMTOOLS_BEDCOV_POPWISE(plot_bedcov_R, bedcov_popwise, chrom_flag, chrom_labels, bedcov_combined)
 
     emit:
     data = bedcov_combined

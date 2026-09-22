@@ -35,7 +35,10 @@ workflow COLLATE_POPWISE_VCF_STATS {
         .groupTuple()
         .map { it -> it[1] }
 
-    plot = PLOT_VCFTOOLS_VCF_STATS_POPWISE(per_stem, population_metadata.first())
+    plot = PLOT_VCFTOOLS_VCF_STATS_POPWISE(
+        file("${moduleDir}/../../../R/plot_vcfstats_popwise.R", checkIfExists: true),
+        per_stem, population_metadata.first()
+    )
 
     emit:
     data = across_stems.collect()

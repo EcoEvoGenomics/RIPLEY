@@ -8,7 +8,7 @@ workflow RUN_VCF_STATS {
 
     main:
     stats = VCFTOOLS_VCF_STATS(vcf)
-    PLOT_VCFTOOLS_VCF_STATS(stats)
+    PLOT_VCFTOOLS_VCF_STATS(file("${moduleDir}/../../../R/plot_vcfstats.R", checkIfExists: true), stats)
 
     emit:
     plot = PLOT_VCFTOOLS_VCF_STATS.out

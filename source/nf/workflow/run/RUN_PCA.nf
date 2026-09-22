@@ -11,7 +11,10 @@ workflow RUN_PCA {
 
     main:
     pca = PLINK_PCA(plinkfiles)
-    plot = PLOT_PLINK_PCA(pca.eigenval, pca.eigenvec, sample_metadata, population_metadata, species_metadata)
+    plot = PLOT_PLINK_PCA(
+        file("${moduleDir}/../../../R/plot_pca.R", checkIfExists: true),
+        pca.eigenval, pca.eigenvec, sample_metadata, population_metadata, species_metadata
+    )
 
     emit:
     data = pca.eigenval.mix(pca.eigenvec)

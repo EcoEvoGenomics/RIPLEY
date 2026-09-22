@@ -42,8 +42,14 @@ workflow RUN_CRAM_STATS {
         }
         .collectFile( { it -> ["stats_popwise.${it[0]}", it[1]]} )
 
-    stats_plot = PLOT_SAMTOOLS_CRAM_STATS(stats_combined)
-    stats_popwise_plot = PLOT_SAMTOOLS_CRAM_STATS_POPWISE(stats_popwise, population_metadata)
+    stats_plot = PLOT_SAMTOOLS_CRAM_STATS(
+        file("${moduleDir}/../../../R/plot_cramstats.R", checkIfExists: true),
+        stats_combined
+    )
+    stats_popwise_plot = PLOT_SAMTOOLS_CRAM_STATS_POPWISE(
+        file("${moduleDir}/../../../R/plot_cramstats_popwise.R", checkIfExists: true),
+        stats_popwise, population_metadata
+    )
 
     emit:
     data = stats_combined
