@@ -43,31 +43,6 @@ process PLINK_WRITE_SNPLIST {
     """
 }
 
-process PLINK_FILTER {
-
-    label "PLINK"
-
-    input:
-    tuple path(bed), path(bim), path(fam), val(n_chroms)
-    val(mind)
-    val(geno)
-    val(maf)
-
-    output:
-    tuple path(bed), path(bim), path(fam), val(n_chroms)
-
-    script:
-    """
-    plink \
-    --bfile ${bed.simpleName} \
-    --allow-extra-chr --chr-set ${n_chroms} \
-    --mind ${mind} \
-    --geno ${geno} \
-    --maf ${maf} \
-    --make-bed --out ${bed.simpleName}
-    """
-}
-
 process PLINK_LD_PRUNE {
 
     label "PLINK"
@@ -116,28 +91,6 @@ process PLINK_EXTRACT_SITES {
     --allow-extra-chr --chr-set ${n_chroms} \
     --extract ${sitelist} \
     --make-bed --out ${bed.simpleName}_${sitelist.simpleName}
-    """
-}
-
-process PLINK_MISSINGNESS {
-
-    label "PLINK"
-
-    input:
-    tuple path(bed), path(bim), path(fam), val(n_chroms)
-
-    output:
-    tuple path("${bed.simpleName}.imiss"), path("${bed.simpleName}.lmiss")
-
-    script:
-    """
-    plink \
-    --bfile ${bed.simpleName} \
-    --allow-extra-chr --chr-set ${n_chroms} \
-    --missing
-
-    mv plink.imiss ${bed.simpleName}.imiss
-    mv plink.lmiss ${bed.simpleName}.lmiss
     """
 }
 

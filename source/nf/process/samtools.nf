@@ -71,22 +71,6 @@ process SAMTOOLS_STATS {
     """
 }
 
-process SAMTOOLS_COVERAGE {
-
-    label "SAMTOOLS"
-
-    input:
-    tuple path(cram), path(crai), path(ref_fasta), path(ref_fai)
-
-    output:
-    path("${cram.simpleName}.coverage")
-
-    script:
-    """
-    samtools coverage --reference ${ref_fasta} ${cram} > ${cram.simpleName}.coverage
-    """
-}
-
 process SAMTOOLS_BEDCOV {
 
     label "SAMTOOLS"

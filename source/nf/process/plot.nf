@@ -74,30 +74,6 @@ process PLOT_PLINK_PCA {
     """
 }
 
-process PLOT_REHH_XPEHH {
-
-    label "RPLOT"
-
-    input:
-    path(rscript)
-    path(scans)
-    path(cands)
-    path(gff)
-    path(chrom_labels)
-    val(cand_pval)
-
-    output:
-    path("*.png"), emit: mainplot
-    path("candidate_regions.csv"), emit: candregions
-    path("**/*.png"), emit: candplots
-    path("**/*.gff"), emit: candgenes
-
-    script:
-    """
-    Rscript ${rscript} ${scans} ${cands} ${gff} ${chrom_labels} ${cand_pval} 170 170 20
-    """
-}
-
 process PLOT_SAMTOOLS_CRAM_STATS {
 
     label "RPLOT"
