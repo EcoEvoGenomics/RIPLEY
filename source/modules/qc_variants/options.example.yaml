@@ -1,0 +1,18 @@
+################ Metadata ##################
+sample_metadata: 
+population_metadata: 
+species_metadata: 
+focal_populations: 
+
+################ Reference #################
+ref_genome: 
+ref_ploidy: 
+ref_exclude_chroms: [ ]
+ref_exclude_prefix: [ ]
+ref_exclude_coords: 
+ref_chrom_labels: 
+
+############## QC Variants #################
+vcf: 
+qc_snpden_binsize: 100000
+qc_thinning_target: 100000

@@ -9,15 +9,15 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input = PARSE_VCF(params.cv_vcf, params.ref_exclude_coords, genome.chrom_names, true, true)
+    input = PARSE_VCF(params.vcf, params.ref_exclude_coords, genome.chrom_names, true, true)
     metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf, null)
 
     RUN_VCF_QC(
         input.vcf,
         metadata.focal_populations_censuses,
         metadata.population_metadata,
-        params.cv_qc_thinning_target,
-        params.cv_qc_snpden_binsize,
+        params.qc_thinning_target,
+        params.qc_snpden_binsize,
         genome.chrom_names,
         genome.chrom_labels
     )
