@@ -1,6 +1,6 @@
-include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOME.nf"
-include { PARSE_METADATA } from "../workflow/parse/PARSE_METADATA.nf"
-include { PARSE_VCF } from "../workflow/parse/PARSE_VCF.nf"
+include { PARSE_REFERENCE_GENOME } from "../../common/workflow/parse/PARSE_REFERENCE_GENOME.nf"
+include { PARSE_METADATA } from "../../common/workflow/parse/PARSE_METADATA.nf"
+include { PARSE_VCF } from "../../common/workflow/parse/PARSE_VCF.nf"
 include { RUN_VCF_QC } from "../workflow/run/RUN_VCF_QC.nf"
 
 nextflow.preview.output = true

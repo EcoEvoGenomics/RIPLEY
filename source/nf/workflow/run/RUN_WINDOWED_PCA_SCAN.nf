@@ -1,4 +1,4 @@
-include { PAIR_CHANNEL_TO_SELF } from "../utils/PAIR_CHANNEL_TO_SELF.nf"
+include { PAIR_CHANNEL_TO_SELF } from "../../../common/workflow/utils/PAIR_CHANNEL_TO_SELF.nf"
 include { DROP_MISMATCHED_FILEKEY_PAIRS } from "../utils/DROP_MISMATCHED_FILEKEY_PAIRS.nf"
 include { BCFTOOLS_MERGE_VCFS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS } from "../../process/bcftools.nf"
 include { GET_WINPCA; WINPCA_PCA_CHROMWISE } from "../../process/winpca.nf"

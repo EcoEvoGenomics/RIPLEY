@@ -1,4 +1,4 @@
-include { PAIR_CHANNEL_TO_SELF } from "../utils/PAIR_CHANNEL_TO_SELF.nf"
+include { PAIR_CHANNEL_TO_SELF } from "../../../common/workflow/utils/PAIR_CHANNEL_TO_SELF.nf"
 include { VCFTOOLS_CALCULATE_PAIRWISE_FST } from "../../process/vcftools.nf"
 include { PLOT_VCFTOOLS_PAIRWISE_MEAN_FST } from "../../process/plot.nf"
 

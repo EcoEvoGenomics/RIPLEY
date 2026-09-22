@@ -1,5 +1,5 @@
-include { BCFTOOLS_LIST_SAMPLES } from "../../process/bcftools.nf"
-include { METADATA_LIST_POPULATION_MEMBERS } from "../../process/metadata.nf"
+include { BCFTOOLS_LIST_SAMPLES } from "../../../nf/process/bcftools.nf"
+include { METADATA_LIST_POPULATION_MEMBERS } from "../../../nf/process/metadata.nf"
 include { alphanumericIssue } from "../../library/filekeys.nf"
 
 workflow PARSE_METADATA {

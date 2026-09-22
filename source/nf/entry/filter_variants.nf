@@ -1,11 +1,11 @@
-include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOME.nf"
-include { PARSE_METADATA } from "../workflow/parse/PARSE_METADATA.nf"
-include { PARSE_VCF } from "../workflow/parse/PARSE_VCF.nf"
-include { SPLIT_VCF_BY_CHROM } from "../workflow/utils/SPLIT_VCF_BY_CHROM.nf"
+include { PARSE_REFERENCE_GENOME } from "../../common/workflow/parse/PARSE_REFERENCE_GENOME.nf"
+include { PARSE_METADATA } from "../../common/workflow/parse/PARSE_METADATA.nf"
+include { PARSE_VCF } from "../../common/workflow/parse/PARSE_VCF.nf"
+include { SPLIT_VCF_BY_CHROM } from "../../common/workflow/utils/SPLIT_VCF_BY_CHROM.nf"
 include { RUN_VCF_FILTERING } from "../workflow/run/RUN_VCF_FILTERING.nf"
 include { RUN_VCF_FILTERING_POPWISE } from "../workflow/run/RUN_VCF_FILTERING_POPWISE.nf"
-include { JOIN_VCF_BY_CHROM } from "../workflow/utils/JOIN_VCF_BY_CHROM.nf"
-include { keyFor } from "../library/filekeys.nf"
+include { JOIN_VCF_BY_CHROM } from "../../common/workflow/utils/JOIN_VCF_BY_CHROM.nf"
+include { keyFor } from "../../common/library/filekeys.nf"
 
 def inputChromwise() { file(params.fv_vcf).isDirectory() }
 def filterPopwise() { params.fv_popwise as boolean }

@@ -1,6 +1,6 @@
-include { PARSE_REFERENCE_GENOME } from "../workflow/parse/PARSE_REFERENCE_GENOME.nf"
-include { PARSE_METADATA } from "../workflow/parse/PARSE_METADATA.nf"
-include { PARSE_CRAM } from "../workflow/parse/PARSE_CRAM.nf"
+include { PARSE_REFERENCE_GENOME } from "../../common/workflow/parse/PARSE_REFERENCE_GENOME.nf"
+include { PARSE_METADATA } from "../../common/workflow/parse/PARSE_METADATA.nf"
+include { PARSE_CRAM } from "../../common/workflow/parse/PARSE_CRAM.nf"
 include { RUN_CRAM_STATS } from "../workflow/run/RUN_CRAM_STATS.nf"
 include { RUN_CRAM_COVERAGE } from "../workflow/run/RUN_CRAM_COVERAGE.nf"
 

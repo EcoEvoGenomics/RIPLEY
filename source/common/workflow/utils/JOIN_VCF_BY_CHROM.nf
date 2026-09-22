@@ -1,4 +1,4 @@
-include { BCFTOOLS_CONCAT_VCFS } from "../../process/bcftools.nf"
+include { BCFTOOLS_CONCAT_VCFS } from "../../../nf/process/bcftools.nf"
 
 workflow JOIN_VCF_BY_CHROM {
 
