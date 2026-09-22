@@ -21,6 +21,14 @@ Working files will be stored in this directory, so be mindful of scarce or share
 
 
 ## Quickstart
+### Load dependencies
+This step inherently depends on your environment and [site configuration](#site-configuration). For illustration, you might have to call something alike the following:
+```sh
+module load singularity
+module load conda
+conda activate Nextflow25.04.6
+```
+
 ### The RIPLEY launcher
 To launch RIPLEY, you invoke the RIPLEY launcher. Every invocation requires exactly three ordered arguments:
 ```sh
