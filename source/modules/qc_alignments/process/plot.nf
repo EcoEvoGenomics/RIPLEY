@@ -51,6 +51,7 @@ process PLOT_SAMTOOLS_BEDCOV {
 
     script:
     """
+    Rscript ${rscript} ${bedcov} ${chrom_string} ${chrom_labels} ${bedcov_reference}
     """
 }
 
