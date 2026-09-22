@@ -28,14 +28,6 @@ fv_popwise: false
 fv_qc_snpden_binsize: 100000
 fv_qc_thinning_target: 100000
 
-######## Mitochondrial Haplotypes ##########
-mt_cramdir: 
-mt_genome_region: 
-mt_filt_indelgap: 5
-mt_filt_inclusions: 'QUAL>20 & FMT/DP>5 & FMT/DP<75'
-mt_mafft_iterations: 1000
-mt_iqtree_bootstraps: 1000
-
 ########## Population Structure ############
 ps_vcf: 
 ps_prune_window_kb: 50
