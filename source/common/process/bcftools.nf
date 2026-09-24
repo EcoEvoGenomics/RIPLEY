@@ -112,6 +112,39 @@ process BCFTOOLS_FILTER_CHROMS {
     """
 }
 
+process BCFTOOLS_EXCLUDE_BED {
+
+    label "BCFTOOLS"
+
+    input:
+    // bcftools infers BED (0-based, half-open) from the file suffix, so the name is fixed here
+    tuple path(vcf), path(csi), path(bed, stageAs: "exclude.bed")
+
+    output:
+    tuple path("${vcf.name}", includeInputs: true), path("${vcf.name}.csi", includeInputs: true)
+
+    script:
+    """
+    bcftools index --stats ${vcf} | cut -f1 > contigs.txt
+
+    # bcftools errors on an empty region set, and rewriting a VCF the bed cannot touch is wasted work
+    overlap=\$(awk 'NR == FNR { contig[\$1]; next } /^#/ { next } (\$1 in contig) { n++ } END { print n + 0 }' \
+        contigs.txt exclude.bed)
+
+    if [ "\${overlap}" -ne 0 ]
+    then
+        bcftools view \
+            --threads ${task.cpus} \
+            --targets-file "^exclude.bed" \
+            --output-type z --output exclude_tmp.vcf.gz \
+            --write-index=csi \
+            ${vcf}
+        mv exclude_tmp.vcf.gz ${vcf.name}
+        mv exclude_tmp.vcf.gz.csi ${vcf.name}.csi
+    fi
+    """
+}
+
 process BCFTOOLS_MERGE_VCFS {
 
     // Inputs must be ordered prior to merging
