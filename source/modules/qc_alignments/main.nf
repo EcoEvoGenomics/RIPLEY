@@ -10,7 +10,7 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input = PARSE_CRAM(params.cram, genome.fasta, genome.fai, params.ref_exclude_coords, genome.chrom_indices, true, true)
+    input = PARSE_CRAM(params.cram, genome.fasta, genome.fai, params.ref_exclude_coords, genome.chrom_indices)
     metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, null, input.parsed.map { cram_set -> cram_set[0] })
 
     stats = RUN_CRAM_STATS(input.parsed, metadata.focal_population_map, metadata.population_metadata)

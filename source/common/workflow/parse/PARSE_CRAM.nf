@@ -11,31 +11,18 @@ workflow PARSE_CRAM {
     genome_fai
     exclude_coords
     chrom_indices
-    permit_solo
-    permit_dir
 
     main:
     def permitted_extensions = ["cram"]
-    
-    def caller_input = file(cram_path)
-    if (!(caller_input instanceof Path)) { error("The input path must name a single CRAM or directory, not a glob pattern: ${cram_path}") }
 
-    def input_is_solo = (caller_input.isFile() && keyFor(caller_input.name, permitted_extensions) != null)
+    def caller_input = file(cram_path)
+    if (!(caller_input instanceof Path)) { error("The input path must name a directory, not a glob pattern: ${cram_path}") }
     def input_is_dir = caller_input.isDirectory()
-    if (input_is_solo && input_is_dir) { error("The input path may be interpreted both as file and directory: ${cram_path}") }
-    if (!(input_is_solo || input_is_dir)) { error("The input path does not exist or is not a directory or CRAM: ${cram_path}") }
-    if (input_is_solo && !permit_solo) { error("This pipeline cannot process a single CRAM file, only a directory: ${cram_path}") }
-    if (input_is_dir && !permit_dir) { error("This pipeline cannot process a directory, only a single CRAM file: ${cram_path}") }
+    if (!input_is_dir) { error("The input path does not exist or is not a directory: ${cram_path}") }
 
     cram_ref = genome_fasta.combine(genome_fai)
 
-    if (input_is_dir) {
-        cram = Channel.fromPath("${cram_path}/**.cram", checkIfExists: true)
-    }
-
-    if (input_is_solo) {
-        cram = Channel.fromPath("${cram_path}", checkIfExists: true)
-    }
+    cram = Channel.fromPath("${cram_path}/**.cram", checkIfExists: true)
 
     // The whole name minus its extension is the sample key, and downstream tokenising splits on both underscores and dots
     cram.subscribe { it ->
