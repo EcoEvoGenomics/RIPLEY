@@ -1,6 +1,6 @@
 # RIPLEY: Reproducible Pipelines for Genomic Analyses
 
-*Note: This is a development branch and the current documentation is a draft.*
+*Note: This is an early release and the current documentation is a draft.*
 
 ## What is RIPLEY?
 RIPLEY is a collection of reproducible analysis pipelines built for population genomics. Following and extending ["Speciation & Population Genomics: a how-to-guide"](https://speciationgenomics.github.io/), RIPLEY aims to make common analyses both accessible and reproducible - all in a single terminal command. The companion repositories [XENO](https://github.com/EcoEvoGenomics/XENO) and [MORPH](https://github.com/EcoEvoGenomics/MORPH) are designed to expedite the process from raw reads to RIPLEY-ready input.
