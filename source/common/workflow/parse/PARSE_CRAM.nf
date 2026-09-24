@@ -24,6 +24,8 @@ workflow PARSE_CRAM {
 
     cram = Channel.fromPath("${cram_path}/**.cram", checkIfExists: true)
 
+    cram.count().subscribe { n -> if(n < 2) error("The input directory must hold more than one CRAM: ${cram_path}") }
+
     // The whole name minus its extension is the sample key, and downstream tokenising splits on both underscores and dots
     cram.subscribe { it ->
         def issue = alphanumericIssue(keyFor(it.name, permitted_extensions), "sample key", "Input CRAM ${it.name}")

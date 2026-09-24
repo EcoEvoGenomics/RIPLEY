@@ -93,7 +93,7 @@ Alignment quality control: `samtools stats` metrics and binned coverage (`samtoo
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `cram` | Path to a `.cram` file, or a directory of `.cram` files with names `<sample>.cram`. **Not** a glob. | `/data/alignments` |
+| `cram` | Path to a directory of two or more `.cram` files with names `<sample>.cram`. Recurses into subdirectories. All filenames must be unique. **Not** a glob. | `/data/alignments` |
 | `coverage_binsize` | Bin size in base pairs for calculation of coverage. | `100000` |
 
 ### Module: qc_variants
