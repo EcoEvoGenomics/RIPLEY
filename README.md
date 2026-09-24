@@ -68,7 +68,7 @@ Copy one of these and adapt it to your own system, or write a config from scratc
 | `ref_chrom_labels` | Path to a headerless `.csv`: contig names, short plot label, long plot label. (e.g. `chr1,1,'Chromosome 1'`) | Yes |
 | `ref_exclude_prefix` | List of prefixes marking unattached scaffolds, e.g. `[ NW ]`. Unattached scaffols (prefixed contigs) are never analysed. | No |
 | `ref_exclude_chroms` | List of chromosome names to exclude from all inputs, e.g. `[ chrW, mtDNA ]`. | No |
-| `ref_exclude_coords` | Path to a `.bed`: regions to exclude from all inputs. | No |
+| `ref_exclude_coords` | Path to a headerless `.bed`: regions to exclude from all inputs. Comment (`#`) lines are permitted, a column header row is not. | No |
 
 Contigs that survive prefix and name filtering are the analysis set. If the input has no variants on a retained chromosome, RIPLEY stops with an error. **Note:** RIPLEY enforces *strict* alphanumericity for contig names, sample names, and metadata.
 
