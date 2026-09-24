@@ -20,20 +20,17 @@ workflow PARSE_CRAM {
     def input_is_dir = caller_input.isDirectory()
     if (!input_is_dir) { error("The input path does not exist or is not a directory: ${cram_path}") }
 
-    cram_ref = genome_fasta.combine(genome_fai)
+    crams = Channel.fromPath("${cram_path}/**.cram", checkIfExists: true)
 
-    cram = Channel.fromPath("${cram_path}/**.cram", checkIfExists: true)
-
-    cram.count().subscribe { n -> if(n < 2) error("The input directory must hold more than one CRAM: ${cram_path}") }
-
-    // The whole name minus its extension is the sample key, and downstream tokenising splits on both underscores and dots
-    cram.subscribe { it ->
+    crams.count().subscribe { n -> if(n < 2) error("The input directory must hold more than one CRAM: ${cram_path}") }
+    crams.subscribe { it ->
+        // Filnames minus extensions are sample keys. Downstream tokenising relies on strictly alphanumeric keys.
         def issue = alphanumericIssue(keyFor(it.name, permitted_extensions), "sample key", "Input CRAM ${it.name}")
         if (issue) { error(issue) }
     }
 
     // Input cram_path is searched recursively, so sample keys can collide across subdirectories.
-    cram.map { it -> keyFor(it.name, permitted_extensions) }
+    crams.map { it -> keyFor(it.name, permitted_extensions) }
         .collect(sort: true)
         .map { keys -> keys.countBy { key -> key }.findAll { _key, n -> n > 1 }.keySet() as List }
         .subscribe { duplicates ->
@@ -42,7 +39,7 @@ workflow PARSE_CRAM {
             }
         }
 
-    cram_idx = cram.combine(cram_ref)
+    crams_indexed = crams.combine(genome_fasta.combine(genome_fai))
         .map { it ->
             def file = it[0]
             def fasta = it[1]
@@ -50,12 +47,11 @@ workflow PARSE_CRAM {
             tuple(file, fasta, fai)
         } | INDEX_CRAM_IN
 
-    // combine() rejects a bare path, so the BED must be wrapped to broadcast across every CRAM
     def exclude_bed = exclude_coords ? Channel.value(file(exclude_coords, checkIfExists: true)) : null
     if (exclude_bed == null) {
-        cram_tmp = cram_idx
+        crams_tmp = crams_indexed
     } else {
-        cram_tmp = SAMTOOLS_PICK_COORDS(cram_idx.combine(exclude_bed)).drop | INDEX_CRAM_TMP
+        crams_tmp = SAMTOOLS_PICK_COORDS(crams_indexed.combine(exclude_bed)).drop | INDEX_CRAM_TMP
     }
 
     chroms_bed = chrom_indices
@@ -70,9 +66,9 @@ workflow PARSE_CRAM {
             sort: { line -> line.tokenize("\t")[0] } // Entries are BED lines
         )
 
-    cram_out = SAMTOOLS_PICK_CHROMS(cram_tmp.combine(chroms_bed)).keep | INDEX_CRAM_OUT
+    crams_parsed = SAMTOOLS_PICK_CHROMS(crams_tmp.combine(chroms_bed)).keep | INDEX_CRAM_OUT
 
     emit:
-    parsed = cram_out
+    parsed = crams_parsed
 
 }
