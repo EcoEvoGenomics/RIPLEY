@@ -54,9 +54,9 @@ workflow PARSE_VCF {
         vcf_retained = BCFTOOLS_FILTER_CHROMS(vcf_path, chrom_flag)
     }
 
-    def exclude_path = exclude_coords ?: null
-    if (exclude_path != null) {
-        vcf_filtered = VCFTOOLS_EXCLUDE_BED(vcf_retained, file(exclude_path, checkIfExists: true))
+    def exclude_bed = exclude_coords ? Channel.value(file(exclude_coords, checkIfExists: true)) : null
+    if (exclude_bed != null) {
+        vcf_filtered = VCFTOOLS_EXCLUDE_BED(vcf_retained, exclude_bed)
     } else {
         vcf_filtered = vcf_retained
     }
