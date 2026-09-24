@@ -1,5 +1,4 @@
-include { BCFTOOLS_FILTER_CHROMS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS } from "../../process/bcftools.nf"
-include { VCFTOOLS_EXCLUDE_BED } from "../../process/vcftools.nf"
+include { BCFTOOLS_FILTER_CHROMS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS; BCFTOOLS_EXCLUDE_BED } from "../../process/bcftools.nf"
 include { alphanumericIssue; keyFor } from "../../library/filekeys.nf"
 
 workflow PARSE_VCF {
@@ -54,15 +53,16 @@ workflow PARSE_VCF {
         vcf_retained = BCFTOOLS_FILTER_CHROMS(vcf_path, chrom_flag)
     }
 
+    // Index before exclusion to check bedfile against contigs from csi rather than from vcf
     def exclude_bed = exclude_coords ? Channel.value(file(exclude_coords, checkIfExists: true)) : null
-    if (exclude_bed != null) {
-        vcf_filtered = VCFTOOLS_EXCLUDE_BED(vcf_retained, exclude_bed)
+    vcf_indexed = BCFTOOLS_INDEX(vcf_retained)
+    if (exclude_bed == null) {
+        vcf_indexed_out = vcf_indexed
     } else {
-        vcf_filtered = vcf_retained
+        vcf_indexed_out = BCFTOOLS_EXCLUDE_BED(vcf_indexed.combine(exclude_bed))
     }
 
-    vcf_indexed = BCFTOOLS_INDEX(vcf_filtered)
-    vcf_nrecords = BCFTOOLS_COUNT_RECORDS(vcf_indexed).per_chrom
+    vcf_nrecords = BCFTOOLS_COUNT_RECORDS(vcf_indexed_out).per_chrom
         .splitCsv(sep: "\t")
         .filter { row -> row[2].toInteger() > 0 }
         .map { row -> row[0] }
@@ -81,7 +81,7 @@ workflow PARSE_VCF {
         }
 
     emit:
-    vcf = vcf_filtered
-    vcf_indexed = vcf_indexed
+    vcf = vcf_indexed_out.map { i -> i[0] }
+    vcf_indexed = vcf_indexed_out
 
 }
