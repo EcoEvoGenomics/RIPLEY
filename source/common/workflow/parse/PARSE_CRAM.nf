@@ -32,6 +32,16 @@ workflow PARSE_CRAM {
         if (issue) { error(issue) }
     }
 
+    // Input cram_path is searched recursively, so sample keys can collide across subdirectories.
+    cram.map { it -> keyFor(it.name, permitted_extensions) }
+        .collect(sort: true)
+        .map { keys -> keys.countBy { key -> key }.findAll { _key, n -> n > 1 }.keySet() as List }
+        .subscribe { duplicates ->
+            if (duplicates) {
+                error("The input directory ${cram_path} holds more than one CRAM for sample key or keys: ${duplicates.join(', ')}.")
+            }
+        }
+
     cram_idx = cram.combine(cram_ref)
         .map { it ->
             def file = it[0]
