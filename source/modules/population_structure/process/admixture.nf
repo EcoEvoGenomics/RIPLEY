@@ -30,6 +30,47 @@ process ADMIXTURE {
     """
 }
 
+process ADMIXTURE_PARENTAL_CENSUSES {
+
+    // Expected format of input clustfile:
+    // K  SAMPLE_ID  q(K1)  q(K2)  ...  q(K)
+
+    label "RDATA"
+
+    input:
+    path(clustfile)
+    val(parental_threshold)
+
+    output:
+    path("p*.list")
+
+    script:
+    """
+    #!/usr/bin/env Rscript
+
+    threshold <- as.numeric("${parental_threshold}")
+
+    clust <- data.table::fread("${clustfile}", header = FALSE)
+    ids <- as.character(clust[[2]])
+    qmatrix <- as.matrix(clust[, 3:ncol(clust)])
+    k <- ncol(qmatrix)
+
+    censuses <- lapply(seq_len(k), function(i) ids[which(qmatrix[, i] > threshold)])
+    empty <- which(lengths(censuses) == 0)
+
+    if (length(empty) > 0) {
+        stop(
+            "No sample is assigned to cluster(s) ",
+            paste(paste("p", empty, sep = ""), collapse = ", ")
+        )
+    }
+
+    for (i in seq_len(k)) {
+        writeLines(censuses[[i]], paste("p", i, ".list", sep = ""))
+    }
+    """
+}
+
 process ADMIXTURE_AIMS {
 
     // Using .P-file between-column variances to find AIMs,
