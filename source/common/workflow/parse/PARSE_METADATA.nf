@@ -176,20 +176,46 @@ workflow PARSE_METADATA {
                     error("Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
                 }
             }
+
+        // Samples in sample_metadata must be present in the VCFs
+        unique_samples_in_sample_metadata
+            .combine(unique_samples_in_vcf.toList().toList())
+            .filter { i -> i[0] !in i[1] }
+            .map { i -> i[0] }
+            .collect(sort: true)
+            .subscribe { absent ->
+                if (absent) {
+                    error("Metadata file ${sample_metadata_path} gives sample(s) absent from the provided VCF(s): ${absent.join(', ')}.")
+                }
+            }
     }
 
     // Filenames among CRAMs must be specified by sample_metadata
     if (check_cram != null) {
-        check_cram.map{ cram -> cram.simpleName }
-            .collect()
+        unique_samples_in_cram = check_cram
+            .map { cram -> cram.simpleName }
+            .collect(sort: true)
             .flatten()
             .distinct()
+        unique_samples_in_cram
             .combine(unique_samples_in_sample_metadata.toList().toList())
             .filter { i -> i[0] !in i[1] }
             .count()
             .subscribe { n_lacking_metadata ->
                 if (n_lacking_metadata > 0) {
                     error("Metadata file ${sample_metadata_path} lacks entry for ${n_lacking_metadata} samples.")
+                }
+            }
+
+        // Samples in sample_metadata must be present among the CRAMs
+        unique_samples_in_sample_metadata
+            .combine(unique_samples_in_cram.toList().toList())
+            .filter { i -> i[0] !in i[1] }
+            .map { i -> i[0] }
+            .collect(sort: true)
+            .subscribe { absent ->
+                if (absent) {
+                    error("Metadata file ${sample_metadata_path} gives sample(s) absent from the provided CRAM(s): ${absent.join(', ')}.")
                 }
             }
     }
