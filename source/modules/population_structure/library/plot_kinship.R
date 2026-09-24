@@ -1,6 +1,7 @@
 library(tidyverse)
 library(patchwork)
 library(ggdendro)
+library(scico)
 
 args <- commandArgs(trailing = TRUE)
 name <- basename(args[1])
@@ -77,6 +78,8 @@ data <- data |>
 
 xmin <- min(data$SEQUENCE) - 0.5
 xmax <- max(data$SEQUENCE) + 0.5
+phi_bound <- max(abs(data$PHI), na.rm = TRUE)
+phi_limits <- c(-phi_bound, phi_bound)
 
 kinship_matrix <- data |>
   ggplot(
@@ -87,11 +90,10 @@ kinship_matrix <- data |>
     )
   ) +
   coord_equal(expand = FALSE, xlim = c(xmin, xmax)) +
-  scale_fill_gradient2(
-    low = "blue",
-    mid = "white",
-    high = "red",
+  scale_fill_scico(
+    palette = "vik",
     midpoint = 0,
+    limits = phi_limits,
     na.value = "white"
   ) +
   geom_tile(show.legend = FALSE) +
@@ -100,35 +102,31 @@ kinship_matrix <- data |>
     plot.margin = unit(c(0, 1, 1.5, 1), unit = "mm")
   )
 
-kinship_key <- data |>
-  ggplot(
-    aes(
-      x = 0,
-      y = seq(min(PHI, na.rm = TRUE), max(PHI, na.rm = TRUE), length.out = length(PHI)),
-      fill = seq(min(PHI, na.rm = TRUE), max(PHI, na.rm = TRUE), length.out = length(PHI))
-    )
-  ) +
-  ggtitle(expression(bold("Kinship" ~ Phi))) +
+kinship_key <- data.frame(
+  PHI = seq(phi_limits[1], phi_limits[2], length.out = nrow(data))
+) |>
+  ggplot(aes(x = 0, y = PHI, fill = PHI)) +
+  ggtitle("Kinship") +
   coord_cartesian(expand = FALSE) +
   geom_raster(show.legend = FALSE) +
   scale_y_continuous(
-    position = "right",
+    position = "left",
     labels = scales::number_format(accuracy = 0.001)
   ) +
-  scale_fill_gradient2(
-    low = "blue",
-    mid = "white",
-    high = "red",
-    midpoint = 0
+  scale_fill_scico(
+    palette = "vik",
+    midpoint = 0,
+    limits = phi_limits
   ) +
   theme_void() +
   theme(
-    axis.text.y = element_text(size = 5, margin = margin(l = 1, unit = "mm")),
+    axis.text.y = element_text(size = 5, margin = margin(r = 1, unit = "mm")),
     axis.ticks.length = unit(0.25, units = "mm"),
     axis.ticks.y = element_line(colour = "black", linewidth = 0.15),
     panel.border = element_rect(fill = NA, colour = "black", linewidth = 0.15),
-    plot.margin = unit(c(0, 0, 1, 0), unit = "mm"),
-    plot.title = element_text(size = 6, face = "bold", hjust = 0, vjust = 4)
+    # Bottom margin trims the bar's lower edge flush with the matrix bottom
+    plot.margin = unit(c(0, 0, 0.65, 0), unit = "mm"),
+    plot.title = element_text(size = 6, face = "bold", hjust = 1, vjust = 4)
   )
 
 dendrogram <- ggdendro::segment(dendro_data) |>
@@ -147,7 +145,7 @@ pop_meta <- data |>
     values = population_palette,
     drop = TRUE,
     guide = guide_legend(
-      override.aes = list(colour = "black", linewidth = 0.15)
+      override.aes = list(colour = "black", linewidth = 0.10)
     )
   ) +
   geom_tile() +
@@ -164,7 +162,7 @@ spp_meta <- data |>
     values = species_palette,
     drop = TRUE,
     guide = guide_legend(
-      override.aes = list(colour = "black", linewidth = 0.15)
+      override.aes = list(colour = "black", linewidth = 0.10)
     )
   ) +
   geom_tile() +
@@ -187,21 +185,25 @@ matrix_column <- wrap_plots(
 )
 
 combined_plot <- (
-  matrix_column |
-    (plot_spacer() / kinship_key / plot_spacer()) +
-      plot_layout(heights = c(0.01, 36.5, 3.5)
-      )
-) + plot_layout(widths = c(39, 1))
+  (plot_spacer() / kinship_key / plot_spacer()) +
+    plot_layout(heights = c(0.01, 36.5, 3.5)) |
+    matrix_column
+) + plot_layout(widths = c(1, 39))
 
 combined_plot <- combined_plot &
   theme(
     legend.position = "left",
     legend.justification = "top",
+    legend.box.spacing = unit(0, "mm"),
     legend.key.size = unit(2, "mm"),
     legend.key.spacing.y = unit(0.5, "mm"),
-    legend.margin = margin(t = 2.1, b = -2.5, l = 0, r = -23, unit = "mm"),
+    legend.margin = margin(t = 2.27, b = -2.5, l = -2.4, r = -20.6, unit = "mm"),
     legend.text = element_text(size = 6),
-    legend.title = element_text(size = 6, face = "bold")
+    legend.title = element_text(
+      size = 6,
+      face = "bold",
+      margin = margin(b = 1.55, unit = "mm")
+    )
   )
 
 ggsave(
@@ -209,6 +211,6 @@ ggsave(
   filename = paste0(name, ".png"),
   dpi = 600,
   width  = 6.75 / 2,
-  height = 6.75 / 2.1,
+  height = 6.75 / 2,
   bg = "white"
 )
