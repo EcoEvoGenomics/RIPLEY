@@ -40,27 +40,6 @@ process PLINK_TO_VCF {
     """
 }
 
-process PLINK_WRITE_SNPLIST {
-
-    label "PLINK"
-
-    input:
-    tuple path(bed), path(bim), path(fam), val(n_chroms)
-
-    output:
-    path("${bed.simpleName}.snplist")
-
-    script:
-    """
-    plink \
-    --bfile ${bed.simpleName} \
-    --allow-extra-chr --chr-set ${n_chroms} \
-    --write-snplist
-
-    mv plink.snplist ${bed.simpleName}.snplist
-    """
-}
-
 process PLINK_LD_PRUNE {
 
     label "PLINK"
