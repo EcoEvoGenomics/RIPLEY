@@ -45,3 +45,23 @@ process VCFTOOLS_CALCULATE_RELATEDNESS {
     --out "./${vcf.simpleName}"
     """
 }
+
+process VCFTOOLS_CALCULATE_ALLELE_FREQUENCIES {
+
+    // --freq rather than --freq2 because allele identity is needed downstream.
+
+    label "VCFTOOLS"
+
+    input:
+    path(vcf)
+
+    output:
+    path("${vcf.simpleName}.frq"), emit: frequencies
+
+    script:
+    """
+    vcftools --gzvcf "${vcf}" \
+    --freq \
+    --out "./${vcf.simpleName}"
+    """
+}
