@@ -118,6 +118,7 @@ workflow RUN_ADMIXTURE {
     plot = admixture_plot.mix(hihet_plots)
     clusts = admixture_clusts
     errors = admixture_errors
+    parents = best_k_parental_censuses
     aims = aim_hihet.aims
     hihet = aim_hihet.hihet
 

@@ -51,6 +51,7 @@ workflow {
     pca_plot = RUN_PCA.out.plot
     admixture_plot = RUN_ADMIXTURE.out.plot
     admixture_data = RUN_ADMIXTURE.out.data
+    admixture_parents = RUN_ADMIXTURE.out.parents
     admixture_aims = RUN_ADMIXTURE.out.aims
     admixture_hihet = RUN_ADMIXTURE.out.hihet
     admixture_clusts = RUN_ADMIXTURE.out.clusts
@@ -71,6 +72,7 @@ output {
     pca_plot { path "population_structure/pca" }
     admixture_plot { path "population_structure/admixture" }
     admixture_data { path "population_structure/admixture/data" }
+    admixture_parents { path "population_structure/admixture/aims" }
     admixture_aims { path "population_structure/admixture/aims" }
     admixture_hihet { path "population_structure/admixture/aims" }
     admixture_errors { path "population_structure/admixture" }
