@@ -28,20 +28,18 @@ workflow RUN_ADMIXTURE {
         }
         .collectFile( name: "admixture.errors", sort: { line -> line.tokenize("\t")[0] as Integer } )
 
-    // CV errors must be compared numerically to avoid lexicographic sort
     numeric_errors = admixture.error
         .filter { cv ->
             def valid_result = (cv[1] as String) ==~ /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/
             valid_result
         }
-
-    k_min_error = numeric_errors
+    best_k = numeric_errors
         .reduce { i, j -> (j[1] as Double) < (i[1] as Double) ? j : i }
         .map { cv -> def k = cv[0]; k }
 
     admixture_plot = PLOT_ADMIXTURE(
         file("${moduleDir}/../library/plot_admixture.R", checkIfExists: true),
-        admixture_clusts, k_min_error, sample_metadata, population_metadata, species_metadata
+        admixture_clusts, best_k, sample_metadata, population_metadata, species_metadata
     )
 
     aim_snps = ADMIXTURE_AIMS(admixture.alleles, aim_variance_threshold)
