@@ -121,7 +121,7 @@ Kinship, pairwise FST, PCA and ADMIXTURE, with ancestry-informative markers (AIM
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `vcf` | Path to a single `<alphanumeric>.vcf.gz` file. | `/data/filtered/biallelic.vcf.gz` |
+| `vcf` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome. **Not** a glob. | `/data/filtered/biallelic.vcf.gz` |
 | `prune_window_kb` | LD pruning window size in kilobases. | `50` |
 | `prune_step_snps` | LD pruning step in variants. | `10` |
 | `prune_threshold` | LD pruning r² threshold. | `0.1` |
@@ -134,8 +134,8 @@ Windowed scans for selection: population genetic statistics (genomics_general), 
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `vcfdir_selection` | Directory of one `<chrom>.vcf.gz` per chromosome, for the popgen and EHH scans. | `/data/variants_selection` |
-| `vcfdir_structure` | Directory of one `<chrom>.vcf.gz` per chromosome, for the windowed PCA. | `/data/variants_structure` |
+| `vcfdir_selection` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome, for the popgen and EHH scans. **Not** a glob. | `/data/variants_selection` |
+| `vcfdir_structure` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome, for the windowed PCA. **Not** a glob. | `/data/variants_structure` |
 | `phase_window_size` | Phasing chunk size in base pairs. | `10000000` |
 | `phase_window_overlap` | Overlap between phasing chunks in base pairs. An overlap is required for ligation. | `1000000` |
 | `scan_window_size` | Scan window size in base pairs. | `100000` |
