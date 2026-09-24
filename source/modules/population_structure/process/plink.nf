@@ -23,6 +23,8 @@ process PLINK_INIT_PLINKFILES {
 
 process PLINK_TO_VCF {
 
+    // Be aware: will recode canonical chromosome names to numbers
+
     label "PLINK"
 
     input:
@@ -35,7 +37,6 @@ process PLINK_TO_VCF {
     """
     plink --bfile ${bed.simpleName} \
     --allow-extra-chr --chr-set ${n_chroms} \
-    --output-chr 'chr26' \
     --recode vcf-iid bgz --out ${bed.simpleName}
     """
 }
