@@ -61,7 +61,7 @@ workflow PARSE_CRAM {
     chroms_bed = chrom_indices
         .map { idx ->
             def chrom = idx[0]
-            def start = 1
+            def start = 0 // Bed file is 0-based
             def end = idx[1]
             "${chrom}\t${start}\t${end}\n"
         }
