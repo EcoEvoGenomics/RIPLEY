@@ -130,24 +130,9 @@ Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned 
 | `aim_parental_threshold` | Minimum ADMIXTURE assignment for a sample to represent a parental population. Range: (0.5, 1.0]. | `0.9` |
 | `aim_variance_threshold` | Minimum between-population allele frequency variance for a variant to count as ancestry-informative. Range: (0, 0.5). | `0.2` |
 
-### Module: selection_scan
-Windowed scans for selection: population genetic statistics (genomics_general), iHS and XP-EHH (rehh), and windowed PCA (WinPCA). It takes two inputs because the EHH scans require phase and the windowed PCA does not - this generally requires different upstream filters.
-
-| Option | Description | Example |
-|--------|-------------|---------|
-| `vcfdir_selection` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome, for the popgen and EHH scans. **Not** a glob. | `/data/variants_selection` |
-| `vcfdir_structure` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome, for the windowed PCA. **Not** a glob. | `/data/variants_structure` |
-| `phase_window_size` | Phasing chunk size in base pairs. | `10000000` |
-| `phase_window_overlap` | Overlap between phasing chunks in base pairs. An overlap is required for ligation. | `1000000` |
-| `scan_window_size` | Scan window size in base pairs. | `100000` |
-| `scan_step_size` | Scan step size in base pairs. | `10000` |
-| `scan_min_sites` | Minimum number of sites for a window to be reported. | `100` |
-
-`vcfdir_selection` is assumed to be **unphased**: RIPLEY phases it with SHAPEIT5 in chunks of `phase_window_size`, ligated back into one VCF per chromosome. No recombination map is used - the phasing is statistical and assumes a recombination rate of 1cM/Mb. The windowed PCA silently drops chromosome-population-pair combinations with fewer than 10 000 variants, as WinPCA cannot process them.
-
 ## Third-party software
 Thank you for using RIPLEY. We kindly encourage you to cite the third-party software relevant to your use:
-- *Work in progress*
+- *Work in progress: please see configuration files under each source/\*/nextflow.config*
 
 ______
 RIPLEY v. 0.0.1a | 2026 | Erik Sandertun Røed | https://github.com/EcoEvoGenomics/RIPLEY
