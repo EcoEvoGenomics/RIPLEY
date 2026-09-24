@@ -32,6 +32,22 @@ process BCFTOOLS_COUNT_RECORDS {
     """
 }
 
+process BCFTOOLS_LIST_SAMPLES {
+
+    label "BCFTOOLS"
+
+    input:
+    path(vcf)
+
+    output:
+    path("${vcf.simpleName}.samples.txt")
+
+    script:
+    """
+    bcftools query --list-samples ${vcf} > ${vcf.simpleName}.samples.txt
+    """
+}
+
 process BCFTOOLS_PICK_CHROM {
 
     label "BCFTOOLS"
@@ -51,22 +67,6 @@ process BCFTOOLS_PICK_CHROM {
         --output-type z --output ${chrom}_tmp.vcf.gz \
         ${vcf}
     mv ${chrom}_tmp.vcf.gz ${chrom}.vcf.gz
-    """
-}
-
-process BCFTOOLS_LIST_SAMPLES {
-
-    label "BCFTOOLS"
-
-    input:
-    path(vcf)
-
-    output:
-    path("${vcf.simpleName}.samples.txt")
-
-    script:
-    """
-    bcftools query --list-samples ${vcf} > ${vcf.simpleName}.samples.txt
     """
 }
 

@@ -21,6 +21,25 @@ process PLINK_INIT_PLINKFILES {
     """
 }
 
+process PLINK_TO_VCF {
+
+    label "PLINK"
+
+    input:
+    tuple path(bed), path(bim), path(fam), val(n_chroms)
+
+    output:
+    path("${bed.simpleName}.vcf.gz")
+
+    script:
+    """
+    plink --bfile ${bed.simpleName} \
+    --allow-extra-chr --chr-set ${n_chroms} \
+    --output-chr 'chr26' \
+    --recode vcf-iid bgz --out ${bed.simpleName}
+    """
+}
+
 process PLINK_WRITE_SNPLIST {
 
     label "PLINK"
@@ -114,24 +133,5 @@ process PLINK_PCA {
 
     mv plink.eigenval ${bed.simpleName}.eigenval
     awk '{\$2=""; \$1=\$1; print}' plink.eigenvec > ${bed.simpleName}.eigenvec
-    """
-}
-
-process PLINK_TO_VCF {
-
-    label "PLINK"
-
-    input:
-    tuple path(bed), path(bim), path(fam), val(n_chroms)
-
-    output:
-    path("${bed.simpleName}.vcf.gz")
-
-    script:
-    """
-    plink --bfile ${bed.simpleName} \
-    --allow-extra-chr --chr-set ${n_chroms} \
-    --output-chr 'chr26' \
-    --recode vcf-iid bgz --out ${bed.simpleName}
     """
 }
