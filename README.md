@@ -117,7 +117,7 @@ Applies `vcftools` filters chromosome-wise and concatenates the result into one 
 With `popwise: true`, frequency-dependent flags such as `--maf`, `--hwe` and `--max-missing` become per-population thresholds, the retained sites are the union across populations when merged, and samples outside the [`focal population`](#common-options)s are dropped.
 
 ### Module: population_structure
-Kinship, pairwise FST, PCA and ADMIXTURE, with ancestry-informative markers (AIMs) extracted from the ADMIXTURE results. Heterozygosity and hybrid index calculated on AIMs. PCA and ADMIXTURE run on an LD-pruned variant set.
+Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned variant set. Parental populations identified from ADMIXTURE results used to find ancestry-informative markers (AIMs) among *unpruned* input. Heterozygosity and hybrid index calculated on AIMs.
 
 | Option | Description | Example |
 |--------|-------------|---------|
@@ -127,7 +127,8 @@ Kinship, pairwise FST, PCA and ADMIXTURE, with ancestry-informative markers (AIM
 | `prune_threshold` | LD pruning r² threshold. | `0.1` |
 | `admixture_kmin` | Lowest K to run. | `2` |
 | `admixture_kmax` | Highest K to run. | `8` |
-| `aim_variance_threshold` | Minimum between-cluster allele frequency variance for a variant to count as ancestry-informative. Range: 0 - 0.5. | `0.2` |
+| `aim_parental_threshold` | Minimum ADMIXTURE assignment for a sample to represent a parental population. Range: (0.5, 1.0]. | `0.9` |
+| `aim_variance_threshold` | Minimum between-population allele frequency variance for a variant to count as ancestry-informative. Range: (0, 0.5). | `0.2` |
 
 ### Module: selection_scan
 Windowed scans for selection: population genetic statistics (genomics_general), iHS and XP-EHH (rehh), and windowed PCA (WinPCA). It takes two inputs because the EHH scans require phase and the windowed PCA does not - this generally requires different upstream filters.
