@@ -90,28 +90,6 @@ process BCFTOOLS_PICK_SAMPLES {
     """
 }
 
-process BCFTOOLS_FILTER_CHROMS {
-
-    label "BCFTOOLS"
-
-    input:
-    path(vcf)
-    val(keep_chrom_string)
-
-    output:
-    path("${vcf.simpleName}.vcf.gz")
-
-    script:
-    """
-    bcftools view \
-        --threads ${task.cpus} \
-        --targets ${keep_chrom_string} \
-        --output-type z --output ${vcf.simpleName}_tmp.vcf.gz \
-        ${vcf}
-    mv ${vcf.simpleName}_tmp.vcf.gz ${vcf.simpleName}.vcf.gz
-    """
-}
-
 process BCFTOOLS_EXCLUDE_BED {
 
     label "BCFTOOLS"
