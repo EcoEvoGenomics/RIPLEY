@@ -28,11 +28,14 @@ workflow {
     RUN_PCA(pruned.plinkfiles, metadata.sample_metadata, metadata.population_metadata, metadata.species_metadata)
     RUN_ADMIXTURE(
         pruned.plinkfiles, 
+        plink.as_plinkfiles,
+        plink.vcf_condensed,
         metadata.sample_metadata, 
         metadata.population_metadata,
         metadata.species_metadata,
         params.admixture_kmin, 
         params.admixture_kmax, 
+        params.aim_parental_threshold,
         params.aim_variance_threshold
     )
 

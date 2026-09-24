@@ -71,19 +71,21 @@ process ADMIXTURE_PARENTAL_CENSUSES {
     """
 }
 
-process ADMIXTURE_AIMS {
+process IDENTIFY_AIMS {
 
-    // Using .P-file between-column variances to find AIMs,
+    // Using between-population allele frequency variances to find AIMs,
     // inspired by https://doi.org/10.3389/fgene.2019.00043
 
-    // Expected format of input allelefile:
-    // SNP_ID  A1  A2  pA1(K1)   pA1(K2)   ...   pA1(K-1)   pA1(K)
-    
+    // Expected format of each input frqfile (vcftools --freq, header skipped):
+    // CHROM  POS  N_ALLELES  N_CHR  REF:p(REF)  ALT:p(ALT)
+
     label "RDATA"
 
     input:
-    path(allelefile)
+    path(frqfiles)
+    path(sitekeys)
     val(variance_threshold)
+    val(k)
 
     output:
     path("*.alleles"), optional: true, emit: alleles
@@ -92,37 +94,74 @@ process ADMIXTURE_AIMS {
     script:
     """
     #!/usr/bin/env Rscript
+    library(data.table)
 
-    ptable <- read.table("${allelefile.toString()}")
-    snpids <- ptable\$V1
-    metacols <- 1:3
-    nskip <- length(metacols)
+    threshold <- as.numeric("${variance_threshold}")
+    k <- as.integer("${k}")
 
-    k <- ncol(ptable) - nskip
+    sitekeys <- fread("${sitekeys}", header = FALSE, col.names = c("CHROM", "POS", "LOC"))
 
-    for (i in seq_len(k)) {
-        if (i == k) break
-        for (j in seq(i + 1, k)) {
-            p1 <- i + nskip
-            p2 <- j + nskip
-            vars <- apply(ptable[c(p1, p2)], 1, \\(x) var(x))
-            aims <- snpids[which(vars >= ${variance_threshold})]
-            aimtable <- ptable[which(ptable\$V1 %in% aims), c(metacols, p1, p2)]
-            aimtable[6] <- rep(paste("p", i, sep = ""), nrow(aimtable))
-            aimtable[7] <- ifelse(aimtable[[4]] > aimtable[[5]], aimtable[[2]], aimtable[[3]])
-            aimtable[8] <- ifelse(aimtable[[4]] > aimtable[[5]], aimtable[[4]], 1 - aimtable[[4]])
-            aimtable[9] <- rep(paste("p", j, sep = ""), nrow(aimtable))
-            aimtable[10] <- ifelse(aimtable[[5]] > aimtable[[4]], aimtable[[2]], aimtable[[3]])
-            aimtable[11] <- ifelse(aimtable[[5]] > aimtable[[4]], aimtable[[5]], 1 - aimtable[[5]])
-            aimtable <- aimtable[, c(1, 6 : 11)]
+    # Every population is a subset of one VCF, so REF is shared and its frequency is comparable
+    read_frequencies <- function(path, population) {
+        frq <- fread(path, skip = 1, header = FALSE, fill = TRUE, sep = "\\t")
+        setnames(frq, 1:6, c("CHROM", "POS", "N_ALLELES", "N_CHR", "REF", "ALT"))
+        frq <- frq[N_ALLELES == 2 & N_CHR > 0]
+        out <- frq[, list(
+            CHROM = CHROM,
+            POS = POS,
+            A1 = sub(":.*", "", REF),
+            A2 = sub(":.*", "", ALT),
+            P = as.numeric(sub(".*:", "", REF))
+        )]
+        setnames(out, "P", paste("P", population, sep = ""))
+        out
+    }
+
+    frqfiles <- list.files(pattern = "[.]frq\$")
+    populations <- as.integer(sub(".*_p([0-9]+)[.]frq\$", "\\\\1", frqfiles))
+    frqfiles <- frqfiles[order(populations)]
+    populations <- sort(populations)
+
+    frequencies <- Reduce(
+        function(x, y) merge(x, y, by = c("CHROM", "POS", "A1", "A2")),
+        Map(read_frequencies, frqfiles, populations)
+    )
+    frequencies <- merge(frequencies, sitekeys, by = c("CHROM", "POS"))
+
+    for (a in seq_along(populations)) {
+        if (a == length(populations)) break
+        for (b in seq(a + 1, length(populations))) {
+            pop_a <- populations[a]
+            pop_b <- populations[b]
+            p_a <- frequencies[[paste("P", pop_a, sep = "")]]
+            p_b <- frequencies[[paste("P", pop_b, sep = "")]]
+
+            # Variance of a pair of frequencies, so caps at 0.5
+            variances <- apply(cbind(p_a, p_b), 1, var)
+            aims <- frequencies[variances >= threshold]
+            if (nrow(aims) == 0) next
+
+            q_a <- aims[[paste("P", pop_a, sep = "")]]
+            q_b <- aims[[paste("P", pop_b, sep = "")]]
+            aimtable <- data.table(
+                LOC = aims[["LOC"]],
+                P1 = paste("p", pop_a, sep = ""),
+                A1 = fifelse(q_a > q_b, aims[["A1"]], aims[["A2"]]),
+                P1_FREQA1 = fifelse(q_a > q_b, q_a, 1 - q_a),
+                P2 = paste("p", pop_b, sep = ""),
+                A2 = fifelse(q_b > q_a, aims[["A1"]], aims[["A2"]]),
+                P2_FREQA2 = fifelse(q_b > q_a, q_b, 1 - q_b)
+            )
+
+            stem <- paste("aims_k", k, "_p", pop_a, "p", pop_b, sep = "")
             write.table(
                 aimtable,
                 row.names = FALSE,
                 col.names = FALSE,
                 quote = FALSE,
-                file = paste("aims_k", k, "_p", i, "p", j, ".alleles", sep = "")
+                file = paste(stem, ".alleles", sep = "")
             )
-            writeLines(aims, paste("aims_k", k, "_p", i, "p", j, ".snpids", sep = ""))
+            writeLines(aimtable[["LOC"]], paste(stem, ".snpids", sep = ""))
         }
     }
     """

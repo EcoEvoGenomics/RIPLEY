@@ -1,21 +1,29 @@
 include { PLINK_TO_VCF; PLINK_EXTRACT_SITES } from "../process/plink.nf"
-include { ADMIXTURE; ADMIXTURE_AIMS; CALCULATE_AIM_HIHET } from "../process/admixture.nf"
-include { BCFTOOLS_VCF_TO_GENOTABLE } from "../process/bcftools.nf"
+include { ADMIXTURE; ADMIXTURE_PARENTAL_CENSUSES; IDENTIFY_AIMS; CALCULATE_AIM_HIHET } from "../process/admixture.nf"
+include { BCFTOOLS_VCF_TO_GENOTABLE; BCFTOOLS_LIST_SITE_IDS } from "../process/bcftools.nf"
+include { BCFTOOLS_PICK_SAMPLES } from "../../../common/process/bcftools.nf"
+include { VCFTOOLS_CALCULATE_ALLELE_FREQUENCIES } from "../process/vcftools.nf"
 include { PLOT_ADMIXTURE; PLOT_HIHET } from "../process/plot.nf"
 
 workflow RUN_ADMIXTURE {
 
     take:
     plinkfiles
+    plinkfiles_unpruned
+    vcf_unpruned
     sample_metadata
     population_metadata
     species_metadata
     kmin
     kmax
+    aim_parental_threshold
     aim_variance_threshold
 
     main:
     plinkfiles.count().subscribe { n -> n == 1 ?: error("Can only run ADMIXTURE on one VCF.") }
+    Channel.of(aim_parental_threshold).subscribe { t ->
+        (t as Double) > 0.5 && (t as Double) <= 1 ?: error("aim_parental_threshold must be greater than 0.5 and at most 1.")
+    }
     Channel.of(aim_variance_threshold).subscribe { t ->
         (t as Double) > 0 && (t as Double) < 0.5 ?: error("aim_variance_threshold must be greater than 0 and less than 0.5.")
     }
@@ -45,11 +53,34 @@ workflow RUN_ADMIXTURE {
         admixture_clusts, best_k, sample_metadata, population_metadata, species_metadata
     )
 
-    aim_snps = ADMIXTURE_AIMS(admixture.alleles, aim_variance_threshold)
+    best_clust = admixture.clust
+        .map { clust -> tuple(clust.name.tokenize(".").find { it -> it ==~ /^k\d+$/ }[1..-1], clust) }
+        .combine(best_k)
+        .filter { k, _clust, best -> (k as Integer) == (best as Integer) }
+        .map { _k, clust, _best -> clust }
+    best_k_parental_censuses = ADMIXTURE_PARENTAL_CENSUSES(best_clust, aim_parental_threshold)
+
+    unpruned = vcf_unpruned.first() // Multiple readers: must not be consumable queue channel
+    sitekeys = BCFTOOLS_LIST_SITE_IDS(unpruned) // Avoids chromkey desynchronisation due to Plink recoding
+
+    parental_frequencies = best_k_parental_censuses
+        .flatten()
+        .combine(unpruned) \
+        | BCFTOOLS_PICK_SAMPLES \
+        | VCFTOOLS_CALCULATE_ALLELE_FREQUENCIES
+
+    aim_snps = IDENTIFY_AIMS(
+        parental_frequencies.collect(),
+        sitekeys,
+        aim_variance_threshold,
+        best_k
+    )
+    
     aim_vcfs = PLINK_EXTRACT_SITES(
-        plinkfiles,
+        plinkfiles_unpruned,
         aim_snps.snpids.flatten().filter { snplist -> snplist.readLines().size > 0 }
     ) | PLINK_TO_VCF
+
     aim_gts = BCFTOOLS_VCF_TO_GENOTABLE(aim_vcfs)
 
     aim_hihet = aim_snps.alleles
