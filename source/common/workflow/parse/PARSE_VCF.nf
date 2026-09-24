@@ -13,13 +13,17 @@ workflow PARSE_VCF {
 
     main:
     def permitted_extensions = ["vcf.gz", "vcf"]
-    def vcf_name = file(vcf_path).name
-    def input_is_solo = (file(vcf_path).isFile() && keyFor(vcf_name, permitted_extensions) != null)
-    def input_is_dir = file(vcf_path).isDirectory()
-    if (input_is_solo && input_is_dir) { error("The input path may be interpreted both as file and directory.") }
-    if (!(input_is_solo || input_is_dir)) { error("The input path does not exist or is not a directory or VCF.") }
-    if (input_is_solo && !permit_solo) { error("This pipeline cannot process a single VCF file, only a directory.") }
-    if (input_is_dir && !permit_dir) { error("This pipeline cannot process a directory, only a single VCF file.") }
+
+    def input_file = file(vcf_path)
+    if (!(input_file instanceof Path)) { error("The input path must name a single VCF or directory, not a glob pattern: ${vcf_path}") }
+
+    def vcf_name = input_file.name
+    def input_is_solo = (input_file.isFile() && keyFor(vcf_name, permitted_extensions) != null)
+    def input_is_dir = input_file.isDirectory()
+    if (input_is_solo && input_is_dir) { error("The input path may be interpreted both as file and directory: ${vcf_path}") }
+    if (!(input_is_solo || input_is_dir)) { error("The input path does not exist or is not a directory or VCF: ${vcf_path}") }
+    if (input_is_solo && !permit_solo) { error("This pipeline cannot process a single VCF file, only a directory: ${vcf_path}") }
+    if (input_is_dir && !permit_dir) { error("This pipeline cannot process a directory, only a single VCF file: ${vcf_path}") }
     keep_chroms = chrom_names.collect()
 
     // Directory input expects one vcf per chromosome (chr1.vcf.gz, chr2.vcf.gz, ... chrN.vcf.gz), verified against contents below

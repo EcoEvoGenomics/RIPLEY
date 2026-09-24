@@ -16,12 +16,16 @@ workflow PARSE_CRAM {
 
     main:
     def permitted_extensions = ["cram"]
-    def input_is_solo = (file(cram_path).isFile() && keyFor(file(cram_path).name, permitted_extensions) != null)
-    def input_is_dir = file(cram_path).isDirectory()
-    if (input_is_solo && input_is_dir) { error("The input path may be interpreted both as file and directory.") }
-    if (!(input_is_solo || input_is_dir)) { error("The input path does not exist or is not a directory or CRAM.") }
-    if (input_is_solo && !permit_solo) { error("This pipeline cannot process a single CRAM file, only a directory.") }
-    if (input_is_dir && !permit_dir) { error("This pipeline cannot process a directory, only a single CRAM file.") }
+    
+    def caller_input = file(cram_path)
+    if (!(caller_input instanceof Path)) { error("The input path must name a single CRAM or directory, not a glob pattern: ${cram_path}") }
+
+    def input_is_solo = (caller_input.isFile() && keyFor(caller_input.name, permitted_extensions) != null)
+    def input_is_dir = caller_input.isDirectory()
+    if (input_is_solo && input_is_dir) { error("The input path may be interpreted both as file and directory: ${cram_path}") }
+    if (!(input_is_solo || input_is_dir)) { error("The input path does not exist or is not a directory or CRAM: ${cram_path}") }
+    if (input_is_solo && !permit_solo) { error("This pipeline cannot process a single CRAM file, only a directory: ${cram_path}") }
+    if (input_is_dir && !permit_dir) { error("This pipeline cannot process a directory, only a single CRAM file: ${cram_path}") }
 
     cram_ref = genome_fasta.combine(genome_fai)
 
