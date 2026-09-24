@@ -1,5 +1,6 @@
 include { PARSE_REFERENCE_GENOME } from "../../common/workflow/parse/PARSE_REFERENCE_GENOME.nf"
 include { PARSE_VCF } from "../../common/workflow/parse/PARSE_VCF.nf"
+include { JOIN_VCF_BY_CHROM } from "../../common/workflow/utils/JOIN_VCF_BY_CHROM.nf"
 include { PARSE_VCF_TO_PLINK } from "./workflow/PARSE_VCF_TO_PLINK.nf"
 include { PARSE_METADATA } from "../../common/workflow/parse/PARSE_METADATA.nf"
 include { RUN_KINSHIP_ANALYSIS } from "./workflow/RUN_KINSHIP_ANALYSIS.nf"
@@ -14,10 +15,12 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input = PARSE_VCF(params.vcf, params.ref_exclude_coords, genome.chrom_names, true, false)
+    input = PARSE_VCF(params.vcf, params.ref_exclude_coords, genome.chrom_names)
     metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf, null)
 
-    plink = PARSE_VCF_TO_PLINK(input.vcf, genome.total_chroms)
+    // Every downstream analysis operates on the whole genome
+    joined = JOIN_VCF_BY_CHROM(input.vcf, genome.chrom_names, "genome")
+    plink = PARSE_VCF_TO_PLINK(joined.vcf_concat, genome.total_chroms)
     pruned = RUN_LD_PRUNING(plink.as_plinkfiles, params.prune_window_kb, params.prune_step_snps, params.prune_threshold)
 
     RUN_KINSHIP_ANALYSIS(plink.vcf_condensed, metadata.sample_metadata, metadata.population_metadata, metadata.species_metadata)

@@ -1,6 +1,7 @@
 include { PARSE_REFERENCE_GENOME } from "../../common/workflow/parse/PARSE_REFERENCE_GENOME.nf"
 include { PARSE_METADATA } from "../../common/workflow/parse/PARSE_METADATA.nf"
 include { PARSE_VCF } from "../../common/workflow/parse/PARSE_VCF.nf"
+include { JOIN_VCF_BY_CHROM } from "../../common/workflow/utils/JOIN_VCF_BY_CHROM.nf"
 include { RUN_VCF_QC } from "./workflow/RUN_VCF_QC.nf"
 
 nextflow.preview.output = true
@@ -9,11 +10,14 @@ workflow {
 
     main:
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
-    input = PARSE_VCF(params.vcf, params.ref_exclude_coords, genome.chrom_names, true, true)
+    input = PARSE_VCF(params.vcf, params.ref_exclude_coords, genome.chrom_names)
     metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf, null)
 
+    // Frequency-based statistics are only meaningful genome-wide
+    joined = JOIN_VCF_BY_CHROM(input.vcf, genome.chrom_names, "genome")
+
     RUN_VCF_QC(
-        input.vcf,
+        joined.vcf_concat,
         metadata.focal_populations_censuses,
         metadata.population_metadata,
         params.qc_thinning_target,

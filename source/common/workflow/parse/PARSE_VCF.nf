@@ -1,14 +1,14 @@
-include { BCFTOOLS_FILTER_CHROMS; BCFTOOLS_INDEX; BCFTOOLS_COUNT_RECORDS; BCFTOOLS_EXCLUDE_BED } from "../../process/bcftools.nf"
+include { BCFTOOLS_INDEX; BCFTOOLS_INDEX as BCFTOOLS_INDEX_INPUT; BCFTOOLS_PICK_CHROM; BCFTOOLS_COUNT_RECORDS; BCFTOOLS_EXCLUDE_BED } from "../../process/bcftools.nf"
 include { alphanumericIssue; keyFor } from "../../library/filekeys.nf"
 
 workflow PARSE_VCF {
+
+    // Emits one VCF per chromosome whether the input names a single VCF or a directory.
 
     take:
     vcf_path
     exclude_coords
     chrom_names
-    permit_solo
-    permit_dir
 
     main:
     def permitted_extensions = ["vcf.gz", "vcf"]
@@ -19,39 +19,34 @@ workflow PARSE_VCF {
     def vcf_name = input_file.name
     def input_is_solo = (input_file.isFile() && keyFor(vcf_name, permitted_extensions) != null)
     def input_is_dir = input_file.isDirectory()
-    if (input_is_solo && input_is_dir) { error("The input path may be interpreted both as file and directory: ${vcf_path}") }
     if (!(input_is_solo || input_is_dir)) { error("The input path does not exist or is not a directory or VCF: ${vcf_path}") }
-    if (input_is_solo && !permit_solo) { error("This pipeline cannot process a single VCF file, only a directory: ${vcf_path}") }
-    if (input_is_dir && !permit_dir) { error("This pipeline cannot process a directory, only a single VCF file: ${vcf_path}") }
-    keep_chroms = chrom_names.collect()
 
-    // Directory input expects one vcf per chromosome (chr1.vcf.gz, chr2.vcf.gz, ... chrN.vcf.gz), verified against contents below
+    // Directory input expects one vcf per chromosome (chr1.vcf.gz, ... chrN.vcf.gz)
     if (input_is_dir) {
-        vcf_found = Channel.fromPath("${vcf_path}/**.vcf.gz")
-            .ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
-
-        // The whole name minus its extension is the chromosome key: downstream tokenising requires strict alphanumeric names
-        vcf_found.subscribe { vcf ->
-            def issue = alphanumericIssue(keyFor(vcf.name, permitted_extensions), "chromosome key", "Input VCF ${vcf.name}")
-            if (issue) { error(issue) }
-        }
-
-        vcf_retained = vcf_found
-            .combine(keep_chroms.toList())
-            .filter { i ->
-                def vcf = i[0]
-                def chroms = i[1]
-                chroms.contains(keyFor(vcf.name, permitted_extensions))
-            }
-            .map { i -> i[0] }
+        vcf_found = Channel.fromPath("${vcf_path}/**.vcf.gz").ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
     }
 
+    // Solo input is split to match the expected directory shape
     if (input_is_solo) {
-        def issue = alphanumericIssue(keyFor(vcf_name, permitted_extensions), "file key", "Input VCF ${vcf_name}")
-        if (issue) { error(issue) }
-        chrom_flag = keep_chroms.map { i -> i.join(",") }
-        vcf_retained = BCFTOOLS_FILTER_CHROMS(vcf_path, chrom_flag)
+        vcf_found = BCFTOOLS_PICK_CHROM(BCFTOOLS_INDEX_INPUT(vcf_path), chrom_names)
     }
+
+    // The whole name minus its extension is the chromosome key: downstream tokenising requires strict alphanumeric names
+    vcf_found.subscribe { vcf ->
+        def issue = alphanumericIssue(keyFor(vcf.name, permitted_extensions), "chromosome key", "Input VCF ${vcf.name}")
+        if (issue) { error(issue) }
+    }
+
+    // Retain only chroms retained by PARSE_REFERENCE_GENOME
+    keep_chroms = chrom_names.collect()
+    vcf_retained = vcf_found
+        .combine(keep_chroms.toList())
+        .filter { i ->
+            def vcf = i[0]
+            def chroms = i[1]
+            chroms.contains(keyFor(vcf.name, permitted_extensions))
+        }
+        .map { i -> i[0] }
 
     // Index before exclusion to check bedfile against contigs from csi rather than from vcf
     def exclude_bed = exclude_coords ? Channel.value(file(exclude_coords, checkIfExists: true)) : null
