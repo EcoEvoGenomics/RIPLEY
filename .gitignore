@@ -4,3 +4,8 @@
 /tests
 *.nextflow.log*
 *.DS_Store
+
+# Site configs are user-authored; only standard configs are tracked
+/config/*.config
+!/config/local.config
+!/config/saga.config

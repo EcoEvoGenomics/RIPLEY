@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+this=$(readlink -f "$0")
+repo=$(dirname "$this")
+modules="${repo}/source/modules"
+
+usage() {
+    echo "Usage: ./RIPLEY <module> <options.yaml> <site.config>" >&2
+    echo "Valid modules are ..." >&2
+    for module in "${modules}"/*/; do
+        echo ":: $(basename "${module}")" >&2
+    done
+}
+
+if [ "$#" -ne 3 ]; then
+    echo "Error: expected 3 arguments, got $#." >&2
+    usage
+    exit 1
+fi
+
+module=$1
+
+if [ ! -f "${modules}/${module}/main.nf" ]; then
+    echo "Error: '${module}' is not a module." >&2
+    usage
+    exit 1
+fi
+
+for file in "$2" "$3"; do
+    if [ ! -f "${file}" ]; then
+        echo "Error: '${file}' does not exist." >&2
+        exit 1
+    fi
+done
+
+# resolved before the cd so relative paths are read from the user's directory
+options=$(readlink -f "$2")
+config=$(readlink -f "$3")
+
+cd "${repo}"
+echo "Launching module: ${module}"
+echo "Options: ${options}"
+echo "Config:  ${config}"
+echo ""
+
+nextflow -log ".nextflow/nextflow.log" run "${modules}/${module}/main.nf" \
+    -config "${config}" \
+    -params-file "${options}" \
+    -with-report "output/${module}/run.html" \
+    -resume

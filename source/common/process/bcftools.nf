@@ -1,0 +1,179 @@
+process BCFTOOLS_INDEX {
+
+    label "BCFTOOLS"
+
+    input:
+    path(vcf)
+
+    output:
+    tuple path(vcf, includeInputs: true), path("${vcf.name}.csi")
+
+    script:
+    """
+    bcftools index --threads ${task.cpus} ${vcf}
+    """
+}
+
+process BCFTOOLS_COUNT_RECORDS {
+
+    label "BCFTOOLS"
+
+    input:
+    tuple path(vcf), path(csi)
+
+    output:
+    path("${vcf.simpleName}.nrecords_chrom.tsv"), emit: per_chrom
+    path("${vcf.simpleName}.nrecords.txt"), emit: nrecords
+
+    script:
+    """
+    bcftools index --stats ${vcf} > ${vcf.simpleName}.nrecords_chrom.tsv
+    bcftools index --nrecords ${vcf} > ${vcf.simpleName}.nrecords.txt
+    """
+}
+
+process BCFTOOLS_LIST_SAMPLES {
+
+    label "BCFTOOLS"
+
+    input:
+    path(vcf)
+
+    output:
+    path("${vcf.simpleName}.samples.txt")
+
+    script:
+    """
+    bcftools query --list-samples ${vcf} > ${vcf.simpleName}.samples.txt
+    """
+}
+
+process BCFTOOLS_PICK_CHROM {
+
+    label "BCFTOOLS"
+
+    input:
+    tuple path(vcf), path(csi)
+    each(chrom)
+
+    output:
+    path("${chrom}.vcf.gz")
+
+    script:
+    """
+    bcftools view \
+        --threads ${task.cpus} \
+        --regions ${chrom} \
+        --output-type z --output ${chrom}_tmp.vcf.gz \
+        ${vcf}
+    mv ${chrom}_tmp.vcf.gz ${chrom}.vcf.gz
+    """
+}
+
+process BCFTOOLS_PICK_SAMPLES {
+
+    label "BCFTOOLS"
+
+    input:
+    tuple path(sample_list), path(vcf)
+
+    output:
+    path("${vcf.simpleName}_${sample_list.simpleName}.vcf.gz"), emit: samples_vcf
+
+    script:
+    """
+    bcftools view \
+        --samples-file ${sample_list} \
+        --force-samples \
+        --output-type z --output ${vcf.simpleName}_${sample_list.simpleName}.vcf.gz \
+        ${vcf}
+    """
+}
+
+process BCFTOOLS_EXCLUDE_BED {
+
+    label "BCFTOOLS"
+
+    input:
+    // bcftools infers BED (0-based, half-open) from the file suffix, so the name is fixed here
+    tuple path(vcf), path(csi), path(bed, stageAs: "exclude.bed")
+
+    output:
+    tuple path("${vcf.name}", includeInputs: true), path("${vcf.name}.csi", includeInputs: true)
+
+    script:
+    """
+    bcftools index --stats ${vcf} | cut -f1 > contigs.txt
+
+    # bcftools errors on an empty region set, and rewriting a VCF the bed cannot touch is wasted work
+    overlap=\$(awk 'NR == FNR { contig[\$1]; next } /^#/ { next } (\$1 in contig) { n++ } END { print n + 0 }' \
+        contigs.txt exclude.bed)
+
+    if [ "\${overlap}" -ne 0 ]
+    then
+        bcftools view \
+            --threads ${task.cpus} \
+            --targets-file "^exclude.bed" \
+            --output-type z --output exclude_tmp.vcf.gz \
+            --write-index=csi \
+            ${vcf}
+        mv exclude_tmp.vcf.gz ${vcf.name}
+        mv exclude_tmp.vcf.gz.csi ${vcf.name}.csi
+    fi
+    """
+}
+
+process BCFTOOLS_MERGE_VCFS {
+
+    // Inputs must be ordered prior to merging
+
+    label "BCFTOOLS"
+
+    input:
+    tuple val(outname), path(vcfs, stageAs: "vcfs/*")
+
+    output:
+    path("${outname}.vcf.gz")
+
+    script:
+    """
+    for vcf in ${vcfs}
+    do
+        bcftools index --threads ${task.cpus} \${vcf}
+        echo "\${vcf}" >> merge.list
+    done
+
+    # bcftools merge requires at least two files; single VCF passes through
+    if [ \$(wc -l < merge.list) -eq 1 ]
+    then
+        cp -L \$(cat merge.list) ${outname}.vcf.gz
+    else
+        bcftools merge \
+            --threads ${task.cpus} \
+            --file-list merge.list \
+            --output-type z --output ${outname}.vcf.gz
+    fi
+    """
+}
+
+process BCFTOOLS_CONCAT_VCFS {
+
+    // Inputs must be ordered prior to concatenation
+
+    label "BCFTOOLS"
+
+    input:
+    tuple val(outname), path(vcfs, stageAs: "vcfs/*")
+
+    output:
+    path("${outname}.vcf.gz")
+
+    script:
+    """
+    bcftools concat \
+        --threads ${task.cpus} \
+        --output-type z --output ${outname}.vcf.gz \
+        ${vcfs}
+    """
+}
+

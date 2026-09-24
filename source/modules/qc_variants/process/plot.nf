@@ -1,0 +1,62 @@
+process PLOT_VCFTOOLS_SNP_DENSITY {
+
+    label "RPLOT"
+
+    input:
+    path(rscript)
+    each(snpden)
+    val(chrom_string)
+    path(chrom_labels)
+
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${rscript} ${snpden} ${chrom_string} ${chrom_labels}
+    """
+}
+
+process PLOT_VCFTOOLS_VCF_STATS {
+
+    label "RPLOT"
+
+    input:
+    path(rscript)
+    tuple \
+        path(frq),
+        path(idepth),
+        path(imiss),
+        path(ldepth_mean),
+        path(lqual),
+        path(lmiss),
+        path(het),
+        path(hwe)
+
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${rscript} ${frq} ${idepth} ${imiss} ${ldepth_mean} ${lqual} ${lmiss} ${het} ${hwe} 
+    """
+}
+
+process PLOT_VCFTOOLS_VCF_STATS_POPWISE {
+
+    label "RPLOT"
+
+    input:
+    path(rscript)
+    path(stats, stageAs: "stats/*")
+    path(population_metadata)
+    
+    output:
+    path("*.png")
+
+    script:
+    """
+    Rscript ${rscript} stats/ ${population_metadata}
+    """
+}
+
