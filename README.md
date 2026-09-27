@@ -129,19 +129,22 @@ Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned 
 | `aim_variance_threshold` | Minimum between-population allele frequency variance for a variant to count as ancestry-informative. Range: (0, 0.5). | `0.2` |
 
 ### Module: selection_scan
-Windowed scans for selection: population genetic statistics (genomics_general), iHS and XP-EHH (rehh), and windowed PCA (WinPCA). It takes two inputs because the EHH scans require phase and the windowed PCA does not - this generally requires different upstream filters.
+Windowed scans for selection: population genetic statistics (pixy), iHS and XP-EHH (rehh), and windowed PCA (WinPCA). It takes two inputs because the EHH scans require phase and the windowed PCA does not - this generally requires different upstream filters.
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `vcfdir_selection` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome, for the popgen and EHH scans. **Not** a glob. | `/data/variants_selection` |
+| `vcfdir_selection` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome, for the pixy and EHH scans. **Not** a glob. | `/data/variants_selection` |
 | `vcfdir_structure` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome, for the windowed PCA. **Not** a glob. | `/data/variants_structure` |
 | `phase_window_size` | Phasing chunk size in base pairs. | `10000000` |
 | `phase_window_overlap` | Overlap between phasing chunks in base pairs. An overlap is required for ligation. | `1000000` |
+| `pixy_stats` | Statistics for pixy to compute. One or more of `pi`, `dxy`, `fst`, `watterson_theta`, `tajima_d`. | `["pi", "dxy", "fst"]` |
 | `scan_window_size` | Scan window size in base pairs. | `100000` |
 | `scan_step_size` | Scan step size in base pairs. | `10000` |
 | `scan_min_sites` | Minimum number of sites for a window to be reported. | `100` |
 
 `vcfdir_selection` is assumed to be **unphased**: RIPLEY phases it with SHAPEIT5 in chunks of `phase_window_size`, ligated back into one VCF per chromosome. No recombination map is used - the phasing is statistical and assumes a recombination rate of 1cM/Mb. The windowed PCA silently drops chromosome-population-pair combinations with fewer than 10 000 variants, as WinPCA cannot process them.
+
+`vcfdir_selection` must be an **all-sites** VCF, retaining invariant sites. Pixy needs them to tell missing data apart from sites that are genuinely monomorphic, and without them its π and d_xy estimates are biased upwards. The same all-sites VCF is also phased by SHAPEIT5 for the EHH scans; this is safe, because invariant sites carry no phase information. Note that `scan_step_size` and `scan_min_sites` apply to the EHH scans only: pixy windows are non-overlapping and are therefore controlled by `scan_window_size` alone. Finally, `dxy` and `fst` compare populations pairwise and so require at least two focal populations.
 
 ## Third-party software
 Thank you for using RIPLEY. We kindly encourage you to cite the third-party software relevant to your use:
