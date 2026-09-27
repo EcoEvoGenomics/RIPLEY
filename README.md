@@ -106,12 +106,13 @@ Variant quality control: depth, missingness, site quality, allele frequency, Har
 | `qc_snpden_binsize` | Bin size in base pairs for calculation of record density (i.e. SNP density). | `100000` |
 
 ### Module: filter_variants
-Applies `vcftools` filters chromosome-wise and publishes the filtered per-chromosome files.
+Applies `vcftools` filters chromosome-wise and publishes the filtered per-chromosome files. Invariant sites can optionally be filtered separately from variant sites.
 
 | Option | Description | Example |
 |--------|-------------|---------|
 | `vcf` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome. **Not** a glob. | `/data/variants` |
-| `flags` | Path to a `.txt` of [`vcftools` flags](https://vcftools.github.io/man_latest.html#SITE%20FILTERING%20OPTIONS), one per line. The filename minus its extension must be strictly alphanumeric, e.g. `biallelic.txt`. | `/data/filters/biallelic.txt` |
+| `flagsVariants` | Path to a `.txt` of [`vcftools` flags](https://vcftools.github.io/man_latest.html#SITE%20FILTERING%20OPTIONS), one per line. Applied to variant sites. The filename minus its extension must be strictly alphanumeric, e.g. `selection.txt`. The filename minus its extension is used to label the output. | `/data/filters/selection.txt` |
+| `flagsInvariants` | Path to a `.txt` of [`vcftools` flags](https://vcftools.github.io/man_latest.html#SITE%20FILTERING%20OPTIONS), one per line. Applied separately to invariant sites. If provided, input is split into variants and invariant sites for filtering and concatenated after. If not provided, invariant sites are filtered alongside variant sites: this may silently drop them. The filename minus its extension must be strictly alphanumeric, e.g. `selectionInvariants.txt`. | `/data/filters/selectionInvariants.txt` |
 
 ### Module: population_structure
 Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned variant set. Parental populations identified from ADMIXTURE results used to find ancestry-informative markers (AIMs) among *unpruned* input. Heterozygosity and hybrid index calculated on AIMs.
