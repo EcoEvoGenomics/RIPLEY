@@ -1,4 +1,5 @@
-include { BCFTOOLS_INDEX; BCFTOOLS_INDEX as BCFTOOLS_INDEX_INPUT; BCFTOOLS_PICK_CHROM; BCFTOOLS_COUNT_RECORDS; BCFTOOLS_EXCLUDE_BED } from "../../process/bcftools.nf"
+include { BCFTOOLS_INDEX; BCFTOOLS_INDEX as BCFTOOLS_INDEX_INPUT; BCFTOOLS_COUNT_RECORDS; BCFTOOLS_EXCLUDE_BED } from "../../process/bcftools.nf"
+include { SPLIT_VCF_BY_CHROM } from "../utils/SPLIT_VCF_BY_CHROM.nf"
 include { alphanumericIssue; keyFor } from "../../library/filekeys.nf"
 
 workflow PARSE_VCF {
@@ -28,7 +29,7 @@ workflow PARSE_VCF {
 
     // Solo input is split to match the expected directory shape
     if (input_is_solo) {
-        vcf_found = BCFTOOLS_PICK_CHROM(BCFTOOLS_INDEX_INPUT(vcf_path), chrom_names)
+        vcf_found = SPLIT_VCF_BY_CHROM(BCFTOOLS_INDEX_INPUT(vcf_path), chrom_names).split_vcfs
     }
 
     // The whole name minus its extension is the chromosome key: downstream tokenising requires strict alphanumeric names

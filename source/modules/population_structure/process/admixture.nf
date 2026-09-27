@@ -8,7 +8,6 @@ process ADMIXTURE {
 
     output:
     tuple path("${bed.simpleName}.k${K}.out"), path("${bed.simpleName}.k${K}.P"), path("${bed.simpleName}.k${K}.Q"), emit: data
-    path("${bed.simpleName}.k${K}.alleles"), emit: alleles
     path("${bed.simpleName}.k${K}.clust"), emit: clust
     tuple val(K), env("cv_error"), emit: error
 
@@ -21,7 +20,6 @@ process ADMIXTURE {
     mv ${bed.simpleName}.${K}.P ${bed.simpleName}.k${K}.P
     mv ${bed.simpleName}.${K}.Q ${bed.simpleName}.k${K}.Q
 
-    awk 'NR==FNR {snp[FNR]=\$2; a1[FNR]=\$5; a2[FNR]=\$6; next} {print snp[FNR], a1[FNR], a2[FNR], \$0}' ${bim} ${bed.simpleName}.k${K}.P > ${bed.simpleName}.k${K}.alleles
     awk 'NR==FNR {id[FNR]=\$1; next} {print ${K}, id[FNR], \$0}' ${fam} ${bed.simpleName}.k${K}.Q > ${bed.simpleName}.k${K}.clust
 
     cv_error=\$(grep "CV error (K=" "${bed.simpleName}.k${K}.out" | awk '{print \$NF}')

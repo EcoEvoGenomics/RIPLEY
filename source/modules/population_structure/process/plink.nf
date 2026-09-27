@@ -53,7 +53,6 @@ process PLINK_LD_PRUNE {
 
     output:
     path("pruned.in"), emit: pruned_in
-    path("pruned.out"), emit: pruned_out
 
     script:
     """
@@ -63,7 +62,6 @@ process PLINK_LD_PRUNE {
     --indep-pairwise ${window_size}'kb' ${step_size} ${r2_threshold} \
     --make-bed --out ${bed.simpleName}
     mv ${bed.simpleName}.prune.in pruned.in
-    mv ${bed.simpleName}.prune.out pruned.out   
     """
 }
 

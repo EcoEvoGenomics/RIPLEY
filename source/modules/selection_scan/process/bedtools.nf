@@ -9,7 +9,6 @@ process BEDTOOLS_INTERSECT_WINDOWS {
     path(vcf)
 
     output:
-    path("${vcf.simpleName}.windows.bed"), emit: bed_base_zero
     path("${vcf.simpleName}.windows.txt"), emit: regions_base_one
 
     script:

@@ -226,7 +226,6 @@ workflow PARSE_METADATA {
         }
 
     // Census lists for population specification in downstream software
-    sample_census = samples_in_metadata.collectFile( name: "samples.list", newLine: true, sort: true )
     focal_populations_censuses = METADATA_LIST_POPULATION_MEMBERS(
         gatedBy(focal_populations, samples_verified),
         gatedBy(sample_metadata, samples_verified)
@@ -245,8 +244,6 @@ workflow PARSE_METADATA {
     sample_metadata = gatedBy(sample_metadata, samples_verified)
     population_metadata = gatedBy(population_metadata, samples_verified)
     species_metadata = gatedBy(species_metadata, samples_verified)
-    sample_census = gatedBy(sample_census, samples_verified)
-    sample_population_map = gatedBy(sample_population_map, samples_verified)
     focal_populations = gatedBy(focal_populations, samples_verified)
     focal_populations_censuses = focal_populations_censuses
     focal_population_map = gatedBy(focal_population_map, samples_verified)

@@ -22,7 +22,7 @@ workflow SPLIT_VCF_BY_CHROM {
     chrom_names
 
     main:
-    indexed.map { vcf, _index -> if (tokenCount(vcf.simpleName, "_") > 1) error("Badly tokenized input to SPLIT_VCF_BY_CHROM.") }
+    indexed.map { vcf, _index -> if (tokenCount(vcf.simpleName, "_") > 1) error("Input VCF ${vcf.name} must not contain '_': the whole name minus its extension must be alphanumeric.") }
     split_vcfs = BCFTOOLS_PICK_CHROM(indexed, chrom_names)
 
     emit:

@@ -1,7 +1,6 @@
 include { BEDTOOLS_MAKEWINDOWS } from "../../../common/process/bedtools.nf"
 include { BEDTOOLS_INTERSECT_WINDOWS } from "../process/bedtools.nf"
 include { SHAPEIT5_PHASE_COMMON; SHAPEIT5_LIGATE } from "../process/shapeit5.nf"
-include { BCFTOOLS_INDEX } from "../../../common/process/bcftools.nf"
 include { BCFTOOLS_BCF_TO_VCF } from "../process/bcftools.nf"
 
 workflow RUN_VCF_PHASING {
@@ -36,10 +35,8 @@ workflow RUN_VCF_PHASING {
         .map { chrom, chunks -> tuple(chrom, chunks.flatten()) }
 
     phased_vcf = SHAPEIT5_LIGATE(phased_chunks) | BCFTOOLS_BCF_TO_VCF
-    phased_vcf_indexed = BCFTOOLS_INDEX(phased_vcf)
 
     emit:
     vcf = phased_vcf
-    vcf_indexed = phased_vcf_indexed
 
 }
