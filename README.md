@@ -106,15 +106,12 @@ Variant quality control: depth, missingness, site quality, allele frequency, Har
 | `qc_snpden_binsize` | Bin size in base pairs for calculation of record density (i.e. SNP density). | `100000` |
 
 ### Module: filter_variants
-Applies `vcftools` filters chromosome-wise and concatenates the result into one whole-genome VCF. Both the per-chromosome files and the concatenated VCF are published. Optionally applies filters within-population rather than at study-wide level.
+Applies `vcftools` filters chromosome-wise and concatenates the result into one whole-genome VCF. Both the per-chromosome files and the concatenated VCF are published.
 
 | Option | Description | Example |
 |--------|-------------|---------|
 | `vcf` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome. **Not** a glob. | `/data/variants` |
 | `flags` | Path to a `.txt` of [`vcftools` flags](https://vcftools.github.io/man_latest.html#SITE%20FILTERING%20OPTIONS), one per line. The filename minus its extension must be strictly alphanumeric, e.g. `biallelic.txt`. | `/data/filters/biallelic.txt` |
-| `popwise` | If `true`, apply the filters within each [`focal population`](#common-options) rather than across all samples. | `true` |
-
-With `popwise: true`, frequency-dependent flags such as `--maf`, `--hwe` and `--max-missing` become per-population thresholds, the retained sites are the union across populations when merged, and samples outside the [`focal population`](#common-options)s are dropped.
 
 ### Module: population_structure
 Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned variant set. Parental populations identified from ADMIXTURE results used to find ancestry-informative markers (AIMs) among *unpruned* input. Heterozygosity and hybrid index calculated on AIMs.
