@@ -106,7 +106,7 @@ Variant quality control: depth, missingness, site quality, allele frequency, Har
 | `qc_snpden_binsize` | Bin size in base pairs for calculation of record density (i.e. SNP density). | `100000` |
 
 ### Module: filter_variants
-Applies `vcftools` filters chromosome-wise and concatenates the result into one whole-genome VCF. Both the per-chromosome files and the concatenated VCF are published.
+Applies `vcftools` filters chromosome-wise and publishes the filtered per-chromosome files.
 
 | Option | Description | Example |
 |--------|-------------|---------|
