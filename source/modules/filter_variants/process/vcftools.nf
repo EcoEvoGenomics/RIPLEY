@@ -1,4 +1,4 @@
-process VCFTOOLS_FILTER_VCF {
+process VCFTOOLS_FILTER_VARIANTS {
 
     label "BCFTOOLS_VCFTOOLS"
 
