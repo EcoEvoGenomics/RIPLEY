@@ -82,7 +82,6 @@ process REHH_CALCULATE_IHS {
         overlap = ${step_size.toString()},
         min_n_mrk = ${min_sites.toString()},
         join_neighbors = FALSE,
-        ignore_sign = TRUE,
         min_n_extr_mrk = 0
     )
 
@@ -123,7 +122,6 @@ process REHH_CALCULATE_XPEHH {
         overlap = ${step_size.toString()},
         min_n_mrk = ${min_sites.toString()},
         join_neighbors = FALSE,
-        ignore_sign = TRUE,
         min_n_extr_mrk = 0
     )
 
