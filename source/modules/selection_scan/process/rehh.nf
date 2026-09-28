@@ -82,7 +82,8 @@ process REHH_CALCULATE_IHS {
         overlap = ${step_size.toString()},
         min_n_mrk = ${min_sites.toString()},
         join_neighbors = FALSE,
-        threshold = 0
+        ignore_sign = TRUE,
+        min_n_extr_mrk = 0
     )
 
     write.csv(windows, row.names = FALSE, file = "${csv.simpleName}.ihs.csv")
@@ -122,7 +123,8 @@ process REHH_CALCULATE_XPEHH {
         overlap = ${step_size.toString()},
         min_n_mrk = ${min_sites.toString()},
         join_neighbors = FALSE,
-        threshold = 0
+        ignore_sign = TRUE,
+        min_n_extr_mrk = 0
     )
 
     write.csv(windows, row.names = FALSE, file = "${key}_${pop_a}_${pop_b}.xpehh.csv")
