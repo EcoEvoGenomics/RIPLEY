@@ -77,7 +77,7 @@ process REHH_CALCULATE_IHS {
     )
 
     windows <- rehh::calc_candidate_regions(
-        scan = ihs,
+        scan = ihs\$ihs,
         window_size = ${window_size.toString()},
         overlap = ${step_size.toString()},
         min_n_mrk = ${min_sites.toString()},
