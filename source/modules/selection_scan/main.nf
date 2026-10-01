@@ -8,11 +8,20 @@ include { RUN_EHH_SCAN } from "./workflow/RUN_EHH_SCAN.nf"
 include { RUN_DCMS } from "./workflow/RUN_DCMS.nf"
 include { RUN_WINDOWED_PCA_SCAN } from "./workflow/RUN_WINDOWED_PCA_SCAN.nf"
 
+def verifyScanGrid(step_size, window_size) {
+    def step_is_immobile = (step_size as int) < 1
+    def step_divides_window = (window_size as int) % (step_size as int) == 0
+    if (step_is_immobile || !step_divides_window) {
+        error("scan_step_size (${step_size}) must be a positive integer factor of scan_window_size (${window_size}).")
+    }
+}
+
 nextflow.preview.output = true
 
 workflow {
 
     main:
+    verifyScanGrid(params.scan_step_size, params.scan_window_size)
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
 
     input_selection = PARSE_VCF_SELECTION(params.vcfdir_selection, params.ref_exclude_coords, genome.chrom_names)

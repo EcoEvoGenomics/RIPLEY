@@ -139,7 +139,7 @@ Windowed scans for selection: population genetic statistics (pixy), iHS and XP-E
 | `phase_window_overlap` | Overlap between phasing chunks in base pairs. An overlap is required for ligation. | `1000000` |
 | `pixy_stats` | Statistics for pixy to compute. One or more of `pi`, `dxy`, `fst`, `watterson_theta`, `tajima_d`. | `["pi", "dxy", "fst"]` |
 | `scan_window_size` | Scan window size in base pairs. | `100000` |
-| `scan_step_size` | Scan step size in base pairs. | `10000` |
+| `scan_step_size` | Scan step size in base pairs. Must divide `scan_window_size` exactly; set it equal to `scan_window_size` for non-overlapping windows. | `10000` |
 | `scan_min_sites` | Minimum number of sites for a window to be reported. | `100` |
 
 `vcfdir_selection` is assumed to be **unphased**: RIPLEY phases it with SHAPEIT5 in chunks of `phase_window_size`, ligated back into one VCF per chromosome. No recombination map is used - the phasing is statistical and assumes a recombination rate of 1cM/Mb. The windowed PCA silently drops chromosome-population-pair combinations with fewer than 10 000 variants, as WinPCA cannot process them.
