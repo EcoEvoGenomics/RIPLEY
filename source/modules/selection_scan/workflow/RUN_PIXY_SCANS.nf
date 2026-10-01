@@ -1,3 +1,4 @@
+include { BEDTOOLS_MAKEWINDOWS } from "../../../common/process/bedtools.nf"
 include { PIXY_STATS } from "../process/pixy.nf"
 include { gatedBy } from "../../../common/library/gates.nf"
 
@@ -6,8 +7,10 @@ workflow RUN_PIXY_SCANS {
     take:
     vcfs_indexed
     focal_population_map
+    genome_index
     stats
     window_size
+    step_size
 
     main:
     def permitted_stats = ["pi", "dxy", "fst", "watterson_theta", "tajima_d"]
@@ -21,7 +24,7 @@ workflow RUN_PIXY_SCANS {
         "${sample}\t${population}\n"
     }
 
-    // Guard sits on the dataflow path, not in a subscribe, so pixy cannot start before it lands
+    // Population verification guard sits on the dataflow path so pixy cannot start before it lands
     def pairwise_stats = requested_stats.intersect(["dxy", "fst"])
     populations_verified = focal_population_map
         .map { _sample, population -> population }
@@ -34,9 +37,11 @@ workflow RUN_PIXY_SCANS {
             return true
         }
 
-    PIXY_STATS(vcfs_indexed, gatedBy(popmap, populations_verified).first(), requested_stats, window_size)
+    windows = BEDTOOLS_MAKEWINDOWS(genome_index, window_size, step_size).bed_base_zero
+    pixy_input = vcfs_indexed.combine(windows)
+    pixy = PIXY_STATS(pixy_input, gatedBy(popmap, populations_verified).first(), requested_stats)
 
     emit:
-    pixy = PIXY_STATS.out
+    pixy = pixy
 
 }

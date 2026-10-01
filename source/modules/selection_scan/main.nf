@@ -22,8 +22,10 @@ workflow {
     RUN_PIXY_SCANS(
         input_selection.vcf_indexed,
         metadata_selection.focal_population_map,
+        genome.fai,
         params.pixy_stats,
-        params.scan_window_size
+        params.scan_window_size,
+        params.scan_step_size
     )
 
     RUN_EHH_SCAN(
