@@ -5,6 +5,7 @@ include { SPLIT_VCF_BY_POPULATION as SPLIT_VCF_SELECTION; SPLIT_VCF_BY_POPULATIO
 include { RUN_VCF_PHASING } from "./workflow/RUN_VCF_PHASING.nf"
 include { RUN_PIXY_SCANS } from "./workflow/RUN_PIXY_SCANS.nf"
 include { RUN_EHH_SCAN } from "./workflow/RUN_EHH_SCAN.nf"
+include { RUN_DCMS } from "./workflow/RUN_DCMS.nf"
 include { RUN_WINDOWED_PCA_SCAN } from "./workflow/RUN_WINDOWED_PCA_SCAN.nf"
 
 nextflow.preview.output = true
@@ -35,6 +36,10 @@ workflow {
         params.scan_min_sites
     )
 
+    RUN_DCMS(
+        RUN_PIXY_SCANS.out.dcms_formatted.mix(RUN_EHH_SCAN.out.dcms_formatted)
+    )
+
     input_structure = PARSE_VCF_STRUCTURE(params.vcfdir_structure, params.ref_exclude_coords, genome.chrom_names)
     metadata_structure = PARSE_METADATA_STRUCTURE(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_structure.vcf, null)
     popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf, metadata_structure.focal_populations_censuses)
@@ -50,6 +55,7 @@ workflow {
     pixy = RUN_PIXY_SCANS.out.pixy
     ihs = RUN_EHH_SCAN.out.ihs
     xpehh = RUN_EHH_SCAN.out.xpehh
+    dcms = RUN_DCMS.out.dcms
     wpca = RUN_WINDOWED_PCA_SCAN.out.data
 
 }
@@ -59,6 +65,7 @@ output {
     pixy { path "selection_scan/pixy" }
     ihs { path "selection_scan/ehh" }
     xpehh { path "selection_scan/ehh" }
+    dcms { path "selection_scan/dcms" }
     wpca { path "selection_scan/pca" }
 
 }

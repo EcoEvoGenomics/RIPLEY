@@ -28,3 +28,27 @@ process PIXY_STATS {
     mv pixy_${stat}.txt ${vcf.simpleName}.${stat}.tsv
     """
 }
+
+process RECAST_PIXY_FOR_DCMS {
+
+    label "RBASE"
+
+    input:
+    tuple path(tsv), val(stat)
+    path(recast_rscript)
+
+    output:
+    path("${tsv.simpleName}.${stat}.dcms.tsv")
+
+    script:
+    """
+    #!/usr/bin/env Rscript
+    options(scipen = 999)
+    source("${recast_rscript.toString()}")
+
+    write_dcms_formatted(
+        recast_pixy_for_dcms("${tsv.toString()}", "${stat}"),
+        "${tsv.simpleName}.${stat}.dcms.tsv"
+    )
+    """
+}

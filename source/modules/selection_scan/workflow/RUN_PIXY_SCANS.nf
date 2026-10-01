@@ -1,5 +1,5 @@
 include { BEDTOOLS_MAKEWINDOWS } from "../../../common/process/bedtools.nf"
-include { PIXY_STATS } from "../process/pixy.nf"
+include { RECAST_PIXY_FOR_DCMS; PIXY_STATS } from "../process/pixy.nf"
 include { gatedBy } from "../../../common/library/gates.nf"
 
 workflow RUN_PIXY_SCANS {
@@ -13,6 +13,8 @@ workflow RUN_PIXY_SCANS {
     step_size
 
     main:
+    def dcms_contracts = file("${moduleDir}/../library/recast_for_dcms.R", checkIfExists: true)
+
     def permitted_stats = ["pi", "dxy", "fst", "watterson_theta", "tajima_d"]
     def requested_stats = (stats instanceof List) ? stats : [stats]
     def unknown_stats = requested_stats - permitted_stats
@@ -41,7 +43,11 @@ workflow RUN_PIXY_SCANS {
     pixy_input = vcfs_indexed.combine(windows)
     pixy = PIXY_STATS(pixy_input, gatedBy(popmap, populations_verified).first(), requested_stats)
 
+    // The stat is not carried by the output channel, so it is recovered from the filename
+    dcms_formatted = RECAST_PIXY_FOR_DCMS(pixy.map { tsv -> tuple(tsv, tsv.name.tokenize(".")[1]) }, dcms_contracts)
+
     emit:
     pixy = pixy
+    dcms_formatted = dcms_formatted
 
 }

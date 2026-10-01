@@ -12,14 +12,16 @@ workflow RUN_EHH_SCAN {
     min_sites
 
     main:
+    dcms_contracts = file("${moduleDir}/../library/recast_for_dcms.R", checkIfExists: true)
+    
     population_ehh = REHH_LOAD_VCF(vcfs) | REHH_SCAN_HAPLOTYPE_HOMOZYGOSITY | flatten
     pairwise_ehh = PAIR_CHANNEL_TO_SELF(population_ehh) | DROP_MISMATCHED_FILEKEY_PAIRS
-
-    REHH_CALCULATE_IHS(population_ehh, window_size, step_size, min_sites)
-    REHH_CALCULATE_XPEHH(pairwise_ehh, window_size, step_size, min_sites)
+    REHH_CALCULATE_IHS(population_ehh, window_size, step_size, min_sites, dcms_contracts)
+    REHH_CALCULATE_XPEHH(pairwise_ehh, window_size, step_size, min_sites, dcms_contracts)
 
     emit:
-    ihs = REHH_CALCULATE_IHS.out
-    xpehh = REHH_CALCULATE_XPEHH.out
+    ihs = REHH_CALCULATE_IHS.out.csv
+    xpehh = REHH_CALCULATE_XPEHH.out.csv
+    dcms_formatted = REHH_CALCULATE_IHS.out.dcms.mix(REHH_CALCULATE_XPEHH.out.dcms)
     
 }

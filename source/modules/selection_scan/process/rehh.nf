@@ -61,31 +61,44 @@ process REHH_CALCULATE_IHS {
     val(window_size)
     val(step_size)
     val(min_sites)
+    path(recast_rscript)
 
     output:
-    path("${csv.simpleName}.ihs.csv")
+    path("${csv.simpleName}.ihs.csv"), emit: csv
+    path("${csv.simpleName}.ihs.dcms.tsv"), emit: dcms
 
     script:
     """
     #!/usr/bin/env Rscript
     print(getwd())
     library("rehh")
-    
+    source("${recast_rscript.toString()}")
+    options(scipen = 999)
+
     ihs <- rehh::ihh2ihs(
         scan = read.csv("${csv.toString()}"),
         freqbin = 0
     )
 
-    windows <- rehh::calc_candidate_regions(
+    windows <- bin_rehh_output(
         scan = ihs\$ihs,
         window_size = ${window_size.toString()},
-        overlap = ${step_size.toString()},
-        min_n_mrk = ${min_sites.toString()},
-        join_neighbors = FALSE,
-        min_n_extr_mrk = 0
+        step_size = ${step_size.toString()},
+        min_sites = ${min_sites.toString()}
     )
 
-    write.csv(windows, row.names = FALSE, file = "${csv.simpleName}.ihs.csv")
+    write.csv(
+        windows,
+        row.names = FALSE,
+        file = "${csv.simpleName}.ihs.csv"
+    )
+
+    # csv filename e.g. chr_pop.hh.csv
+    pop <- strsplit("${csv.simpleName}", "_")[[1]][2]
+    write_dcms_formatted(
+        recast_rehh_bins_for_dcms(windows, pop, NA_character_),
+        "${csv.simpleName}.ihs.dcms.tsv"
+    )
     """
 }
 
@@ -98,16 +111,20 @@ process REHH_CALCULATE_XPEHH {
     val(window_size)
     val(step_size)
     val(min_sites)
+    path(recast_rscript)
 
     output:
-    path("${key}_${pop_a}_${pop_b}.xpehh.csv")
+    path("${key}_${pop_a}_${pop_b}.xpehh.csv"), emit: csv
+    path("${key}_${pop_a}_${pop_b}.xpehh.dcms.tsv"), emit: dcms
 
     script:
     """
     #!/usr/bin/env Rscript
     print(getwd())
     library("rehh")
-    
+    source("${recast_rscript.toString()}")
+    options(scipen = 999)
+
     xpehh <- rehh::ies2xpehh(
         scan_pop1 = read.csv("${csv_a.toString()}"),
         scan_pop2 = read.csv("${csv_b.toString()}"),
@@ -116,15 +133,22 @@ process REHH_CALCULATE_XPEHH {
         include_freq = TRUE
     )
 
-    windows <- rehh::calc_candidate_regions(
+    windows <- bin_rehh_output(
         scan = xpehh,
         window_size = ${window_size.toString()},
-        overlap = ${step_size.toString()},
-        min_n_mrk = ${min_sites.toString()},
-        join_neighbors = FALSE,
-        min_n_extr_mrk = 0
+        step_size = ${step_size.toString()},
+        min_sites = ${min_sites.toString()}
     )
 
-    write.csv(windows, row.names = FALSE, file = "${key}_${pop_a}_${pop_b}.xpehh.csv")
+    write.csv(
+        windows,
+        row.names = FALSE,
+        file = "${key}_${pop_a}_${pop_b}.xpehh.csv"
+    )
+
+    write_dcms_formatted(
+        recast_rehh_bins_for_dcms(windows, "${pop_a}", "${pop_b}"),
+        "${key}_${pop_a}_${pop_b}.xpehh.dcms.tsv"
+    )
     """
 }
