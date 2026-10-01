@@ -129,7 +129,7 @@ Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned 
 | `aim_variance_threshold` | Minimum between-population allele frequency variance for a variant to count as ancestry-informative. Range: (0, 0.5). | `0.2` |
 
 ### Module: selection_scan
-Windowed scans for selection: population genetic statistics (pixy), iHS and XP-EHH (rehh), and windowed PCA (WinPCA). It takes two inputs because the EHH scans require phase and the windowed PCA does not - this generally requires different upstream filters.
+Windowed scans for selection: population genetic statistics (pixy), iHS and XP-EHH (rehh), a composite of the two (DCMS), and windowed PCA (WinPCA). It takes two inputs because the EHH scans require phase and the windowed PCA does not - this generally requires different upstream filters.
 
 | Option | Description | Example |
 |--------|-------------|---------|
@@ -142,9 +142,13 @@ Windowed scans for selection: population genetic statistics (pixy), iHS and XP-E
 | `scan_step_size` | Scan step size in base pairs. Must divide `scan_window_size` exactly; set it equal to `scan_window_size` for non-overlapping windows. | `10000` |
 | `scan_min_sites` | Minimum number of sites for a window to be reported. | `100` |
 
-`vcfdir_selection` is assumed to be **unphased**: RIPLEY phases it with SHAPEIT5 in chunks of `phase_window_size`, ligated back into one VCF per chromosome. No recombination map is used - the phasing is statistical and assumes a recombination rate of 1cM/Mb. The windowed PCA silently drops chromosome-population-pair combinations with fewer than 10 000 variants, as WinPCA cannot process them.
+#### Notes
 
-`vcfdir_selection` must be an **all-sites** VCF, retaining invariant sites. Pixy needs them to tell missing data apart from sites that are genuinely monomorphic, and without them its π and d_xy estimates are biased upwards. The same all-sites VCF is also phased by SHAPEIT5 for the EHH scans; this is safe, because invariant sites carry no phase information. Note that `scan_step_size` and `scan_min_sites` apply to the EHH scans only: pixy windows are non-overlapping and are therefore controlled by `scan_window_size` alone. Finally, `dxy` and `fst` compare populations pairwise and so require at least two focal populations.
+`vcfdir_selection` must be **unphased**: RIPLEY phases it with SHAPEIT5 in chunks of `phase_window_size`. No recombination map is used - the phasing is statistical and assumes a recombination rate of 1cM/Mb. `vcfdir_selection` must also be an **all-sites** VCF with invariant sites. Without invariant sites, π and d_xy estimates are biased upwards. The `scan_min_sites` parameter applies to iHS and EHH scans only. The module compares populations pairwise and requires at least two focal populations to run all statistics.
+
+The separate scans (except PCA) are composited into a **DCMS** score (de-correlated composite of multiple signals, [Ma *et al.* 2015](https://doi.org/10.1038/hdy.2015.42)) per pairwise comparison of populations. Each statistic is converted to a right-tailed *p*-value by fractional rank. Ranks are calculated in the direction selection is expected to move each statistic: π and θ_W downwards, F_ST, d_xy, iHS and XP-EHH upwards, and Tajima's *D* on its absolute value. Windows are composited only where every statistic reports a value.
+
+The windowed PCA silently drops chromosome-population-pair combinations with fewer than 10 000 variants, as WinPCA cannot process them.
 
 ## Third-party software
 Thank you for using RIPLEY. We kindly encourage you to cite the third-party software relevant to your use:
