@@ -24,7 +24,7 @@ workflow PARSE_VCF {
 
     // Directory input expects one vcf per chromosome (chr1.vcf.gz, ... chrN.vcf.gz)
     if (input_is_dir) {
-        vcf_found = Channel.fromPath("${vcf_path}/**.vcf.gz").ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
+        vcf_found = channel.fromPath("${vcf_path}/**.vcf.gz").ifEmpty { error("Path ${vcf_path} contains no vcf.gz files.") }
     }
 
     // Solo input is split to match the expected directory shape
@@ -50,7 +50,7 @@ workflow PARSE_VCF {
         .map { i -> i[0] }
 
     // Index before exclusion to check bedfile against contigs from csi rather than from vcf
-    def exclude_bed = exclude_coords ? Channel.value(file(exclude_coords, checkIfExists: true)) : null
+    def exclude_bed = exclude_coords ? channel.value(file(exclude_coords, checkIfExists: true)) : null
     vcf_indexed = BCFTOOLS_INDEX(vcf_retained)
     if (exclude_bed == null) {
         vcf_indexed_out = vcf_indexed
