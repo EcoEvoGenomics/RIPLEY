@@ -156,4 +156,4 @@ Thank you for using RIPLEY. We kindly encourage you to cite the third-party soft
 - *Work in progress*
 
 ______
-RIPLEY v. 0.0.1a | 2026 | Erik Sandertun Røed | https://github.com/EcoEvoGenomics/RIPLEY
+RIPLEY v. 0.0.2a | 2026 | Erik Sandertun Røed | https://github.com/EcoEvoGenomics/RIPLEY
