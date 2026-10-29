@@ -29,9 +29,9 @@ workflow PARSE_METADATA {
     check_cram
 
     main:
-    sample_metadata = Channel.fromPath(sample_metadata_path, checkIfExists: true)
-    population_metadata = Channel.fromPath(population_metadata_path, checkIfExists: true)
-    species_metadata = Channel.fromPath(species_metadata_path, checkIfExists: true)
+    sample_metadata = channel.fromPath(sample_metadata_path, checkIfExists: true)
+    population_metadata = channel.fromPath(population_metadata_path, checkIfExists: true)
+    species_metadata = channel.fromPath(species_metadata_path, checkIfExists: true)
 
     samples_in_metadata = sample_metadata
         .splitCsv()
@@ -206,12 +206,12 @@ workflow PARSE_METADATA {
             }
             .first()
     } else {
-        samples_verified = Channel.value(true)
+        samples_verified = channel.value(true)
     }
 
     // All populations are focal unless specified
     focal_populations = (focal_population_input != null)
-        ? Channel.from(focal_population_input)
+        ? channel.from(focal_population_input)
         : unique_populations_in_sample_metadata
     
     // All focal populations must have members in sample_metadata

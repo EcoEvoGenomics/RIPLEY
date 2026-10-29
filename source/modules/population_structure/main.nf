@@ -9,8 +9,6 @@ include { RUN_LD_PRUNING } from "./workflow/RUN_LD_PRUNING.nf"
 include { RUN_ADMIXTURE } from "./workflow/RUN_ADMIXTURE.nf"
 include { RUN_PCA } from "./workflow/RUN_PCA.nf"
 
-nextflow.preview.output = true
-
 workflow {
 
     main:

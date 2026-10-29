@@ -14,7 +14,7 @@ workflow PARSE_FILTER_FLAGS {
     def issue = alphanumericIssue(flags_key, "filter key", "Filter file ${flags_name}")
     if (issue) { error(issue) }
 
-    filter_flags = Channel.value(file(filter_flags_path, checkIfExists: true))
+    filter_flags = channel.value(file(filter_flags_path, checkIfExists: true))
 
     emit:
     flags = filter_flags

@@ -8,9 +8,9 @@ RIPLEY is a collection of reproducible analysis pipelines built for population g
 ## Installation
 ### Prerequesites
 
-*In short: Nextflow 25.04.4 / 25.04.6, Apptainer, Conda, Internet access.*
+*In short: Nextflow 25.10.2, Apptainer, Conda, Internet access.*
 
-The only hard dependency is [Nextflow](https://www.nextflow.io/) version 25.04 (tested with 25.04.4 and 25.04.6). You also need a container engine, like Apptainer or Podman, and for most modules you need Conda. All other software requirements are handled by RIPLEY, which means internet access is the final requirement. In principle most RIPLEY modules *can* run on a laptop, but they were all *designed* to run on a high-performance computing (HPC) cluster with Slurm. Also refer to: [site configuration](#site-configuration).
+The only hard dependency is [Nextflow](https://www.nextflow.io/) version 25.10 (tested with 25.10.2). Earlier versions, including the 25.04 series RIPLEY was originally built on, are not supported: workflow output definitions moved out of preview in 25.10 and the two syntaxes are mutually exclusive. You also need a container engine, like Apptainer or Podman, and for most modules you need Conda. All other software requirements are handled by RIPLEY, which means internet access is the final requirement. In principle most RIPLEY modules *can* run on a laptop, but they were all *designed* to run on a high-performance computing (HPC) cluster with Slurm. Also refer to: [site configuration](#site-configuration).
 
 ### Installing RIPLEY
 There is no installation other than cloning:
@@ -26,7 +26,7 @@ This step inherently depends on your environment and [site configuration](#site-
 ```sh
 module load singularity
 module load conda
-conda activate Nextflow25.04.6
+module load Nextflow/25.10.2
 ```
 
 ### The RIPLEY launcher
@@ -156,4 +156,4 @@ Thank you for using RIPLEY. We kindly encourage you to cite the third-party soft
 - *Work in progress*
 
 ______
-RIPLEY v. 0.0.1a | 2026 | Erik Sandertun Røed | https://github.com/EcoEvoGenomics/RIPLEY
+RIPLEY v. 0.0.2a | 2026 | Erik Sandertun Røed | https://github.com/EcoEvoGenomics/RIPLEY

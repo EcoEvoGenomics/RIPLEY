@@ -20,7 +20,7 @@ workflow PARSE_CRAM {
     def input_is_dir = caller_input.isDirectory()
     if (!input_is_dir) { error("The input path does not exist or is not a directory: ${cram_path}") }
 
-    crams = Channel.fromPath("${cram_path}/**.cram", checkIfExists: true)
+    crams = channel.fromPath("${cram_path}/**.cram", checkIfExists: true)
 
     crams.count().subscribe { n -> if(n < 2) error("The input directory must hold more than one CRAM: ${cram_path}") }
     crams.subscribe { it ->
@@ -47,7 +47,7 @@ workflow PARSE_CRAM {
             tuple(file, fasta, fai)
         } | INDEX_CRAM_IN
 
-    def exclude_bed = exclude_coords ? Channel.value(file(exclude_coords, checkIfExists: true)) : null
+    def exclude_bed = exclude_coords ? channel.value(file(exclude_coords, checkIfExists: true)) : null
     if (exclude_bed == null) {
         crams_tmp = crams_indexed
     } else {

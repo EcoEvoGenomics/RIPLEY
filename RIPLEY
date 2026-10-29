@@ -3,6 +3,8 @@
 set -o errexit
 set -o nounset
 
+export NXF_VER="25.10.2"
+
 this=$(readlink -f "$0")
 repo=$(dirname "$this")
 modules="${repo}/source/modules"

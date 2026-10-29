@@ -4,8 +4,6 @@ include { PARSE_VCF } from "../../common/workflow/parse/PARSE_VCF.nf"
 include { JOIN_VCF_BY_CHROM } from "../../common/workflow/utils/JOIN_VCF_BY_CHROM.nf"
 include { RUN_VCF_QC } from "./workflow/RUN_VCF_QC.nf"
 
-nextflow.preview.output = true
-
 workflow {
 
     main:

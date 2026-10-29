@@ -10,7 +10,7 @@ workflow RUN_LD_PRUNING {
     mind
 
     main:
-    Channel.of(mind).subscribe { m ->
+    channel.of(mind).subscribe { m ->
         (m as Double) > 0 && (m as Double) <= 1 ?: error("prune_mind_threshold must be greater than 0 and at most 1.")
     }
 

@@ -4,8 +4,6 @@ include { PARSE_CRAM } from "../../common/workflow/parse/PARSE_CRAM.nf"
 include { RUN_CRAM_STATS } from "./workflow/RUN_CRAM_STATS.nf"
 include { RUN_CRAM_COVERAGE } from "./workflow/RUN_CRAM_COVERAGE.nf"
 
-nextflow.preview.output = true
-
 workflow {
 
     main:

@@ -14,11 +14,11 @@ workflow PARSE_REFERENCE_GENOME {
     def exclude = asList(exclude_chroms)
     def prefixes = asList(exclude_prefixes)
 
-    genome = Channel.fromPath("${genome_path}", checkIfExists: true)
-    genome_index = Channel.fromPath("${genome_path}.fai", checkIfExists: true)
-    genome_annotations = Channel.fromPath("${file(genome_path).parent}/${file(genome_path).baseName}.gff", checkIfExists: true)
-    chrom_labels = Channel.fromPath("${label_table}", checkIfExists: true)
-    ploidy = (ploidy_path != null) ? Channel.fromPath("${ploidy_path}", checkIfExists: true) : Channel.empty()
+    genome = channel.fromPath("${genome_path}", checkIfExists: true)
+    genome_index = channel.fromPath("${genome_path}.fai", checkIfExists: true)
+    genome_annotations = channel.fromPath("${file(genome_path).parent}/${file(genome_path).baseName}.gff", checkIfExists: true)
+    chrom_labels = channel.fromPath("${label_table}", checkIfExists: true)
+    ploidy = (ploidy_path != null) ? channel.fromPath("${ploidy_path}", checkIfExists: true) : channel.empty()
     
     // Assumption: unprefixed contigs = chromosomes; prefixed contigs = unattached scaffolds
     unprefixed_index_entries = genome_index
