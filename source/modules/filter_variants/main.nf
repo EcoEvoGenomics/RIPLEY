@@ -8,8 +8,6 @@ def separateInvariants() { params.flagsInvariants != null }
 def filtersLabel() { keyFor(file(params.flagsVariants).name, ["txt"]) }
 def publishPath() { "filter_variants/${filtersLabel()}" }
 
-nextflow.preview.output = true
-
 workflow {
 
     main:

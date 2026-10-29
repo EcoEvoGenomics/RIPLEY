@@ -16,8 +16,6 @@ def verifyScanGrid(step_size, window_size) {
     }
 }
 
-nextflow.preview.output = true
-
 workflow {
 
     main:
