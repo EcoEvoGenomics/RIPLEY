@@ -90,6 +90,33 @@ process PLINK_EXTRACT_SITES {
     """
 }
 
+process PLINK_FILTER_MISSING_SAMPLES {
+
+    label "PLINK"
+
+    input:
+    tuple path(bed), path(bim), path(fam), val(n_chroms)
+    val(mind)
+
+    output:
+    tuple \
+    path("${bed.simpleName}_mind.bed"), \
+    path("${bed.simpleName}_mind.bim"), \
+    path("${bed.simpleName}_mind.fam"), \
+    val(n_chroms), emit: plinkfiles
+    path("${bed.simpleName}_mind.irem"), emit: removed, optional: true // Written only when samples are dropped
+    path("${bed.simpleName}_mind.log"), emit: log
+
+    script:
+    """
+    plink \
+    --bfile ${bed.simpleName} \
+    --allow-extra-chr --chr-set ${n_chroms} \
+    --mind ${mind} \
+    --make-bed --out ${bed.simpleName}_mind
+    """
+}
+
 process PLINK_PCA {
 
     label "PLINK"

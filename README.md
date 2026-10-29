@@ -115,7 +115,7 @@ Applies `vcftools` filters chromosome-wise and publishes the filtered per-chromo
 | `flagsInvariants` | Path to a `.txt` of [`vcftools` flags](https://vcftools.github.io/man_latest.html#SITE%20FILTERING%20OPTIONS), one per line. Applied separately to invariant sites. If provided, input is split into variants and invariant sites for filtering and concatenated after. If not provided, invariant sites are filtered alongside variant sites: this may silently drop them. The filename minus its extension must be strictly alphanumeric, e.g. `selectionInvariants.txt`. | `/data/filters/selectionInvariants.txt` |
 
 ### Module: population_structure
-Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned variant set. Parental populations identified from ADMIXTURE results used to find ancestry-informative markers (AIMs) among *unpruned* input. Heterozygosity and hybrid index calculated on AIMs.
+Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned variant set, from which individuals exceeding `prune_mind_threshold` missingness are dropped - they may therefore run on fewer samples than the AIM analysis. Parental populations identified from ADMIXTURE results used to find ancestry-informative markers (AIMs) among *unpruned* input. Heterozygosity and hybrid index calculated on AIMs.
 
 | Option | Description | Example |
 |--------|-------------|---------|
@@ -123,6 +123,7 @@ Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned 
 | `prune_window_kb` | LD pruning window size in kilobases. | `50` |
 | `prune_step_snps` | LD pruning step in variants. | `10` |
 | `prune_threshold` | LD pruning r² threshold. | `0.1` |
+| `prune_mind_threshold` | Maximum per-individual missing call rate, measured on the LD-pruned variant set. Samples above it are dropped before PCA and ADMIXTURE. Range: (0, 1]. | `0.2` |
 | `admixture_kmin` | Lowest K to run. | `2` |
 | `admixture_kmax` | Highest K to run. | `8` |
 | `aim_parental_threshold` | Minimum ADMIXTURE assignment for a sample to represent a parental population. Range: (0.5, 1.0]. | `0.9` |
