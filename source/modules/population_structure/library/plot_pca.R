@@ -97,8 +97,7 @@ draw_pca <- function(plot_data, pcx_num, pcy_num, variance, grouping, palette) {
       aes(
         x = .data[[pcx]],
         y = .data[[pcy]],
-        fill = .data[[grouping]],
-        shape = Sex
+        fill = .data[[grouping]]
       )
     ) +
     coord_equal(
@@ -143,8 +142,7 @@ draw_pca <- function(plot_data, pcx_num, pcy_num, variance, grouping, palette) {
       hjust = 1, vjust = 0,
       colour = line_colour, size = text_size
     ) +
-    geom_point(size = point_size, stroke = 0.15) +
-    scale_shape_manual(values = c(21, 22)) +
+    geom_point(size = point_size, stroke = 0.15, pch = 21) +
     scale_fill_manual(values = palette, drop = TRUE) +
     guides(
       fill = guide_legend(
