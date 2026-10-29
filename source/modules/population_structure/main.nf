@@ -21,7 +21,7 @@ workflow {
     // Every downstream analysis operates on the whole genome
     joined = JOIN_VCF_BY_CHROM(input.vcf, genome.chrom_names, "genome")
     plink = PARSE_VCF_TO_PLINK(joined.vcf_concat, genome.total_chroms)
-    pruned = RUN_LD_PRUNING(plink.as_plinkfiles, params.prune_window_kb, params.prune_step_snps, params.prune_threshold)
+    pruned = RUN_LD_PRUNING(plink.as_plinkfiles, params.prune_window_kb, params.prune_step_snps, params.prune_threshold, params.prune_mind_threshold)
 
     RUN_KINSHIP_ANALYSIS(plink.vcf_condensed, metadata.sample_metadata, metadata.population_metadata, metadata.species_metadata)
     RUN_PAIRWISE_FST(plink.vcf_condensed, metadata.focal_populations_censuses)
@@ -40,6 +40,8 @@ workflow {
     )
 
     publish:
+    pruning_removed = RUN_LD_PRUNING.out.removed
+    pruning_logs = RUN_LD_PRUNING.out.logs
     kinship_data = RUN_KINSHIP_ANALYSIS.out.data
     kinship_plot = RUN_KINSHIP_ANALYSIS.out.plot
     fst_data = RUN_PAIRWISE_FST.out.data
@@ -61,6 +63,8 @@ workflow {
 
 output {
 
+    pruning_removed { path "population_structure/pruning" }
+    pruning_logs { path "population_structure/pruning" }
     kinship_data { path "population_structure/kinship" }
     kinship_plot { path "population_structure/kinship" }
     fst_data { path "population_structure/fst/data" }
