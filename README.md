@@ -130,12 +130,11 @@ Kinship, pairwise FST, PCA and ADMIXTURE. PCA and ADMIXTURE run on an LD-pruned 
 | `aim_variance_threshold` | Minimum between-population allele frequency variance for a variant to count as ancestry-informative. Range: (0, 0.5). | `0.2` |
 
 ### Module: selection_scan
-Windowed scans for selection: population genetic statistics (pixy), iHS and XP-EHH (rehh), a composite of the two (DCMS), and windowed PCA (WinPCA). It takes two inputs because the EHH scans require phase and the windowed PCA does not - this generally requires different upstream filters.
+Windowed scans for selection: population genetic statistics (pixy), iHS and XP-EHH (rehh), and a decorrelated composite (DCMS) across all of them.
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `vcfdir_selection` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome, for the pixy and EHH scans. **Not** a glob. | `/data/variants_selection` |
-| `vcfdir_structure` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome, for the windowed PCA. **Not** a glob. | `/data/variants_structure` |
+| `vcf` | Path to a single `<alphanumeric>.vcf.gz`, or a directory holding one `<chrom>.vcf.gz` per chromosome. **Not** a glob. | `/data/variants` |
 | `phase_window_size` | Phasing chunk size in base pairs. | `10000000` |
 | `phase_window_overlap` | Overlap between phasing chunks in base pairs. An overlap is required for ligation. | `1000000` |
 | `pixy_stats` | Statistics for pixy to compute. One or more of `pi`, `dxy`, `fst`, `watterson_theta`, `tajima_d`. | `["pi", "dxy", "fst"]` |
@@ -145,11 +144,9 @@ Windowed scans for selection: population genetic statistics (pixy), iHS and XP-E
 
 #### Notes
 
-`vcfdir_selection` must be **unphased**: RIPLEY phases it with SHAPEIT5 in chunks of `phase_window_size`. No recombination map is used - the phasing is statistical and assumes a recombination rate of 1cM/Mb. `vcfdir_selection` must also be an **all-sites** VCF with invariant sites. Without invariant sites, π and d_xy estimates are biased upwards. The `scan_min_sites` parameter applies to iHS and EHH scans only. The module compares populations pairwise and requires at least two focal populations to run all statistics.
+`vcf` must be **unphased**: RIPLEY phases it with SHAPEIT5 in chunks of `phase_window_size`. No recombination map is used - the phasing is statistical and assumes a recombination rate of 1cM/Mb. `vcf` must also be an **all-sites** VCF with invariant sites. Without invariant sites, π and d_xy estimates are biased upwards. The `scan_min_sites` parameter applies to iHS and EHH scans only. The module compares populations pairwise and requires at least two focal populations to run all statistics.
 
-The separate scans (except PCA) are composited into a **DCMS** score (de-correlated composite of multiple signals, [Ma *et al.* 2015](https://doi.org/10.1038/hdy.2015.42)) per pairwise comparison of populations. Each statistic is converted to a right-tailed *p*-value by fractional rank. Ranks are calculated in the direction selection is expected to move each statistic: π and θ_W downwards, F_ST, d_xy, iHS and XP-EHH upwards, and Tajima's *D* on its absolute value. Windows are composited only where every statistic reports a value.
-
-The windowed PCA silently drops chromosome-population-pair combinations with fewer than 10 000 variants, as WinPCA cannot process them.
+The separate scans are composited into a **DCMS** score (de-correlated composite of multiple signals, [Ma *et al.* 2015](https://doi.org/10.1038/hdy.2015.42)) per pairwise comparison of populations. Each statistic is converted to a right-tailed *p*-value by fractional rank. Ranks are calculated in the direction selection is expected to move each statistic: π and θ_W downwards, F_ST, d_xy, iHS and XP-EHH upwards, and Tajima's *D* on its absolute value. Windows are composited only where every statistic reports a value.
 
 ## Third-party software
 Thank you for using RIPLEY. We kindly encourage you to cite the third-party software relevant to your use:

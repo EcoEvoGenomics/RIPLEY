@@ -1,12 +1,11 @@
 include { PARSE_REFERENCE_GENOME } from "../../common/workflow/parse/PARSE_REFERENCE_GENOME.nf"
-include { PARSE_VCF as PARSE_VCF_SELECTION; PARSE_VCF as PARSE_VCF_STRUCTURE } from "../../common/workflow/parse/PARSE_VCF.nf"
-include { PARSE_METADATA as PARSE_METADATA_SELECTION; PARSE_METADATA as PARSE_METADATA_STRUCTURE } from "../../common/workflow/parse/PARSE_METADATA.nf"
-include { SPLIT_VCF_BY_POPULATION as SPLIT_VCF_SELECTION; SPLIT_VCF_BY_POPULATION as SPLIT_VCF_STRUCTURE } from "../../common/workflow/utils/SPLIT_VCF_BY_POPULATION.nf"
+include { PARSE_VCF } from "../../common/workflow/parse/PARSE_VCF.nf"
+include { PARSE_METADATA } from "../../common/workflow/parse/PARSE_METADATA.nf"
+include { SPLIT_VCF_BY_POPULATION } from "../../common/workflow/utils/SPLIT_VCF_BY_POPULATION.nf"
 include { RUN_VCF_PHASING } from "./workflow/RUN_VCF_PHASING.nf"
 include { RUN_PIXY_SCANS } from "./workflow/RUN_PIXY_SCANS.nf"
 include { RUN_EHH_SCAN } from "./workflow/RUN_EHH_SCAN.nf"
 include { RUN_DCMS } from "./workflow/RUN_DCMS.nf"
-include { RUN_WINDOWED_PCA_SCAN } from "./workflow/RUN_WINDOWED_PCA_SCAN.nf"
 
 def verifyScanGrid(step_size, window_size) {
     def step_is_immobile = (step_size as int) < 1
@@ -22,14 +21,14 @@ workflow {
     verifyScanGrid(params.scan_step_size, params.scan_window_size)
     genome = PARSE_REFERENCE_GENOME(params.ref_genome, params.ref_ploidy, params.ref_exclude_chroms, params.ref_exclude_prefix, params.ref_chrom_labels)
 
-    input_selection = PARSE_VCF_SELECTION(params.vcfdir_selection, params.ref_exclude_coords, genome.chrom_names)
-    metadata_selection = PARSE_METADATA_SELECTION(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_selection.vcf, null)
-    phased_vcf_selection = RUN_VCF_PHASING(input_selection.vcf_indexed, genome.fai, params.phase_window_size, params.phase_window_overlap)
-    popwise_vcf_selection = SPLIT_VCF_SELECTION(phased_vcf_selection.vcf, metadata_selection.focal_populations_censuses)
+    input = PARSE_VCF(params.vcf, params.ref_exclude_coords, genome.chrom_names)
+    metadata = PARSE_METADATA(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input.vcf, null)
+    phased_vcf = RUN_VCF_PHASING(input.vcf_indexed, genome.fai, params.phase_window_size, params.phase_window_overlap)
+    popwise_vcf = SPLIT_VCF_BY_POPULATION(phased_vcf.vcf, metadata.focal_populations_censuses)
 
     RUN_PIXY_SCANS(
-        input_selection.vcf_indexed,
-        metadata_selection.focal_population_map,
+        input.vcf_indexed,
+        metadata.focal_population_map,
         genome.fai,
         params.pixy_stats,
         params.scan_window_size,
@@ -37,7 +36,7 @@ workflow {
     )
 
     RUN_EHH_SCAN(
-        popwise_vcf_selection,
+        popwise_vcf,
         params.scan_window_size,
         params.scan_step_size,
         params.scan_min_sites
@@ -45,19 +44,8 @@ workflow {
 
     RUN_DCMS(
         RUN_PIXY_SCANS.out.dcms_formatted.mix(RUN_EHH_SCAN.out.dcms_formatted),
-        metadata_selection.population_metadata,
+        metadata.population_metadata,
         genome.chrom_labels
-    )
-
-    input_structure = PARSE_VCF_STRUCTURE(params.vcfdir_structure, params.ref_exclude_coords, genome.chrom_names)
-    metadata_structure = PARSE_METADATA_STRUCTURE(params.sample_metadata, params.population_metadata, params.species_metadata, genome.ploidy_sexes, params.focal_populations, input_structure.vcf, null)
-    popwise_vcf_structure = SPLIT_VCF_STRUCTURE(input_structure.vcf, metadata_structure.focal_populations_censuses)
-
-    RUN_WINDOWED_PCA_SCAN(
-        popwise_vcf_structure,
-        genome.chrom_indices,
-        params.scan_window_size,
-        params.scan_step_size
     )
 
     publish:
@@ -66,7 +54,6 @@ workflow {
     xpehh = RUN_EHH_SCAN.out.xpehh
     dcms = RUN_DCMS.out.data
     dcms_plot_main = RUN_DCMS.out.plot
-    wpca = RUN_WINDOWED_PCA_SCAN.out.data
 
 }
 
@@ -77,6 +64,5 @@ output {
     xpehh { path "selection_scan/ehh" }
     dcms { path "selection_scan/dcms" }
     dcms_plot_main { path "selection_scan/dcms" }
-    wpca { path "selection_scan/pca" }
 
 }
