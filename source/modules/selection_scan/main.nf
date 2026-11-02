@@ -44,7 +44,9 @@ workflow {
     )
 
     RUN_DCMS(
-        RUN_PIXY_SCANS.out.dcms_formatted.mix(RUN_EHH_SCAN.out.dcms_formatted)
+        RUN_PIXY_SCANS.out.dcms_formatted.mix(RUN_EHH_SCAN.out.dcms_formatted),
+        metadata_selection.population_metadata,
+        genome.chrom_labels
     )
 
     input_structure = PARSE_VCF_STRUCTURE(params.vcfdir_structure, params.ref_exclude_coords, genome.chrom_names)
@@ -62,7 +64,8 @@ workflow {
     pixy = RUN_PIXY_SCANS.out.pixy
     ihs = RUN_EHH_SCAN.out.ihs
     xpehh = RUN_EHH_SCAN.out.xpehh
-    dcms = RUN_DCMS.out.dcms
+    dcms = RUN_DCMS.out.data
+    dcms_plot_main = RUN_DCMS.out.plot
     wpca = RUN_WINDOWED_PCA_SCAN.out.data
 
 }
@@ -73,6 +76,7 @@ output {
     ihs { path "selection_scan/ehh" }
     xpehh { path "selection_scan/ehh" }
     dcms { path "selection_scan/dcms" }
+    dcms_plot_main { path "selection_scan/dcms" }
     wpca { path "selection_scan/pca" }
 
 }

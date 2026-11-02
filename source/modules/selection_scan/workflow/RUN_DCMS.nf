@@ -1,9 +1,12 @@
 include { CALCULATE_DCMS } from "../process/dcms.nf"
+include { PLOT_DCMS } from "../process/plot.nf"
 
 workflow RUN_DCMS {
 
     take:
     dcms_formatted
+    population_metadata
+    chrom_labels
 
     main:
     // Guard sits on the dataflow path so CALCULATE_DCMS cannot start before it lands
@@ -18,8 +21,16 @@ workflow RUN_DCMS {
         }
 
     dcms = CALCULATE_DCMS(file("${moduleDir}/../library/calculate_dcms.R", checkIfExists: true), collated)
+    tables = dcms.collect()
+    plot = PLOT_DCMS(
+        file("${moduleDir}/../library/plot_dcms_main.R", checkIfExists: true),
+        tables,
+        population_metadata,
+        chrom_labels
+    )
 
     emit:
-    dcms = dcms
+    data = dcms
+    plot = plot
 
 }
